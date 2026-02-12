@@ -2579,15 +2579,15 @@ ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-j
 all: infra services
 
 infra:
-	@echo "🚀 Iniciando infraestrutura..."
+	@echo "Iniciando infraestrutura..."
 	docker-compose up -d postgres redis zookeeper kafka elasticsearch keycloak
-	@echo "⏳ Aguardando serviços ficarem prontos..."
+	@echo "Aguardando serviços ficarem prontos..."
 	@sleep 30
 
 services:
-	@echo "🚀 Iniciando serviços..."
+	@echo "Iniciando serviços..."
 	docker-compose up -d --build identity-service catalog-service purchase-service tracking-service support-service adapter-cloudfoundry kong otel-collector prometheus grafana
-	@echo "⏳ Aguardando health checks..."
+	@echo "Aguardando health checks..."
 	@sleep 20
 
 up:
@@ -2600,7 +2600,7 @@ logs:
 	docker-compose logs -f
 
 test:
-	@echo "🧪 Executando testes..."
+	@echo "Executando testes..."
 	cd services/identity-service && ./mvnw test
 	cd services/catalog-service && ./mvnw test
 	cd services/purchase-service && ./mvnw test
@@ -2610,20 +2610,20 @@ clean:
 	docker system prune -f
 
 seed:
-	@echo "🌱 Populando dados iniciais..."
+	@echo "Populando dados iniciais..."
 	docker-compose exec postgres psql -U correios -d correios_db -f /docker-entrypoint-initdb.d/seed.sql
 
 keycloak-setup:
-	@echo "🔑 Configurando Keycloak..."
+	@echo "Configurando Keycloak..."
 	docker-compose exec keycloak /opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin123
 	docker-compose exec keycloak /opt/keycloak/bin/kcadm.sh import --realm correios --file /opt/keycloak/data/import/realm.json
 
 status:
-	@echo "📊 Status dos serviços:"
+	@echo "Status dos serviços:"
 	@docker-compose ps
 
 open-ports:
-	@echo "🔌 Portas disponíveis:"
+	@echo "Portas disponíveis:"
 	@echo "  Kong Gateway: http://localhost:8000"
 	@echo "  Kong Admin: http://localhost:8001"
 	@echo "  Keycloak: http://localhost:8180"
