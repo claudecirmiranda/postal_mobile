@@ -617,7 +617,7 @@ flowchart TB
  - ✅ Positivo: Melhor experiência do usuário, conformidade com constraint, resiliência a falhas de rede
  - ⚠️ Negativo: Complexidade adicional em sincronização, possibilidade de conflitos de dados, maior uso de armazenamento local
 
-####ADR-002: Modelo de Dados Unificado com Eventos para Compras e Rastreamento
+#### ADR-002: Modelo de Dados Unificado com Eventos para Compras e Rastreamento
 **Status**: Aceito
 
 **Contexto**: Múltiplos serviços precisam acessar dados de transações (compras) e rastreamento, com necessidade de consistência e rastreabilidade.
