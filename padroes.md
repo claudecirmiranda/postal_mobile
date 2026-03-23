@@ -1,2753 +1,1006 @@
 Índice
 ------
 
-- [Histórico de Revisões](#histórico-de-revisões)
-- [Ideia](#ideia)
-    - [Exemplo na solução](#exemplo-na-solução)
-- [**MVVM**](#mvvm)
-- [**Princípio Offline First**](#princípio-offline-first)
-    - [**Conceito de Offline-First**](#conceito-de-offline-first)
-    - [**Benefícios para React Native**](#benefícios-para-react-native)
-    - [**Componentes Essenciais da Arquitetura Offline-First**](#componentes-essenciais-da-arquitetura-offline-first)
-        - [**Base de dados local**](#base-de-dados-local)
-    - [**Camada de acesso a dados (repositories)**](#camada-de-acesso-a-dados-repositories)
-    - [**Fila de operações pendentes (Pending Queue)**](#fila-de-operações-pendentes-pending-queue)
-    - [**Serviço de sincronização**](#serviço-de-sincronização)
-    - [**Detecção de rede**](#detecção-de-rede)
-    - [**Fluxo Operacional do Offline-First**](#fluxo-operacional-do-offline-first)
-    - [**Estratégias de Resolução de Conflitos**](#estratégias-de-resolução-de-conflitos)
-    - [**Boas Práticas**](#boas-práticas)
-    - [**Integração com Apollo Client**](#integração-com-apollo-client)
-    - [Exemplos de código](#exemplos-de-código)
-- [**GraphQL**](#graphql)
-    - [HotChocolate.AspNetCore](#hotchocolateaspnetcore)
-    - [Arquitetura do GraphQL no Backend](#arquitetura-do-graphql-no-backend)
-    - [Configuração Básica do Servidor](#configuração-básica-do-servidor)
-    - [Queries (Leituras)](#queries-leituras)
-    - [Mutations (Escritas)](#mutations-escritas)
-    - [Types (Tipos GraphQL)](#types-tipos-graphql)
-    - [Autorização com HotChocolate](#autorização-com-hotchocolate)
-    - [Integração com Entity Framework Core](#integração-com-entity-framework-core)
-    - [Ferramentas de Teste e Playground](#ferramentas-de-teste-e-playground)
-    - [Considerações de Segurança](#considerações-de-segurança)
-- [Event Driven Architecture](#event-driven-architecture)
-    - [**Visão Geral**](#visão-geral)
-    - [**Conceitos Fundamentais**](#conceitos-fundamentais)
-        - [**Evento**](#evento)
-        - [**Produtor de Eventos**](#produtor-de-eventos)
-        - [**Consumidor de Eventos**](#consumidor-de-eventos)
-        - [**Event Broker / Event Bus**](#event-broker-event-bus)
-        - [**Fluxo Básico de Funcionamento**](#fluxo-básico-de-funcionamento)
-        - [**Tipos de Arquitetura Orientada a Eventos**](#tipos-de-arquitetura-orientada-a-eventos)
-            - [**Event Notification**](#event-notification)
-            - [**Event-Carried State Transfer**](#event-carried-state-transfer)
-            - [**Event Sourcing**](#event-sourcing)
-        - [**Benefícios da EDA**](#benefícios-da-eda)
-        - [**Desafios e Cuidados**](#desafios-e-cuidados)
-            - [**Consistência Eventual**](#consistência-eventual)
-            - [**Idempotência**](#idempotência)
-            - [**Ordenação de Eventos**](#ordenação-de-eventos)
-            - [**Versionamento de Eventos**](#versionamento-de-eventos)
-        - [**EDA e Microserviços**](#eda-e-microserviços)
-        - [**Quando Usar Event-Driven Architecture**](#quando-usar-event-driven-architecture)
-        - [**Conclusão**](#conclusão)
-- [Processamento Assíncrono no Frontend Web](#processamento-assíncrono-no-frontend-web)
-    - [**Exemplos em .Net Blazor:**](#exemplos-em-net-blazor)
-- [**Client-side Composition**](#client-side-composition)
-    - [**Exemplo:**](#exemplo)
-- [**Modular Monolith**](#modular-monolith)
-    - [Exemplo:](#exemplo-1)
-- [**Clean Architecture**](#clean-architecture)
-    - [**Visão Geral**](#visão-geral-1)
-    - [**Princípio Fundamental**](#princípio-fundamental)
-    - [**Estrutura em Camadas**](#estrutura-em-camadas)
-    - [**Entities (Domínio)**](#entities-domínio)
-        - [**Responsabilidade**](#responsabilidade)
-    - [**Use Cases (Application Layer)**](#use-cases-application-layer)
-        - [**Responsabilidade**](#responsabilidade-1)
-    - [**Interface Adapters**](#interface-adapters)
-        - [**Responsabilidade**](#responsabilidade-2)
-    - [**Frameworks & Drivers**](#frameworks-drivers)
-        - [**Responsabilidade**](#responsabilidade-3)
-    - [**Inversão de Dependência**](#inversão-de-dependência)
-    - [**Clean Architecture vs MVC Tradicional**](#clean-architecture-vs-mvc-tradicional)
-    - [**Clean Architecture e Hexagonal Architecture**](#clean-architecture-e-hexagonal-architecture)
-    - [**Clean Architecture e Microserviços**](#clean-architecture-e-microserviços)
-    - [**Benefícios da Clean Architecture**](#benefícios-da-clean-architecture)
-    - [**Desafios e Armadilhas**](#desafios-e-armadilhas)
-        - [**Overengineering**](#overengineering)
-        - [**Curva de Aprendizado**](#curva-de-aprendizado)
-        - [**Excesso de Abstrações**](#excesso-de-abstrações)
-    - [**Quando Usar Clean Architecture**](#quando-usar-clean-architecture)
-    - [**Conclusão**](#conclusão-1)
-- [**CQRS (Command Query Responsibility Segregation)**](#cqrs-command-query-responsibility-segregation)
-    - [**Visão Geral**](#visão-geral-2)
-    - [**Conceitos Fundamentais**](#conceitos-fundamentais-1)
-        - [**Command**](#command)
-        - [**Query**](#query)
-        - [**Command Model (Write Model)**](#command-model-write-model)
-        - [**Query Model (Read Model)**](#query-model-read-model)
-    - [**Fluxo Básico de CQRS**](#fluxo-básico-de-cqrs)
-    - [**CQRS Simples vs CQRS Completo**](#cqrs-simples-vs-cqrs-completo)
-        - [**CQRS Simples**](#cqrs-simples)
-        - [**CQRS Completo**](#cqrs-completo)
-    - [**CQRS e Event-Driven Architecture**](#cqrs-e-event-driven-architecture)
-    - [**CQRS e Event Sourcing**](#cqrs-e-event-sourcing)
-    - [**Benefícios do CQRS**](#benefícios-do-cqrs)
-    - [**Desafios e Armadilhas**](#desafios-e-armadilhas-1)
-        - [**Complexidade**](#complexidade)
-        - [**Consistência Eventual**](#consistência-eventual-1)
-        - [**Overengineering**](#overengineering-1)
-    - [**CQRS vs CRUD Tradicional**](#cqrs-vs-crud-tradicional)
-    - [**CQRS e Clean Architecture**](#cqrs-e-clean-architecture)
-    - [**Quando Usar CQRS**](#quando-usar-cqrs)
-    - [**Exemplo de Uso Prático**](#exemplo-de-uso-prático)
-    - [**Conclusão**](#conclusão-2)
-- [**Design for Failure**](#design-for-failure)
-- [**Infraestrutura como Código (IaC)**](#infraestrutura-como-código-iac)
-
-# Histórico de Revisões
-
-| **Versão** | **Data**   | **Autor(es)** | **Resumo das Mudanças** |
-| ---------- | ---------- | ------------- | ----------------------- |
-| 1.0        | 19/12/2025 | William Alves | Criação do documento.   |
-
-
-
-```adf 
-{"type":"extension","attrs":{"layout":"default","extensionType":"com.atlassian.confluence.macro.core","extensionKey":"toc","parameters":{"macroParams":{"minLevel":{"value":"1"},"maxLevel":{"value":"6"},"include":{"value":""},"outline":{"value":"false"},"indent":{"value":""},"style":{"value":"none"},"exclude":{"value":"Histórico de Revisões"},"type":{"value":"list"},"class":{"value":""},"printable":{"value":"true"}},"macroMetadata":{"macroId":{"value":"4ac9a4fc-3efc-4997-b403-83d5616496fa"},"schemaVersion":{"value":"1"},"title":"Table of Contents"}},"localId":"f0580f92-f6d0-4988-8bd6-666812ab7552"}}
-```
-
-```adf 
-{"type":"heading","attrs":{"level":1,"localId":"1a0509a3-78f7-4926-9ceb-0352c857fe2b"},"content":[{"text":"Backend-For-Frontend(BFF)","type":"text","marks":[{"type":"annotation","attrs":{"annotationType":"inlineComment","id":"4a32556c-bee2-4e25-b3c2-1ebb95856546"}}]}]}
-```
-
-
-# Ideia
-
-Um backend feito sob medida para um frontend específico.
-
-Ele não é o “grande backend de negócio”, mas sim uma construção mais simples que:
-
-- simplifica contratos,
-- agrega dados de integrações (lógica de agregação),
-- aplica regras de segurança/validação pensando na UI.
-
-Ele expõe rotas:
-
-- /api/catalog/...
-- /api/orders/...
-
-e, esconde qualquer complexidade dos dados (como acesso ao Retek, ou, autenticação/autorização em diferentes IDPs).
-
-## Exemplo na solução
-
-Arquivo: Bff/BackendServices/CatalogBackendService.cs
-
-``` 
-using System.Net.Http.Json;
-using Microsoft.Extensions.Options;
-using Shared.Dtos;
-namespace Bff.BackendServices;
-public interface ICatalogBackendService
-{
-    Task<IReadOnlyList<CatalogItemDto>> GetCatalogAsync(CancellationToken ct = default);
-}
-public sealed class CatalogBackendService : ICatalogBackendService
-{
-    private readonly HttpClient _http;
-    private readonly CatalogApiOptions _options;
-    public CatalogBackendService(HttpClient http, IOptions<CatalogApiOptions> options)
-    {
-        _http = http;
-        _options = options.Value;
-    }
-    public async Task<IReadOnlyList<CatalogItemDto>> GetCatalogAsync(CancellationToken ct = default)
-    {
-        // Exemplo: GET https://catalog-api.../api/catalog/items
-        var response = await _http.GetFromJsonAsync<IReadOnlyList<CatalogItemDto>>(
-            "/api/catalog/items",
-            ct);
-        return response ?? Array.Empty<CatalogItemDto>();
-    }
-}
-public sealed class CatalogApiOptions
-{
-    public string BaseUrl { get; set; } = string.Empty;
-}
-```
-
-Arquivo: Bff/BackendServices/InventoryBackendService.cs
-
-``` 
-using System.Net.Http.Json;
-using Microsoft.Extensions.Options;
-using Shared.Dtos;
-namespace Bff.BackendServices;
-public interface IInventoryBackendService
-{
-    Task<IReadOnlyList<InventoryItemDto>> GetInventoryAsync(CancellationToken ct = default);
-}
-public sealed class InventoryBackendService : IInventoryBackendService
-{
-    private readonly HttpClient _http;
-    private readonly InventoryApiOptions _options;
-    public InventoryBackendService(HttpClient http, IOptions<InventoryApiOptions> options)
-    {
-        _http = http;
-        _options = options.Value;
-    }
-    public async Task<IReadOnlyList<InventoryItemDto>> GetInventoryAsync(CancellationToken ct = default)
-    {
-        // Exemplo: GET https://inventory-api.../api/inventory
-        var response = await _http.GetFromJsonAsync<IReadOnlyList<InventoryItemDto>>(
-            "/api/inventory",
-            ct);
-        return response ?? Array.Empty<InventoryItemDto>();
-    }
-}
-public sealed class InventoryApiOptions
-{
-    public string BaseUrl { get; set; } = string.Empty;
-}
-```
-
-Arquivo: Bff/Program.cs
-
-``` 
-using Bff.BackendServices;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Shared.Dtos;
-var builder = WebApplication.CreateBuilder(args);
-// CORS
-builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:5173", "https://localhost:5173")
-     .AllowAnyHeader()
-     .AllowAnyMethod()
-     .AllowCredentials()));
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-// Bind das configurações de APIs
-builder.Services.Configure<CatalogApiOptions>(
-    builder.Configuration.GetSection("CatalogApi"));
-builder.Services.Configure<InventoryApiOptions>(
-    builder.Configuration.GetSection("InventoryApi"));
-// HttpClient tipado para cada backend
-builder.Services.AddHttpClient<ICatalogBackendService, CatalogBackendService>((sp, http) =>
-{
-    var opts = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<CatalogApiOptions>>().Value;
-    http.BaseAddress = new Uri(opts.BaseUrl);
-});
-builder.Services.AddHttpClient<IInventoryBackendService, InventoryBackendService>((sp, http) =>
-{
-    var opts = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<InventoryApiOptions>>().Value;
-    http.BaseAddress = new Uri(opts.BaseUrl);
-});
-var app = builder.Build();
-app.UseCors();
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-// ===============================
-// Endpoint direto: só catálogo
-// (pass-through simples)
-// GET /api/catalog
-// ===============================
-app.MapGet("/api/catalog", async Task<Ok<IReadOnlyList<CatalogItemDto>>> (
-    ICatalogBackendService catalogService,
-    CancellationToken ct) =>
-{
-    var catalog = await catalogService.GetCatalogAsync(ct);
-    return TypedResults.Ok(catalog);
-})
-.WithName("Catalog_List");
-// ============================================
-// Endpoint com lógica de agregação (stitching)
-// GET /api/catalog/with-stock
-// o endpoint anterior usava Task.WhenAll sem tratamento de falha
-// parcial — se o serviço de inventário falhasse, o endpoint falhava completamente mesmo com
-// o catálogo disponível. Implementada degradação graciosa: se o inventário estiver
-// indisponível, retorna o catálogo com stock marcado como desconhecido (StockAvailable=false,
-// AvailableQuantity=0) e um indicador explícito "stockUnavailable" no contrato de resposta.
-// Esta decisão deve ser documentada como ADR se ainda não o estiver.
-// ============================================
-app.MapGet("/api/catalog/with-stock", async Task<Ok<CatalogWithStockResponse>> (
-    ICatalogBackendService catalogService,
-    IInventoryBackendService inventoryService,
-    CancellationToken ct) =>
-{
-    var catalog = await catalogService.GetCatalogAsync(ct);
- 
-    IReadOnlyList<InventoryItemDto> inventory = Array.Empty<InventoryItemDto>();
-    var stockUnavailable = false;
- 
-    try
-    {
-        inventory = await inventoryService.GetInventoryAsync(ct);
-    }
-    catch
-    {
-        // Degradação graciosa: catálogo retornado sem dados de stock
-        stockUnavailable = true;
-    }
- 
-    var inventoryById = inventory
-        .GroupBy(i => i.CatalogItemId)
-        .ToDictionary(g => g.Key, g => g.First());
- 
-    var result = new List<CatalogWithStockDto>(catalog.Count);
-    foreach (var item in catalog)
-    {
-        inventoryById.TryGetValue(item.Id, out var stock);
-        var stitched = new CatalogWithStockDto(
-            Id: item.Id,
-            Name: item.Name,
-            Price: item.Price,
-            InStock: stock?.InStock ?? false,
-            AvailableQuantity: stock?.AvailableQuantity ?? 0,
-            WarehouseLocation: stock?.WarehouseLocation ?? "N/A"
-        );
-        result.Add(stitched);
-    }
- 
-    return TypedResults.Ok(new CatalogWithStockResponse(
-        Items: result,
-        StockUnavailable: stockUnavailable
-    ));
-})
-.WithName("Catalog_WithStock");
-// (opcional) GET /api/catalog/with-stock/{id} igual ao exemplo anterior, só mudando a origem dos dados
-app.Run();
-```
-
----
-
-# **MVVM**
-
-O padrão MVVM (Model–View–ViewModel) é uma das abordagens arquiteturais mais utilizadas no desenvolvimento de interfaces modernas, especialmente em aplicações que exigem separação clara de responsabilidades, testabilidade e previsibilidade de estado. Em aplicações React Native, o MVVM ajuda a organizar o fluxo entre UI, lógica e dados, reduzindo acoplamento e tornando o projeto mais escalável.
-
-**Objetivos do MVVM**
-
-O padrão MVVM visa resolver desafios recorrentes no desenvolvimento mobile:
-
-- separar claramente apresentação e lógica;
-- evitar que ecrãs tenham regra de negócio embutida;
-- permitir testabilidade de fluxos sem depender da UI;
-- padronizar comunicação entre dados e interface;
-- facilitar manutenção e evolução do código.
-
-**Componentes do MVVM**
-
-O MVVM é composto por três elementos principais: Model, View e ViewModel. Cada um desempenha responsabilidades específicas e isoladas.
-
-- **Model**
-
-O Model representa os dados de entidades de negócio e persistência local. Exemplos:
-
--entidades (Product, Order, CartItem);
-
--repositórios para acesso a base local (SQLite);
-
--serviços remotos (GraphQL).
-
-O Model nunca deve conhecer a camada de UI.
-
-**Entidade Produto**
-
-``` 
-export class Product {
-  constructor({ id, name, price, stock }) {
-    this.id = id;
-    this.name = name;
-    this.price = price;
-    this.stock = stock;
-  }
-}
-```
-
-**Repositório de Produto**
-
-``` 
-import * as SQLite from "expo-sqlite";
-
-const db = SQLite.openDatabase("app.db");
-
-export const productRepository = {
-  init() {
-    db.transaction(tx => {
-      tx.executeSql(`
-        CREATE TABLE IF NOT EXISTS products (
-          id INTEGER PRIMARY KEY,
-          name TEXT,
-          price REAL,
-          stock INTEGER
-        );
-      `);
-    });
-  },
-
-  getAll() {
-    return new Promise((resolve, reject) => {
-      db.transaction(tx => {
-        tx.executeSql(
-          "SELECT * FROM products;",
-          [],
-          (_, { rows }) => resolve(rows._array),
-          (_, error) => reject(error)
-        );
-      });
-    });
-  },
-
-  saveProducts(products) {
-    db.transaction(tx => {
-      products.forEach(p => {
-        tx.executeSql(
-          `INSERT OR REPLACE INTO products (id, name, price, stock)
-           VALUES (?, ?, ?, ?)`,
-          [p.id, p.name, p.price, p.stock]
-        );
-      });
-    });
-  }
-};
-```
-
-- **View**
-
-A View corresponde aos ecrãs e componentes visuais — no React Native, arquivos .js ou .tsx que exibem informações. Ela:
-
--não deve conter lógica de negócio;
-
--observa dados expostos pelo ViewModel;
-
--dispara eventos (toques, scroll, botões).
-
-Views apenas refletem o estado fornecido pelo ViewModel.
-
-**View de Catálogo**
-
-``` 
-import React, { useEffect } from "react";
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { loadCatalog } from "../viewmodels/catalogViewModel";
-
-export default function CatalogScreen() {
-  const dispatch = useDispatch();
-  const { products, loading } = useSelector(state => state.catalog);
-
-  useEffect(() => {
-    dispatch(loadCatalog());
-  }, []);
-
-  if (loading) {
-    return <ActivityIndicator size="large" style={{ marginTop: 40 }} />;
-  }
-
-  return (
-    <View style={{ padding: 16 }}>
-      <FlatList
-        data={products}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <View
-            style={{
-              padding: 12,
-              borderBottomWidth: 1,
-              borderColor: "#ddd"
-            }}
-          >
-            <Text style={{ fontSize: 18 }}>{item.name}</Text>
-            <Text style={{ color: "#888" }}>€ {item.price}</Text>
-            <Text style={{ marginTop: 4 }}>Stock: {item.stock}</Text>
-          </View>
-        )}
-      />
-    </View>
-  );
-}
-```
-
-- **ViewModel**
-
-O ViewModel é o núcleo da arquitetura. Ele:
-
--contém a lógica da ecrã;
-
--interage com Models e serviços;
-
--mantém estado observável (Redux, Zustand ou Context API);
-
--expõe dados já preparados para a View (ex.: preço formatado);
-
--não conhece a View diretamente — comunica-se por bindings ou listeners.
-
-Em React Native, o ViewModel é geralmente implementado como:
-
--hooks personalizados (useCatalogViewModel);
-
--slices do Redux Toolkit;
-
--serviços que encapsulam lógica de ecrã.
-
-**ViewModel de Catálogo**
-
-``` 
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { productRepository } from "../models/productRepository";
-import { gql } from "@apollo/client";
-import client from "../graphqlClient";
- 
-// GraphQL Query
-const GET_PRODUCTS = gql`
-  query {
-    products {
-      id
-      name
-      price
-      stock
-    }
-  }
-`;
- 
-// Carrega primeiro da base local → depois tenta sincronizar com API
-export const loadCatalog = createAsyncThunk(
-  "catalog/loadCatalog",
-  async () => {
-    const localProducts = await productRepository.getAll();
- 
-    // retorno offline-first (UI já mostra algo)
-    let result = { products: localProducts, fromServer: false };
- 
-    try {
-      const { data } = await client.query({ query: GET_PRODUCTS });
- 
-      if (data?.products) {
-        productRepository.saveProducts(data.products);
-        result = { products: data.products, fromServer: true };
-      }
-    } catch {
-      console.log("Sem internet. Exibindo dados locais.");
-    }
- 
-    return result;
-  }
-);
- 
-const catalogSlice = createSlice({
-  name: "catalog",
-  initialState: {
-    products: [],
-    loading: false,
-    lastSync: null,
-    error: null, // Adicionado: campo "error" no estado inicial para suportar o caso rejected
-  },
-  reducers: {},
-  extraReducers: builder => {
-    builder
-      .addCase(loadCatalog.pending, state => {
-        state.loading = true;
-        state.error = null; // limpa erro anterior ao iniciar nova tentativa
-      })
-      .addCase(loadCatalog.fulfilled, (state, action) => {
-        state.products = action.payload.products;
-        state.loading = false;
-        state.error = null;
- 
-        if (action.payload.fromServer) {
-          state.lastSync = new Date().toISOString();
-        }
-      })
-      // Adicionado: caso "rejected" — sem este caso, a UI não consegue
-      // distinguir "a carregar" de "falhou a carregar", impedindo feedback adequado ao utilizador.
-      .addCase(loadCatalog.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error?.message ?? "Erro desconhecido ao carregar catálogo.";
-      });
-  }
-});
- 
-export default catalogSlice.reducer;
-```
-
-- **MVVM em React Native + Redux**
-
-Em ambientes React Native, Redux Toolkit funciona de forma natural como ViewModel porque:
-
--faz gestão do estado global e local;
-
--mantém previsibilidade (funções puras);
-
--permite testes unitários isolados;
-
--é compatível com offline-first (persist + rehydration).
-
-Cada slice do Redux pode ser visto como um ViewModel. Exemplo:
-
--catalogSlice → estado da listagem;
-
--cartSlice → lógica do carrinho;
-
--orderSlice → criação de pedidos.
-
-Views apenas despacham actions e consomem estado.
-
-- **Fluxo Operacional MVVM**
-
-Um fluxo típico:
-
-1. View é carregada e solicita dados ao ViewModel;
-2. ViewModel obtém dados do Model (SQLite, cache, etc.);
-3. ViewModel prepara os dados (ex.: formatar preços);
-4. View observa e renderiza automaticamente;
-5. Utilizador interage;
-6. ViewModel processa ações e atualiza Models;
-7. Quando online, o Model sincroniza com backend;
-8. ViewModel recebe atualizações e atualiza View.
-
-
-
-- **Boas Práticas**
-
--Nunca coloque lógica de negócio em componentes React;
-
--Mantenha ViewModel livre de dependências da UI;
-
--Mantenha Models puros e reutilizáveis;
-
--Evite acoplamento circular (View ↔ ViewModel);
-
--Cada View deve ter seu próprio ViewModel dedicado;
-
--Mantenha ViewModels pequenos e específicos;
-
--Iterações de utilizador devem sempre chamar métodos do ViewModel.
+- [1. Infrastructure Platform](#1-infrastructure-platform)
+    - [1.1. Container/Kubernetes based PGSQL Database](#11-containerkubernetes-based-pgsql-database)
+    - [1.2. API Gateway Platform](#12-api-gateway-platform)
+    - [1.3. Streaming & Messaging Platform](#13-streaming-messaging-platform)
+    - [1.4. Secrets Management](#14-secrets-management)
+- [2. Observability Platform](#2-observability-platform)
+    - [2.1. Objectivos](#21-objectivos)
+    - [2.2. Os três pilares](#22-os-três-pilares)
+    - [2.3. Correlação distribuída](#23-correlação-distribuída)
+    - [2.4. O que medir](#24-o-que-medir)
+    - [2.5. Regras de Logging](#25-regras-de-logging)
+    - [2.6. Dashboards e Alertas](#26-dashboards-e-alertas)
+    - [2.7. Anti-padrões](#27-anti-padrões)
+    - [2.8. Stack de Observabilidade](#28-stack-de-observabilidade)
+    - [2.9. Estratégia de Sampling](#29-estratégia-de-sampling)
+    - [2.10. Documentação Logging:](#210-documentação-logging)
+- [3. Health Checks](#3-health-checks)
+- [4. Security - Identity, Authentication & Authorization](#4-security-identity-authentication-authorization)
+    - [4.1. Requisitos Mínimos de Segurança](#41-requisitos-mínimos-de-segurança)
+    - [4.2. Documentação Security by Design (SbD)](#42-documentação-security-by-design-sbd)
+- [5. Notification Pattern](#5-notification-pattern)
+    - [**5.1 Padrão base: Event-driven + Notification Service**](#51-padrão-base-event-driven-notification-service)
+        - [5.1.1 Componentes essenciais](#511-componentes-essenciais)
+        - [5.1.2 Garantias de entrega: at-least-once com idempotência](#512-garantias-de-entrega-at-least-once-com-idempotência)
+        - [5.1.3 Preferências do utilizador e governança](#513-preferências-do-utilizador-e-governança)
+        - [5.1.4 In-app: persistir + entregar em tempo real](#514-in-app-persistir-entregar-em-tempo-real)
+        - [5.1.5 Push: gestão de tokens e falhas](#515-push-gestão-de-tokens-e-falhas)
+        - [5.1.6 Email: templates, rastreio e compliance](#516-email-templates-rastreio-e-compliance)
+        - [5.1.7 Observabilidade mínima](#517-observabilidade-mínima)
+- [6. Fiabilidade e Operação](#6-fiabilidade-e-operação)
+    - [6.1. Idempotency](#61-idempotency)
+    - [**6.2 Onde Aplicar Idempotência na Arquitetura**](#62-onde-aplicar-idempotência-na-arquitetura)
+    - [6.3. Scalability](#63-scalability)
+        - [**6.3.1 Arquitetura de Escala com KEDA**](#631-arquitetura-de-escala-com-keda)
+        - [**6.3.2 Estratégias Avançadas**](#632-estratégias-avançadas)
+        - [**6.3.3 Boas Práticas**](#633-boas-práticas)
+        - [**6.3.4 Resultado Esperado**](#634-resultado-esperado)
+        - [**6.3.5 Casos de Uso**](#635-casos-de-uso)
+    - [6.4. Graceful Shutdown](#64-graceful-shutdown)
+        - [**6.4.1. O que é Graceful Shutdown**](#641-o-que-é-graceful-shutdown)
+        - [**6.4.2. Por que Graceful Shutdown é crítico**](#642-por-que-graceful-shutdown-é-crítico)
+        - [**6.4.3. Graceful Shutdown no contexto de APIs HTTP**](#643-graceful-shutdown-no-contexto-de-apis-http)
+        - [**6.4.4. Graceful Shutdown em consumidores de Broker**](#644-graceful-shutdown-em-consumidores-de-broker)
+        - [**6.4.5 Regra fundamental**](#645-regra-fundamental)
+        - [**6.4.6. Interação com Kubernetes**](#646-interação-com-kubernetes)
+        - [**6.4.7. Relação com Escalabilidade e Autoscaling**](#647-relação-com-escalabilidade-e-autoscaling)
+        - [**6.4.8. Boas práticas essenciais**](#648-boas-práticas-essenciais)
+        - [**6.4.9. Anti-patterns comuns**](#649-anti-patterns-comuns)
+        - [**6.4.10. Graceful Shutdown e Idempotência**](#6410-graceful-shutdown-e-idempotência)
+- [7. Gestão de Configuração](#7-gestão-de-configuração)
+    - [7.1. Hierarquia de Configuração](#71-hierarquia-de-configuração)
+    - [7.2. Promoção entre Ambientes](#72-promoção-entre-ambientes)
+    - [7.3. Feature Flags](#73-feature-flags)
+- [8. CI/CD](#8-cicd)
+    - [8.1. Pipeline de Build](#81-pipeline-de-build)
+    - [8.2. Deploy](#82-deploy)
+    - [8.3. Execução de Testes de Integração com Testcontainers na Pipeline (CI/CD)](#83-execução-de-testes-de-integração-com-testcontainers-na-pipeline-cicd)
+    - [8.4. Gestão de Vulnerabilidades em Imagens Docker](#84-gestão-de-vulnerabilidades-em-imagens-docker)
+        - [8.4.1 Princípios](#841-princípios)
+        - [8.4.2 Responsabilidades](#842-responsabilidades)
+        - [8.4.3 Pipeline de Segurança](#843-pipeline-de-segurança)
+        - [8.4.4 Atualização e Remediação](#844-atualização-e-remediação)
+- [9. Preocupações Transversais Adicionais](#9-preocupações-transversais-adicionais)
+    - [9.1. Rate Limiting e Throttling](#91-rate-limiting-e-throttling)
+    - [9.2. Estratégia de Cache](#92-estratégia-de-cache)
+    - [9.3. Multi-tenancy](#93-multi-tenancy)
+    - [9.4. Privacidade de Dados (GDPR/LGPD)](#94-privacidade-de-dados-gdprlgpd)
+    - [9.5. Disaster Recovery para Componentes Stateful](#95-disaster-recovery-para-componentes-stateful)
+
+# 1. Infrastructure Platform
+
+## 1.1. Container/Kubernetes based PGSQL Database
+
+Documentação interna sobre como implementar PGSQL em container ou Kubernetes.
+
+[Documentação PGSQL em Kubernetes (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/INFRA/pages/4733960854)
+
+
+## 1.2. API Gateway Platform
+
+A plataforma corporativa de API Gateway é o [Gravitee](https://www.gravitee.io/).
+
+[Documentação do Gravitee (Confluence)](https://ecom4isi.atlassian.net/wiki/x/zwBS9)
+
+## 1.3. Streaming & Messaging Platform
+
+Nossa plataforma de Streaming & Messaging é o [Solace](https://solace.com/).
+
+- Pacote: `SolaceSystems.SolClient.Messaging`
+- Uso principal: integração com event mesh corporativo e sistemas legados.
+
+[Documentação Solace – Integração Corporativa (Confluence)](https://ecom4isi.atlassian.net/wiki/x/qIC6EQE)
+
+[Documentação Solace – Guia de Configuração (Confluence)](https://ecom4isi.atlassian.net/wiki/x/EYKsGgE)
+
+## 1.4. Secrets Management
+
+Nossa plataforma preferencial de Secrets Management é o [Hashicorp Vault](https://www.hashicorp.com/en/products/vault). Azure Key Vault encontra-se em phase-out. GitHub Secrets podem ser usados apenas em contexto de CI/CD.
+
+[Documentação Hashicorp Vault – Gestão de Segredos (Confluence)](https://ecom4isi.atlassian.net/wiki/x/qgBP9)
 
 
 ---
 
-# **Princípio Offline First**
+# 2. Observability Platform
 
-O princípio de “offline-first” tem se tornado um dos pilares modernos para o desenvolvimento de aplicações mobile, especialmente em cenários onde a disponibilidade da rede é intermitente ou simplesmente não confiável. Em vez de assumir que a conexão está sempre disponível — como muitos aplicativos tradicionais fazem — o offline-first parte do pressuposto oposto: a aplicação deve funcionar totalmente sem internet. A conectividade passa a ser tratada como um bônus, e não como uma dependência fundamental.
+Observabilidade é um requisito obrigatório para todos os serviços e componentes da plataforma. O objetivo é garantir visibilidade operacional consistente, diagnóstico eficiente e suporte a decisões baseadas em dados.
 
-Em dispositivos móveis, onde quedas de rede, alternância entre Wi-Fi e dados móveis e latências elevadas são comuns, esse princípio traz benefícios claros:
+## 2.1. Objectivos
 
-- maior confiabilidade na experiência do utilizador;
-- uso contínuo da aplicação mesmo em ambientes com rede ruim ou inexistente;
-- redução do número de erros causados por timeouts e falhas de conexão;
-- carregamento inicial mais rápido, pois os dados podem vir do armazenamento local;
-- percepção de performance superior e menor taxa de abandono do utilizador.
+- Reduzir o tempo de diagnóstico (MTTR)
+- Correlacionar logs, métricas e traces
+- Permitir monitorização de SLO/SLI
+- Evitar silos de monitorização por tecnologia ou equipa
 
-## **Conceito de Offline-First**
 
-No modelo offline-first, o dispositivo e o armazenamento local são tratados como a “primeira fonte de verdade” para a aplicação. Isso significa que o fluxo padrão de acesso a dados passa a ser centrado no dispositivo, e não no servidor remoto. 
+---
 
-De forma simplificada, a aplicação:
+## 2.2. Os três pilares
 
-- lê dados primeiro do armazenamento local (base ou cache persistente);
-- interage com a base local para criar, atualizar ou remover registros;
-- registra operações de escrita em uma fila de sincronização quando a rede não está disponível;
-- sincroniza alterações com o servidor quando a conectividade é restabelecida.
+**Logs**
 
-Esse fluxo garante que o utilizador não seja impedido de utilizar o aplicativo por falta de conexão. O backend deixa de ser um ponto único de bloqueio e passa a atuar como fonte de consolidação, integração e sincronização dos dados.
+- Registos estruturados que descrevem eventos relevantes da aplicação.
 
-## **Benefícios para React Native**
+**Métricas**
 
-Aplicações desenvolvidas com React Native — incluindo aquelas que utilizam o ecossistema Expo beneficiam-se significativamente de uma arquitetura offline-first. Como o código JavaScript é executado em um ambiente com recursos limitados e sujeito a múltiplos contextos de rede, ter uma estratégia robusta de uso de dados locais traz vantagens importantes: 
+- Medições agregadas que permitem monitorizar comportamento ao longo do tempo.
 
-- operações de leitura tornam-se extremamente rápidas, pois usam a base local e não dependem da latência do servidor;
-- a interface do utilizador reage de forma imediata, sem aguardar round-trips de rede;
-- o backend é menos sobrecarregado, já que diversas operações são consolidadas e sincronizadas em lote;
-- torna-se natural usar “optimistic UI”, onde alterações aparecem instantaneamente na ecrã antes mesmo da confirmação do servidor;
-- a aplicação passa a ser mais resiliente a quedas de rede, reconexões e atrasos.
+**Traces**
 
-## **Componentes Essenciais da Arquitetura Offline-First**
+- Representação distribuída de uma operação ponta-a-ponta entre serviços.
 
-### **Base de dados local**
 
-A base de dados local é o núcleo técnico de uma solução offline-first. É nele que a aplicação guarda os dados necessários para operar mesmo sem qualquer comunicação com o servidor. Em projetos React Native/Expo, algumas opções comuns incluem:
+## 2.3. Correlação distribuída
 
-- expo-sqlite: fornece acesso a uma base SQLite local de forma integrada ao ambiente Expo, sem necessidade de configuração nativa adicional;
-- AsyncStorage: adequado para armazenar pares chave/valor simples, flags e pequenas estruturas de dados, mas não substitui uma base relacional ou de documentos;
-- Realm: base orientada a objetos, com recursos avançados e bom desempenho, útil em cenários de dados complexos;
-- WatermelonDB ou soluções similares: focadas em sincronização pesada e grandes volumes de dados.
+Todos os sistemas devem suportar correlação ponta-a-ponta.
 
-A base local pode manter cópias completas ou parciais dos dados necessários ao funcionamento d aplicação, como catálogo de produtos, carrinho do utilizador, histórico de pedidos, configurações, preferências e qualquer outro conjunto de informações crítico para a experiência offline.
+Campos obrigatórios:
+
+- `traceId`
+- `spanId`
+- `correlationId`
+- `service.name`
+- `environment`
+
+Broker deve incluir também:
+
+- `causationId`
+- `eventType`
+- `eventVersion`
+- `timestamp`
+
+
+
+## 2.4. O que medir
+
+**HTTP**
+
+- Latência (p95 mínimo)
+- Taxa de erro
+- Throughput
+
+**Broker**
+
+- Tempo de processamento
+- Retries
+- DLQ
+- Backlog/lag
+
+**Dependências**
+
+- Latência
+- Taxa de falha
+- Timeouts
+
+## 2.5. Regras de Logging
+
+- Logs devem ser estruturados
+- Níveis de log devem seguir padrão corporativo
+- Dados sensíveis não podem estar contidos em log
+- Retenção e sampling seguem política de plataforma
+
+## 2.6. Dashboards e Alertas
+
+Cada serviço deve ter:
+
+- Dashboard padrão com latência, erros e throughput
+- Monitorização de dependências
+- Alertas baseados em sintomas (ex.: aumento de 5xx + latência)
+
+## 2.7. Anti-padrões
+
+- Logs com PII ou segredos
+- Traces gigantes sem valor operacional
+- Logging excessivo que aumente custos e ruído
+- Métricas sem dono ou sem utilização prática
+
+## 2.8. Stack de Observabilidade
+
+A stack de observabilidade corporativa baseia-se em **OpenTelemetry, Prometheus e Grafana**.
+
+- **Logs:** Seguir o padrão OTEL: Microsoft Logging Extensions → (provider) OpenTelemetry logging → OTLP exporter → collector/backend. Os campos de correlação são automaticamente propagados quando existe Activity ativa e o provider OpenTelemetry está corretamente configurado. Campos adicionais podem ser enriquecidos via scopes ou processors.
+
+- **Métricas:** Métricas chave como lag do consumidor de Broker, latência de processamento e taxa de erros serão coletadas.
+
+  ```
+  Métricas técnicas e de negócio:
+  - orders_created_total
+  - orders_kafka_published_total
+  - orders_solace_consumed_total
+  ```
+
+- **Traces:** Observar guidelines em [Documentação de Traces OpenTelemetry (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5425692703)
+
+  - O SDK do OpenTelemetry ([opentelemetry-dotnet-instrumentation](https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation)) deve ser utilizado para instrumentação distribuída. Sempre que possível será usada auto-instrumentação (agente), podendo ser complementada por instrumentação via SDK nos serviços quando necessário, permitindo rastrear uma requisição desde a sua origem até a sua persistência final. A propagação de contexto deve seguir o padrão W3C Trace Context para HTTP e mecanismos equivalentes para Broker. Os traces serão enviados para o Grafana Tempo.
+
+- **Dashboards:** O Grafana será a ferramenta central para visualização de métricas, exploração de logs e análise de traces, com dashboards dedicados para a saúde da plataforma de ingestão.
+
+## 2.9. Estratégia de Sampling
+
+Em cenários de alto volume, a recolha integral de traces pode saturar o backend de observabilidade (Tempo/Grafana) e aumentar custos de forma não linear. A estratégia de sampling deve ser configurável por ambiente:
+
+- **Erros e exceções:** head-based sampling a 100% — todos os traces com erro devem ser recolhidos.
+- **Tráfego normal:** tail-based ou probabilístico, com taxa configurável por ambiente (ex.: 10–20% em produção, 100% em staging/dev).
+- **Operações críticas de negócio** (ex.: pagamentos, checkout): sampling elevado independentemente do resultado.
+
+A configuração de sampling deve ser externalizada via variável de ambiente ou ficheiro de configuração, sem necessidade de redeploy.
+
+## 2.10. Documentação Logging:
+
+[Documentação de Logging Corporativo (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5039063075)
+
+[Microsoft Logging Extensions – Documentação Oficial](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) / [NuGet Microsoft.Extensions.Logging](https://www.nuget.org/packages/Microsoft.Extensions.Logging)
+
+[OpenTelemetry .NET Instrumentation (GitHub)](https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation)
+
+# 3. Health Checks
+
+Health checks são mecanismos automáticos usados para verificar se uma aplicação está viva, está pronta para receber tráfego e continua saudável ao longo do tempo. Eles são fundamentais em arquiteturas modernas, pois permitem que plataformas de orquestração, balanceadores e sistemas de monitorização tomem decisões automáticas — como reiniciar instâncias, remover tráfego ou escalar serviços.
+
+**Tipos de Health Check**
+
+1. **Liveness Check**
+
+Verifica se o processo da aplicação ainda está em execução e não entrou em estado irrecuperável (deadlock, loop infinito, crash silencioso).
+
+Se falhar, a instância pode ser reiniciada automaticamente.
+
+1. **Readiness Check**
+
+Indica se a aplicação está pronta para atender requests agora.
+
+Pode falhar mesmo que a aplicação esteja “viva”.
+
+Se falhar, o tráfego é retirado temporariamente, sem reiniciar a app.
+
+1. **Startup Check**
+
+Usado quando a aplicação demora a inicializar (cold start, bootstrap pesado).
+
+Evita que o liveness check mate a app antes do startup terminar.
+
+**Boas práticas**
+
+- Ser rápido (milissegundos)
+- Não depender de chamadas externas lentas
+- Retornar status simples (200 / 503)
+- Ter lógica clara e determinística
+- Separar *liveness* de *readiness*
+
+**Evite**
+
+- Consultas pesadas à BD
+- Chamadas a APIs externas críticas
+- Lógica de negócio complexa
+- Efeitos colaterais (writes, locks)
+
+**Operacionalização**
+
+- Endpoints `/health` (liveness) e `/health/ready` (readiness).
+- Integração com probes do Kubernetes.
+
+Health checks não substituem métricas, logs e traces, mas trabalham em conjunto:
+
+- **Health check** → decisão binária (ok / não ok)
+- **Métricas** → tendências e degradação
+- **Logs** → causa raiz
+- **Traces** → latência e dependências
+
+
+---
+
+# 4. Security - Identity, Authentication & Authorization
+
+Identity Managers centralizam e padronizam quem é o utilizador (autenticação) e o que ele pode fazer (autorização) em sistemas distribuídos. Eles atuam como uma camada dedicada de identidade, reduzindo acoplamento entre aplicações e evitando que cada serviço implemente sua própria lógica de segurança.
+
+Na autenticação, o Identity Manager valida credenciais (password, MFA, certificados, social login) e emite tokens (ex.: JWT, opaque tokens) que representam a identidade do utilizador ou serviço. Esses tokens são assinados, possuem expiração e podem carregar claims como userId, tenant e roles.
+
+Na autorização, os serviços consomem esses tokens para decidir acesso com base em roles, scopes ou políticas. A decisão pode ser local (validação de claims) ou centralizada (policy engine), garantindo consistência de permissões em todo o ecossistema.
+
+Essa abordagem é essencial para arquiteturas modernas (microserviços, BFFs, APIs públicas), pois suporta SSO, multi-tenant, zero trust, integração com parceiros e evolução de regras de acesso sem impacto direto no código das aplicações.
+
+## 4.1. Requisitos Mínimos de Segurança
+
+Independentemente dos detalhes nos documentos especializados, todos os serviços devem cumprir obrigatoriamente os seguintes requisitos:
+
+1. **Validação de tokens:** Todos os serviços devem validar tokens JWT assinados pelo IdP corporativo. Tokens expirados ou com assinatura inválida devem resultar em rejeição com HTTP 401.
+2. **Gestão de segredos:** Segredos, credenciais e chaves de API devem ser geridos exclusivamente via Hashicorp Vault. É proibido armazenar segredos em variáveis de ambiente não geridas, ficheiros de configuração ou repositórios de código.
+3. **Encriptação em trânsito:** Toda a comunicação entre serviços deve usar TLS 1.2 ou superior. Comunicação em texto simples não é permitida em nenhum ambiente (incluindo desenvolvimento).
+4. **Princípio do menor privilégio:** Cada serviço deve operar com o conjunto mínimo de permissões necessário. Scopes e roles devem ser revistos periodicamente.
+5. **Sem dados sensíveis em logs:** PII, segredos, tokens ou dados de pagamento nunca devem ser registados. Ver secção de regras de logging (2.5).
+
+Os detalhes completos de implementação encontram-se na documentação Security by Design referenciada abaixo.
+
+## 4.2. Documentação Security by Design (SbD)
+
+[Princípios de Security by Design – Visão Geral (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4099309677)
+
+[Autenticação e Gestão de Identidade (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4099145846)
+
+[Autorização e Controlo de Acesso (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4092919859)
+
+[Gestão de Segredos e Credenciais (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4098621650)
+
+[Encriptação e Comunicação Segura (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4099342508)
+
+[Zero Trust e Segurança em Microserviços (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4092690474)
+
+
+---
+
+# 5. Notification Pattern
+
+Envio de notificações por email, push e in-app para comunicação com o utilizador.
+
+Implementar notificações (e-mail, push, in-app) em arquiteturas distribuídas funciona melhor quando se trata notificação como um produto/serviço separado, acionado por eventos e entregue por canais plugáveis.
+
+## **5.1 Padrão base: Event-driven + Notification Service**
+
+1. Um serviço de domínio (Orders, Payments, Shipping) publica um evento de negócio: OrderPaid, DeliveryDelayed, PasswordChanged.
+2. Um Notification Orchestrator (ou “Notification Service”) consome esses eventos.
+3. Ele aplica regras (preferências do utilizador, severidade, horário quiet hours, opt-in/opt-out, tenancy).
+4. Ele cria comandos de entrega por canal: SendEmail, SendPush, CreateInApp.
+5. “Providers” por canal fazem o envio (SMTP/SES/SendGrid; FCM/APNs; In-app via DB + websocket/polling).
+
+Benefícios: desacoplamento, escala independente, resiliente a falhas de canais.
+
+### 5.1.1 Componentes essenciais
+
+- Event Bus / Broker
+- Pub/Sub (Kafka, RabbitMQ, SNS/SQS, Azure Service Bus).
+- Eventos imutáveis e versionados.
+- Consumer groups para escalar consumidores.
+- Notification Orchestrator
+- Responsável por:
+- Deduplicação (idempotência com eventId/messageId)
+- Enriquecimento (buscar e-mail, device tokens, idioma, tenant)
+- Routing e policies (quem recebe, por qual canal, quando)
+- Fan-out (um evento → múltiplos destinatários/canais)
+- **Políticas de fallback entre canais:** se um canal primário falhar (ex.: push notification após 2 tentativas), o Orchestrator deve tentar canais alternativos consoante a severidade do evento. Exemplo: para eventos de severidade alta (pagamento, segurança), fallback automático para email se o push falhar. As políticas devem ser configuráveis por tipo de evento.
+- Canal como “adapters”
+- EmailAdapter, PushAdapter, InAppAdapter.
+- Cada adapter com:
+- Retentativas + backoff
+- Circuit breaker
+- Métricas e DLQ (dead-letter queue)
+
+### 5.1.2 Garantias de entrega: at-least-once com idempotência
+
+- Outbox pattern no serviço produtor (grava evento no mesmo commit do dado de negócio).
+- Consumidores idempotentes:
+- Tabela/redis de “processed message ids”
+- Chave idempotente por (eventId, userId, channel).
+
+### 5.1.3 Preferências do utilizador e governança
+
+Modele como um serviço/feature própria:
+
+- Opt-in/opt-out por canal e tipo (marketing, transactional, security)
+- Horário silencioso (“quiet hours”)
+- Limites (rate limits) e anti-spam
+- Templates por idioma e tenant
+
+Dica prática: manter uma “Notification Policy Store” (DB) e cache leve.
+
+### 5.1.4 In-app: persistir + entregar em tempo real
+
+In-app geralmente é:
+
+- Persistência em notifications (por user/tenant, status read/unread)
+- API para listar/paginar e marcar como lida
+- “Real-time”: websocket / SSE / pubsub → gateway
+
+Assim você garante que a notificação aparece mesmo se o user estiver offline.
+
+### 5.1.5 Push: gestão de tokens e falhas
+
+- Token registry por user/device/tenant
+- Rotação/expiração de tokens (limpar tokens inválidos)
+- Fallback: se push falhar, manter in-app (e opcionalmente e-mail, dependendo do tipo)
+
+### 5.1.6 Email: templates, rastreio e compliance
+
+- Templates versionados (HTML/text)
+- Conteúdo transacional separado de marketing
+- Tracking (delivery, bounce) via webhooks do provider
+- LGPD/GDPR: consentimento, retenção mínima, auditoria
+
+### 5.1.7 Observabilidade mínima
+
+- Métricas: sent_total, failed_total, retry_total, latency_ms por canal
+- Logs com correlationId, eventId, userId, tenantId
+- Traces do evento até o provider
+- Alarmes: aumento de DLQ, bounce rate, falhas de provider, backlog alto
+
+# 6. Fiabilidade e Operação
+
+## 6.1. Idempotency
+
+Capacidade de uma operação ser executada múltiplas vezes, retomando a partir do ponto onde parou, sem repetir itens previamente processados e garantindo sempre o mesmo resultado final.
+
+Duplicações podem ocorrer por:
+
+- Retries no producer (falhas transitórias).
+- Reentrega pelo broker (at-least-once delivery).
+- Reprocessamento manual via DLQ.
+- Escalonamento horizontal de consumidores.
+- Falhas após commit parcial (ex.: DB commit feito, mas ack não enviado).
+
+## **6.2 Onde Aplicar Idempotência na Arquitetura**
+
+**Producers (API / Application)**
+
+- Todo evento publicado deve conter um identificador único:
+- eventId
+- correlationId
+- causationId
+- Esse identificador deve ser imutável e persistente.
+
+**Consumers (Regra Crítica)**
+
+Todo consumidor deve verificar se o evento já foi processado antes de executar lógica de negócio.
+
+Padrão recomendado:
+
+**Inbox Pattern (Event Deduplication)**
+
+- Tabela dedicada:
 
 ``` 
-import * as SQLite from "expo-sqlite";
-
-export const db = SQLite.openDatabase("app.db");
-
-export function initDb() {
-  db.transaction(tx => {
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY,
-        name TEXT,
-        price REAL,
-        stock INTEGER
-      );
-    `);
-
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS pending_operations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        type TEXT,
-        payload TEXT,
-        createdAt TEXT
-      );
-    `);
-  });
-}
+processed_events
+----------------
+event_id (PK)
+processed_at
+handler_name
 ```
 
-## **Camada de acesso a dados (repositories)**
+- Fluxo:
 
-Os arquivos JavaScript ou TypeScript responsáveis por acessar a base local funcionam como uma camada de repositório. Essa camada tem o objetivo de encapsular a lógica de persistência, oferecendo funções claras para operações de leitura e gravação a base de dados local.
+1. Recebe mensagem
+2. Verifica se event_id já existe
+3. Se existir → ACK e retorna
+4. Se não existir → processa e grava
 
-Ao centralizar o acesso ao armazenamento local nesses repositórios, o restante da aplicação pode trabalhar com uma API mais limpa e desacoplada dos detalhes de implementação da BD.
+Exemplo de Implementação (Consumer):
+
+[https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#Exemplo-de-Implementa%C3%A7%C3%A3o-(Consumer)](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#Exemplo-de-Implementa%C3%A7%C3%A3o-(Consumer))
+
+**Observações importantes**
+
+- A verificação e o processamento devem ser atômicos.
+- Preferencialmente dentro da mesma transação BD.
+- O ACK só ocorre após sucesso completo.
+
+**Idempotência em Commands HTTP**
+
+Para APIs expostas (ex.: POST /orders):
+
+- Aceitar Idempotency-Key no header.
+- Persistir a chave com o resultado da operação.
+- Retornar o mesmo resultado em chamadas repetidas.
 
 ``` 
-import { db } from "../storage/db";
- 
-// Nota de segurança: os payloads são serializados como JSON em texto puro no SQLite.
-// Em dispositivos comprometidos ou com acesso físico, dados de pedidos (itens, quantidades,
-// valores) ficam expostos. Em alinhamento com a boa prática já documentada na secção "Boas
-// Práticas" (evitar dados sensíveis em texto puro), considerar uma das seguintes abordagens
-// em implementação real:
-//   1. Cifrar o payload antes de persistir (ex.: AES-256 com chave derivada das credenciais do utilizador);
-//   2. Armazenar apenas referências (IDs) no payload e reconstruir os dados no momento da sincronização;
-//   3. Usar SQLCipher ou equivalente para cifrar toda a base SQLite.
-export const pendingQueueRepository = {
-  add(operation) {
-    db.transaction(tx => {
-      tx.executeSql(
-        `INSERT INTO pending_operations (type, payload, createdAt)
-         VALUES (?, ?, datetime('now'))`,
-        [operation.type, JSON.stringify(operation.payload)]
-      );
-    });
-  },
- 
-  getAll() {
-    return new Promise(resolve => {
-      db.transaction(tx => {
-        tx.executeSql(
-          "SELECT * FROM pending_operations ORDER BY id ASC;",
-          [],
-          (_, { rows }) => resolve(rows._array)
-        );
-      });
-    });
-  },
- 
-  remove(id) {
-    db.transaction(tx => {
-      tx.executeSql("DELETE FROM pending_operations WHERE id = ?;", [id]);
-    });
-  }
-};
+POST /api/orders
+Idempotency-Key: 8f6d1e...
 ```
 
-## **Fila de operações pendentes (Pending Queue)**
+## 6.3. Scalability
 
-Alterações realizadas pelo utilizador enquanto a aplicação está offline não devem ser simplesmente descartadas. Para isso, utiliza-se uma fila de operações pendentes. Cada operação é registrada com informações que permitam sua execução posterior no servidor, como: 
+Garantir que a aplicação ou serviço pode escalar horizontalmente, permitindo que vários pods partilhem o trabalho de forma segura, e que o escalamento é feito com base em métricas ou eventos (ex.: KEDA).
 
-- tipo da operação (por exemplo, criar pedido, atualizar endereço, adicionar item ao carrinho remoto);
+O Escalonamento Horizontal baseado em CPU/memória é insuficiente, porque:
 
-- payload com os dados necessários para executar a operação no backend;
+- Não entende backlog
+- Reage tarde
+- Escala errado em consumers I/O bound
+- Não protege contra overload de broker
 
-- data e hora da criação;
+KEDA ajuda a mitigar este problema com scaling baseado em métricas externas.
 
-- estado da operação (pendente, sincronizada, falha, em retry).
-
-Essa fila costuma ser armazenada na própria base local, garantindo que as operações não se percam mesmo que o aplicativo seja encerrado ou o dispositivo seja reiniciado.
+### **6.3.1 Arquitetura de Escala com KEDA**
 
 ``` 
-import { db } from "../storage/db";
-
-export const pendingQueueRepository = {
-  add(operation) {
-    db.transaction(tx => {
-      tx.executeSql(
-        `INSERT INTO pending_operations (type, payload, createdAt)
-         VALUES (?, ?, datetime('now'))`,
-        [operation.type, JSON.stringify(operation.payload)]
-      );
-    });
-  },
-
-  getAll() {
-    return new Promise(resolve => {
-      db.transaction(tx => {
-        tx.executeSql(
-          "SELECT * FROM pending_operations ORDER BY id ASC;",
-          [],
-          (_, { rows }) => resolve(rows._array)
-        );
-      });
-    });
-  },
-
-  remove(id) {
-    db.transaction(tx => {
-      tx.executeSql("DELETE FROM pending_operations WHERE id = ?;", [id]);
-    });
-  }
-};
+Solace / Broker
+   ↓
+Métrica (queue depth / lag)
+   ↓
+Prometheus / Adapter
+   ↓
+KEDA ScaledObject
+   ↓
+Deployment Consumer
 ```
 
-## **Serviço de sincronização**
-
-O serviço de sincronização é o componente responsável por orquestrar a comunicação entre o estado local e o backend.
-
-Suas principais responsabilidades incluem:
-
-- detectar quando a conectividade de rede está disponível;
-
-- ler a fila de operações pendentes e enviá-las ao servidor, na ordem correta;
-
-- aplicar políticas de repetição (retry) em caso de falhas temporárias;
-
-- resolver conflitos entre dados locais e remotos, de acordo com regras definidas (por exemplo, server wins, client wins ou merge);
-
-- atualizar a base local com as informações retornadas pelo backend após a sincronização.
-
-``` 
-// Pendingqueueprocessor
-import * as Network from "expo-network";
-import { pendingQueueRepository } from "../repositories/pendingQueueRepository";
-import client from "../graphqlClient";
-import { CREATE_ORDER } from "../mutations/orderMutations";
-
-// Tipos
-type OperationType = "CREATE_ORDER";
-
-interface PendingOperation {
-  id: string;
-  type: OperationType;
-  payload: string;
-  retryCount?: number;
-}
-
-interface OperationResult {
-  id: string;
-  success: boolean;
-  error?: unknown;
-}
-
-const MAX_RETRIES = 3;
-
-// Dispatcher: mapeia cada tipo de operação para sua execução.
-// Adicionar um novo tipo = adicionar uma entrada aqui, sem tocar no loop.
-const operationHandlers: Record<OperationType, (payload: unknown) => Promise<void>> = {
-  CREATE_ORDER: async (payload) => {
-    await client.mutate({
-      mutation: CREATE_ORDER,
-      variables: payload as Record<string, unknown>,
-    });
-  },
-};
-
-function parsePayload(raw: string): unknown {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    throw new Error(`Payload inválido (não é JSON): ${raw.slice(0, 80)}`);
-  }
-}
-
-function isRecoverableError(err: unknown): boolean {
-  // Erros de rede são recuperáveis; erros de validação/payload, não.
-  if (err instanceof Error) {
-    const msg = err.message.toLowerCase();
-    return msg.includes("network") || msg.includes("timeout") || msg.includes("failed to fetch");
-  }
-  return false;
-}
-
-async function processOperation(op: PendingOperation): Promise<OperationResult> {
-  const handler = operationHandlers[op.type];
-
-  if (!handler) {
-    // Tipo desconhecido: remove da fila para não bloquear para sempre.
-    __DEV__ && console.warn(`[Queue] Tipo de operação desconhecido: ${op.type}. Removendo.`);
-    await pendingQueueRepository.remove(op.id);
-    return { id: op.id, success: false, error: new Error(`Tipo desconhecido: ${op.type}`) };
-  }
-
-  const retries = op.retryCount ?? 0;
-
-  if (retries >= MAX_RETRIES) {
-    __DEV__ && console.warn(`[Queue] Operação ${op.id} atingiu limite de retentativas. Descartando.`);
-    await pendingQueueRepository.remove(op.id);
-    return { id: op.id, success: false, error: new Error("Limite de retentativas atingido") };
-  }
-
-  try {
-    const payload = parsePayload(op.payload);
-    await handler(payload);
-    await pendingQueueRepository.remove(op.id);
-    return { id: op.id, success: true };
-  } catch (err) {
-    __DEV__ && console.warn(`[Queue] Falha ao sincronizar operação ${op.id}:`, err);
-
-    if (!isRecoverableError(err)) {
-      // Erro irrecuperável (payload corrompido, erro 400 etc): remove para não bloquear a fila.
-      await pendingQueueRepository.remove(op.id);
-    } else {
-      // Erro recuperável: incrementa contador de retentativas.
-      await pendingQueueRepository.incrementRetry(op.id);
-    }
-
-    return { id: op.id, success: false, error: err };
-  }
-}
-
-export async function processPendingQueue(): Promise<void> {
-  const network = await Network.getNetworkStateAsync();
-  if (!network.isConnected) return;
-
-  const operations = await pendingQueueRepository.getAll();
-  if (operations.length === 0) return;
-
-  // Processa todas em paralelo e coleta os resultados — uma falha não bloqueia as demais.
-  const results = await Promise.allSettled(
-    operations.map((op) => processOperation(op as PendingOperation))
-  );
-
-  if (__DEV__) {
-    const failed = results.filter((r) => r.status === "rejected").length;
-    if (failed > 0) console.warn(`[Queue] ${failed} operação(ões) falharam neste ciclo.`);
-  }
-}
-```
-
-**Testes unitários (essencial)**
-
-```
-// Pendingqueueprocessor.test
-import { processPendingQueue } from "../services/pendingQueueProcessor";
-import { pendingQueueRepository } from "../repositories/pendingQueueRepository";
-import client from "../graphqlClient";
-import * as Network from "expo-network";
-
-// Mocks
-jest.mock("expo-network");
-jest.mock("../repositories/pendingQueueRepository");
-jest.mock("../graphqlClient", () => ({ mutate: jest.fn() }));
-
-const mockNetwork = Network.getNetworkStateAsync as jest.Mock;
-const mockGetAll = pendingQueueRepository.getAll as jest.Mock;
-const mockRemove = pendingQueueRepository.remove as jest.Mock;
-const mockIncrementRetry = pendingQueueRepository.incrementRetry as jest.Mock;
-const mockMutate = client.mutate as jest.Mock;
-
-const connected = { isConnected: true };
-const disconnected = { isConnected: false };
-
-const makeOp = (overrides = {}) => ({
-  id: "op-1",
-  type: "CREATE_ORDER",
-  payload: JSON.stringify({ items: [{ productId: "p1", quantity: 2 }] }),
-  retryCount: 0,
-  ...overrides,
-});
-
-beforeEach(() => jest.clearAllMocks());
-
-// ─── Testes ───────────────────────────────────────────────────────────────────
-
-describe("processPendingQueue", () => {
-  it("não faz nada quando sem conexão", async () => {
-    mockNetwork.mockResolvedValue(disconnected);
-
-    await processPendingQueue();
-
-    expect(pendingQueueRepository.getAll).not.toHaveBeenCalled();
-  });
-
-  it("não faz nada quando a fila está vazia", async () => {
-    mockNetwork.mockResolvedValue(connected);
-    mockGetAll.mockResolvedValue([]);
-
-    await processPendingQueue();
-
-    expect(client.mutate).not.toHaveBeenCalled();
-  });
-
-  it("executa a mutation e remove da fila em caso de sucesso", async () => {
-    mockNetwork.mockResolvedValue(connected);
-    mockGetAll.mockResolvedValue([makeOp()]);
-    mockMutate.mockResolvedValue({ data: { createOrder: { id: "order-1", total: 100 } } });
-    mockRemove.mockResolvedValue(undefined);
-
-    await processPendingQueue();
-
-    expect(client.mutate).toHaveBeenCalledTimes(1);
-    expect(pendingQueueRepository.remove).toHaveBeenCalledWith("op-1");
-  });
-
-  it("não aborta o loop quando uma operação falha — as demais continuam", async () => {
-    const op1 = makeOp({ id: "op-1" });
-    const op2 = makeOp({ id: "op-2" });
-    mockNetwork.mockResolvedValue(connected);
-    mockGetAll.mockResolvedValue([op1, op2]);
-    mockMutate
-      .mockRejectedValueOnce(new Error("network timeout")) // op-1 falha
-      .mockResolvedValueOnce({ data: {} });               // op-2 sucede
-    mockIncrementRetry.mockResolvedValue(undefined);
-    mockRemove.mockResolvedValue(undefined);
-
-    await processPendingQueue();
-
-    // op-2 deve ter sido processada mesmo com op-1 falhando
-    expect(client.mutate).toHaveBeenCalledTimes(2);
-    expect(pendingQueueRepository.remove).toHaveBeenCalledWith("op-2");
-    expect(pendingQueueRepository.remove).not.toHaveBeenCalledWith("op-1");
-  });
-
-  it("incrementa retryCount em erros de rede (recuperáveis)", async () => {
-    mockNetwork.mockResolvedValue(connected);
-    mockGetAll.mockResolvedValue([makeOp()]);
-    mockMutate.mockRejectedValue(new Error("network error"));
-    mockIncrementRetry.mockResolvedValue(undefined);
-
-    await processPendingQueue();
-
-    expect(pendingQueueRepository.incrementRetry).toHaveBeenCalledWith("op-1");
-    expect(pendingQueueRepository.remove).not.toHaveBeenCalled();
-  });
-
-  it("remove da fila em erros irrecuperáveis (ex: payload inválido)", async () => {
-    mockNetwork.mockResolvedValue(connected);
-    mockGetAll.mockResolvedValue([makeOp({ payload: "INVALID_JSON{{{" })]);
-    mockRemove.mockResolvedValue(undefined);
-
-    await processPendingQueue();
-
-    // Payload inválido = erro irrecuperável = deve ser removido
-    expect(pendingQueueRepository.remove).toHaveBeenCalledWith("op-1");
-    expect(pendingQueueRepository.incrementRetry).not.toHaveBeenCalled();
-  });
-
-  it("descarta operação que atingiu o limite de retentativas", async () => {
-    mockNetwork.mockResolvedValue(connected);
-    mockGetAll.mockResolvedValue([makeOp({ retryCount: 3 })]);
-    mockRemove.mockResolvedValue(undefined);
-
-    await processPendingQueue();
-
-    expect(pendingQueueRepository.remove).toHaveBeenCalledWith("op-1");
-    expect(client.mutate).not.toHaveBeenCalled();
-  });
-
-  it("remove operações de tipo desconhecido sem travar a fila", async () => {
-    mockNetwork.mockResolvedValue(connected);
-    mockGetAll.mockResolvedValue([makeOp({ type: "UNKNOWN_OP" })]);
-    mockRemove.mockResolvedValue(undefined);
-
-    await processPendingQueue();
-
-    expect(pendingQueueRepository.remove).toHaveBeenCalledWith("op-1");
-    expect(client.mutate).not.toHaveBeenCalled();
-  });
-});
-```
-
-**Mutations**
-```
-// Ordermutations
-import { gql } from "@apollo/client";
-
-export const CREATE_ORDER = gql`
-  mutation CreateOrder($items: [OrderItemInput!]!) {
-    createOrder(items: $items) {
-      id
-      total
-    }
-  }
-`;
-```
-
-## **Detecção de rede**
-
-Para implementar o comportamento offline-first de forma eficiente, a aplicação precisa saber quando está online ou offline. No ecossistema Expo, é comum usar o pacote expo-network para consultar o estado da conexão e reagir a mudanças. Com isso, torna-se possível disparar a sincronização  automaticamente assim que a rede estiver novamente disponível.
-
-No React Native (sem Expo), pode-se usar a biblioteca @react-native-community/netinfo para esse fim.
-
-## **Fluxo Operacional do Offline-First**
-
-Do ponto de vista do utilizador, o fluxo ideal de uma aplicação offline-first deve ser fluido e transparente.
-
-Um cenário típico pode ser descrito da seguinte forma:
-
-1. O utilizador abre o aplicativo em um contexto sem internet;
-2. A ecrã inicial é carregada a partir da base de dados local, exibindo o catálogo de produtos e demais informações disponíveis;
-3. O utilizador adiciona itens ao carrinho, cria pedidos ou altera dados de perfil;
-4. Cada operação é gravada no armazenamento local e registrada na fila de operações pendentes;
-5. Quando a rede volta, o serviço de sincronização detecta a conectividade e:
-
-a) envia as operações pendentes ao backend;
-
-b) recebe a resposta do servidor e ajusta a base local conforme necessário;
-
-c) atualiza a interface para refletir o estado sincronizado.
-
-Esse modelo garante que a experiência do utilizador seja contínua, com o mínimo de frustração possível, ainda que a infraestrutura de rede não seja ideal.
-
-## **Estratégias de Resolução de Conflitos**
-
-Quando tanto o cliente quanto o servidor fazem alterações em um mesmo registro em momentos diferentes, podem surgir conflitos de sincronização. Algumas estratégias comuns para lidar com esses conflitos são:
-
--Server Wins: o servidor sempre prevalece. É a estratégia mais simples, porém pode descartar alterações recentes feitas no cliente offline.
-
--Client Wins: as mudanças feitas no cliente têm prioridade sobre as do servidor. Funciona bem em aplicações pessoais com poucos utilizadores concorrentes.
-
--Merge: uma lógica personalizada tenta combinar as informações conflitantes. Essa abordagem é mais complexa, mas pode ser necessária em domínios sensíveis. 
-
-A escolha da estratégia adequada depende do domínio de negócio, da criticidade dos dados e dos requisitos de consistência da aplicação.
-
-## **Boas Práticas**
-
-A adoção do offline-first vai além da implementação técnica; envolve também um conjunto de boas práticas que fortalecem a solução:
-
--Evitar o armazenamento de dados sensíveis em texto puro no SQLite ou em outras bases locais;
-
--Garantir que a fila de operações pendentes seja persistida para sobreviver a reinícios da aplicação e do dispositivo;
-
--Implementar logs internos para facilitar a depuração de problemas de sincronização;
-
--Tratar falhas de sincronização com mensagens amigáveis e estados de UI claros (por exemplo, indicar itens ainda não sincronizados);
-
--Criar uma UI que reflita o estado online/offline e informe ao utilizador quando certas funcionalidades dependem de conexão;
-
--Evitar operações destrutivas irreversíveis enquanto o aplicativo estiver offline, especialmente em contextos multiutilizador.
-
-## **Integração com Apollo Client**
-
-O Apollo Client, amplamente utilizado em aplicações React e React Native para consumo de APIs GraphQL, pode ser configurado de forma amigável ao paradigma offline-first. Algumas práticas úteis incluem:
-
--uso de InMemoryCache para armazenar resultados de queries no cliente;persistência desse cache em armazenamento local (por exemplo, AsyncStorage) para evitar recarregar dados após reiniciar o aplicativo;
-
--configuração de políticas de busca (fetchPolicy) como cache-first ou cache-and-network, priorizando dados locais;
-
--uso de mutations otimistas (optimisticResponse) para atualizar a UI imediatamente, antes da confirmação do servidor.
-
-Quando combinado com a base local, a fila de operações pendentes e o serviço de sincronização, o Apollo torna-se parte importante de uma arquitetura robusta e escalável de dados.
-
-## Exemplos de código
-
-**ViewModel offline-first**
-
-``` 
-mport { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { gql } from "@apollo/client";
-import { productRepository } from "../repositories/productRepository";
-import client from "../graphqlClient";
- 
-const GET_PRODUCTS = gql`
-  query {
-    products {
-      id
-      name
-      price
-      stock
-    }
-  }
-`;
- 
-export const loadCatalog = createAsyncThunk("catalog/load", async () => {
-  const local = await productRepository.getAll();
- 
-  let result = { items: local, synced: false };
- 
-  try {
-    const { data } = await client.query({ query: GET_PRODUCTS });
- 
-    if (data?.products) {
-      await productRepository.saveAll(data.products);
-      result = { items: data.products, synced: true };
-    }
-  } catch (err) {
-    console.log("Offline — usando dados locais");
-  }
- 
-  return result;
-});
- 
-const catalogSlice = createSlice({
-  name: "catalog",
-  initialState: { items: [], loading: false, lastSync: null, error: null }, // Adicionado campo "error"
-  extraReducers: builder => {
-    builder.addCase(loadCatalog.pending, state => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(loadCatalog.fulfilled, (state, action) => {
-      state.items = action.payload.items;
-      state.loading = false;
-      state.error = null;
- 
-      if (action.payload.synced)
-        state.lastSync = new Date().toISOString();
-    });
-    // Adicionado: caso "rejected" para persistir estado de erro no store
-    // e permitir que a View exiba feedback adequado em cenários de falha.
-    builder.addCase(loadCatalog.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.error?.message ?? "Erro desconhecido ao carregar catálogo.";
-    });
-  }
-});
- 
-export default catalogSlice.reducer;
-```
-
-**View offline-first**
-
-``` 
-import React, { useEffect } from "react";
-import { View, Text, ActivityIndicator, FlatList } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { loadCatalog } from "../viewmodels/catalogViewModel";
-
-export default function CatalogScreen() {
-  const dispatch = useDispatch();
-  const { items, loading } = useSelector(state => state.catalog);
-
-  useEffect(() => {
-    dispatch(loadCatalog());
-  }, []);
-
-  if (loading) return <ActivityIndicator size="large" />;
-
-  return (
-    <FlatList
-      data={items}
-      keyExtractor={i => i.id.toString()}
-      renderItem={({ item }) => (
-        <View style={{ padding: 16, borderBottomWidth: 1 }}>
-          <Text style={{ fontSize: 18 }}>{item.name}</Text>
-          <Text style={{ color: "#888" }}>€ {item.price}</Text>
-          <Text>Estoque: {item.stock}</Text>
-        </View>
-      )}
-    />
-  );
-}
-```
-
-**Enfileiramento**
-
-``` 
-import { pendingQueueRepository } from "../repositories/pendingQueueRepository";
-import client from "../graphqlClient";
-import { gql } from "@apollo/client";
-import * as Network from "expo-network";
-
-const CREATE_ORDER = gql`
-  mutation CreateOrder($items: [OrderItemInput!]!) {
-    createOrder(items: $items) {
-      id
-      total
-    }
-  }
-`;
-
-export async function createOrder(items) {
-  const network = await Network.getNetworkStateAsync();
-
-  if (!network.isConnected) {
-    pendingQueueRepository.add({
-      type: "CREATE_ORDER",
-      payload: { items }
-    });
-    return { offline: true };
-  }
-
-  const result = await client.mutate({
-    mutation: CREATE_ORDER,
-    variables: { items }
-  });
-
-  return result.data.createOrder;
-}
-```
-
-# **GraphQL**
-
-GraphQL é uma linguagem de consulta e um runtime para APIs, permitindo que o cliente solicite exatamente os dados necessários, de forma tipada e eficiente. Ao contrário de REST, GraphQL:
-
-- evita overfetching (dados demais)
-- evita underfetching (dados de menos)
-- consolida múltiplos endpoints em uma única interface
-- oferece introspecção e tipagem forte
-- funciona muito bem com apps mobile e offline-first
-
-Para a Arquiteturas Mobile, GraphQL é ideal porque:
-
-- reduz tráfego de dados
-- permite sincronização seletiva
-- integra naturalmente com Apollo Client no app
-- melhora a performance em cenários offline/online
-
-## HotChocolate.AspNetCore
-
-HotChocolate é um framework moderno de GraphQL para .NET, com:
-
-- suporte completo ao padrão GraphQL
-- auto-binding entre classes .NET e o schema
-- integração direta com [http://ASP.NET](http://ASP.NET)  Core
-- suporte a DataLoaders
-- suporte a filtros, paginação, sorting
-- integração com Entity Framework Core
-- sistema de autorização integrado
-- resolvers fortemente tipados
-- boa performance e extensibilidade
-
-O HotChocolate oferece:
-
-- um servidor GraphQL leve e rápido
-- integração nativa com autenticação e autorização via JWT
-- pipeline simples de queries e mutations
-- geração automática do schema a partir de tipos .NET
-
-## Arquitetura do GraphQL no Backend
-
-A arquitetura do servidor GraphQL é composta por:
-
-- schema
-- queries
-- mutations, tipos (types)
-- resolvers
-- autorização com atributos [Authorize]
-- integração com EF Core
-- configuração via DI (Dependency Injection)
-- pipeline de middleware do HotChocolate
-
-O backend expõe um endpoint único HTTP:
-
-- /graphql
-
-Em ambiente de desenvolvimento também expõe a interface Banana Cake Pop para exploração interativa do schema.
-
-## Configuração Básica do Servidor
-
-Um exemplo simplificado de configuração usando Minimal APIs no .NET 8:
-
-- Registrar o DbContext com EF Core.
-- Adicionar o servidor GraphQL com serviços.
-- Registrar os tipos de Query e Mutation.
-- Ativar autorização, filtros, sorting e projeções.
-- Mapear o endpoint /graphql.
-- Mapear o Banana Cake Pop em ambiente de desenvolvimento.
-
-``` 
-using HotChocolate.AspNetCore;
-using HotChocolate.AspNetCore.Playground;
-using HotChocolate;
-using HotChocolate.Execution;
-using HotChocolate.Types;
-using Microsoft.EntityFrameworkCore;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Database
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
-// GraphQL Server
-builder.Services
-    .AddGraphQLServer()
-    .AddQueryType<Query>()
-    .AddMutationType<Mutation>()
-    .AddType<ProductType>()
-    .AddAuthorization()
-    .AddFiltering()
-    .AddSorting()
-    .AddProjections();
-
-var app = builder.Build();
-
-app.MapGraphQL("/graphql");
-
-// Banana Cake Pop (dev)
-if (app.Environment.IsDevelopment())
-{
-    app.MapBananaCakePop("/graphql-ui");
-}
-
-app.Run();
-```
-
-## Queries (Leituras)
-
-A Query é a raiz das operações de leitura. 
-
-Exemplo:
-
-``` 
-public class Query
-{
-    [Authorize] // requer login
-    public IQueryable<Product> GetProducts([Service] AppDbContext dbContext)
-        => dbContext.Products;
-
-    [Authorize(Roles = new[] { "Admin" })]
-    public Product? GetProduct(int id, [Service] AppDbContext dbContext)
-        => dbContext.Products.FirstOrDefault(p => p.Id == id);
-}
-```
-
-Essas queries podem:
-
-- exigir autenticação com [Authorize]
-- restringir acesso por roles (ex.: Admin)
-- usar IQueryable e EF Core para permitir filtros, sorting e paginação server-side.
-
-## Mutations (Escritas)
-
-Mutations representam operações de escrita. 
+**Métricas de Broker**
 
 Exemplos:
 
-``` 
-public class Mutation
-{
-    [Authorize(Roles = new[] { "Admin" })]
-    public async Task<Product> AddProduct(
-        AddProductInput input,
-        [Service] AppDbContext dbContext)
-    {
-        var product = new Product
-        {
-            Name = input.Name,
-            Price = input.Price,
-            Description = input.Description,
-            Stock = input.Stock
-        };
+- solace_queue_depth
+- messages_ready
+- messages_unacked
+- consumer_lag
 
-        dbContext.Products.Add(product);
-        await dbContext.SaveChangesAsync();
+**Métricas de Aplicação**
 
-        return product;
-    }
+Expor via OpenTelemetry:
 
-    [Authorize]
-    public async Task<Order> CreateOrder(
-        CreateOrderInput input,
-        [Service] AppDbContext dbContext)
-    {
-        var order = new Order
-        {
-            UserId = input.UserId,
-            Items = input.Items,
-            Total = input.Total
-        };
+- message_processing_duration_seconds
+- message_processing_errors_total
+- dlq_messages_total
 
-        dbContext.Orders.Add(order);
-        await dbContext.SaveChangesAsync();
+Essas métricas ajudam a ajustar thresholds, detectar saturação lógica e evitar scale infinito.
 
-        return order;
-    }
-}
-```
+Exemplo de ScaledObject (Consumer):
 
-Características:
+[https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#ScaledObject-(Consumer)%3A](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#ScaledObject-(Consumer)%3A)
 
-- recebem inputs tipados.
-- usam o DbContext para persistir entidades.
-- retornam o objeto criado ou atualizado.
-- podem ter regras de autorização por papéis ou policies.
+### **6.3.2 Estratégias Avançadas**
 
-## Types (Tipos GraphQL)
+**Backpressure Controlado**
 
-- Types permitem controlar como as entidades .NET aparecem no schema GraphQL.
+- Limitar concorrência por pod
+- Preferir mais pods com menos threads
+- Evitar saturar dependências downstream
+
+**Escala + Circuit Breaker**
+
+Combinar:
+
+- KEDA (escala)
+- Circuit breaker (proteção)
 
 Exemplo:
 
-``` 
-public class ProductType : ObjectType<Product>
-{
-    protected override void Configure(IObjectTypeDescriptor<Product> descriptor)
-    {
-        descriptor.Field(p => p.Id);
-        descriptor.Field(p => p.Name);
-        descriptor.Field(p => p.Price);
-        descriptor.Field(p => p.Description);
-        descriptor.Field(p => p.Stock);
-    }
-}
-```
+- Se DB está lento → circuit abre
+- Mensagens acumulam → KEDA escala
+- Após recuperação → consumo normaliza
 
-Benefícios:
+### **6.3.3 Boas Práticas**
 
-- controle granular do schema.
-- desacoplamento entre modelo de domínio e contrato público.
-- suporte a campos computados.
+- Sempre definir maxReplicaCount
+- Nunca escalar infinitamente
+- Métrica ≠ CPU
+- Escala deve respeitar limites de throughput e concorrência definidos pelo broker para evitar rejeição de mensagens ou degradação
+- Testar scale em ambientes não-prod
 
-## Autorização com HotChocolate
+### **6.3.4 Resultado Esperado**
 
-HotChocolate oferece autorização nativa através de atributos:
+- Consumo elástico
+- Redução de latência sob pico
+- Custos controlados
+- Sistema previsível sob carga
 
-- Por atributo global: exige utilizador autenticado.
+### **6.3.5 Casos de Uso**
 
-``` 
-[Authorize]
-```
+1. **Aplicações que lêem o mesmo arquivo texto**
 
-- Por Role: limita acesso a um papel específico.
+File → Queue → Consumers (modelo correto para escala)
+
+Transforme o arquivo em fonte, não em meio de coordenação.
 
 ``` 
-[Authorize(Roles = new[] { "Admin" })]
+Arquivo
+   ↓
+Producer (1x)
+   ↓
+Fila / Topic
+   ↓
+App A   App B   App C
 ```
 
-- Por policy: aplica policy customizada.
+**Por quê?**
+
+- Cada linha vira uma mensagem
+- Broker garante distribuição
+- Escala horizontal nativa
+- Retry, DLQ, backpressure
+
+**Exemplo**
+
+- Arquivo CSV → Kafka / Rabbit / Solace
+- Cada linha = evento
+
+## 6.4. Graceful Shutdown
+
+Garantir que, ao receber um sinal de encerramento, a aplicação deixa de aceitar novos pedidos e tenta finalizar os que estão em curso; caso não seja possível, deve propagar um cancellation token para interromper corretamente a operação.
+
+### **6.4.1. O que é Graceful Shutdown**
+
+Graceful shutdown é a capacidade de uma aplicação encerrar sua execução de forma controlada, garantindo que:
+
+- Nenhuma nova requisição/mensagem seja aceita
+- Processamentos em andamento sejam concluídos (ou interrompidos com segurança)
+- Recursos sejam liberados corretamente
+- O sistema não gere efeitos colaterais indesejados (dados inconsistentes, mensagens duplicadas, corrupção de estado)
+
+Em arquiteturas modernas (containers, Kubernetes, Broker), o shutdown não é um evento raro, mas parte do fluxo normal de operação (deploys, autoscaling, falhas, rebalanceamentos).
+
+### **6.4.2. Por que Graceful Shutdown é crítico**
+
+Sem graceful shutdown, a aplicação pode:
+
+- Perder mensagens em processamento
+- Processar mensagens parcialmente
+- Quebrar idempotência
+- Gerar duplicações
+- Deixar locks, transações ou conexões abertas
+- Corromper dados
+
+Em sistemas event-driven, o risco é ainda maior, pois:
+
+- Brokers assumem que o consumidor falhou
+- Mensagens são reenviadas
+- Reprocessamento ocorre automaticamente
+
+### **6.4.3. Graceful Shutdown no contexto de APIs HTTP**
+
+Fluxo correto ao receber um sinal de shutdown (SIGTERM):
+
+1. Parar de aceitar novas requisições
+2. Permitir que requisições em andamento terminem
+3. Aplicar timeout máximo de espera
+4. Encerrar a aplicação
+
+**Exemplo conceitual**
+
+- A aplicação deve sinalizar readiness=false antes de iniciar o shutdown, permitindo ao Kubernetes retirar o pod do tráfego.
+- Load balancer remove o pod do tráfego
+- Requests existentes finalizam
+- Após o timeout, o processo encerra
+
+Sem isso:
+
+- Requests são interrompidas abruptamente
+- Clientes recebem erros
+- Estados intermediários ficam inconsistentes
+
+### **6.4.4. Graceful Shutdown em consumidores de Broker**
+
+Para consumers, o shutdown deve seguir esta ordem exata:
+
+1. Parar de consumir novas mensagens
+2. Aguardar mensagens em processamento
+3. Commit / ACK apenas após sucesso
+4. Encerrar conexões com o broker
+5. Finalizar o processo
+
+### **6.4.5 Regra fundamental**
+
+> [!error]
+> Nunca dar ACK antes do processamento terminar.
+
+Caso contrário:
+
+- A mensagem é considerada processada
+- O efeito colateral pode não ter ocorrido
+- O sistema entra em estado inconsistente
+
+### **6.4.6. Interação com Kubernetes**
+
+No Kubernetes, o fluxo é previsível:
+
+1. Pod recebe SIGTERM
+2. terminationGracePeriodSeconds inicia
+3. K8s aguarda a aplicação encerrar
+4. Se exceder o tempo → SIGKILL
+
+Isso exige que a aplicação:
+
+- Escute sinais do sistema
+- Respeite CancellationToken
+- Tenha tempo suficiente para finalizar
+
+### **6.4.7. Relação com Escalabilidade e Autoscaling**
+
+Graceful shutdown é obrigatório para:
+
+- Rolling updates
+- Horizontal scaling
+- KEDA / HPA
+- Rebalanceamento de consumers
+
+Sem graceful shutdown:
+
+- Escalar para cima funciona
+- Escalar para baixo quebra o sistema
+
+### **6.4.8. Boas práticas essenciais**
+
+- Sempre tratar SIGTERM
+- Parar intake antes de finalizar
+- Esperar processamento ativo
+- Usar timeouts claros
+- Nunca confiar em shutdown abrupto
+- Testar shutdown em ambiente real
+
+### **6.4.9. Anti-patterns comuns**
+
+- process.exit() imediato
+- Ignorar sinais do SO
+- ACK antes de persistir
+- Timeout infinito
+- Assumir que o pod “morre rápido”
+
+### **6.4.10. Graceful Shutdown e Idempotência**
+
+Mesmo com graceful shutdown:
+
+- Falhas podem ocorrer
+- Mensagens podem ser reenviadas
+
+Por isso:
+
+> [!info]
+> Graceful shutdown reduz riscos, idempotência elimina o problema.
+
+Os dois sempre devem coexistir.
+
+# 7. Gestão de Configuração
+
+## 7.1. Hierarquia de Configuração
+
+A configuração dos serviços deve seguir uma hierarquia clara de precedência, do menor para o maior nível de prioridade:
+
+```
+appsettings.json (defaults do serviço)
+   ↓
+appsettings.{Environment}.json (overrides por ambiente)
+   ↓
+Variáveis de ambiente (definidas no deployment)
+   ↓
+Hashicorp Vault (segredos e valores sensíveis)
+```
+
+O Options Pattern do .NET deve ser utilizado para acesso fortemente tipado às configurações. Configurações sensíveis (credenciais, chaves, tokens) nunca devem constar nos ficheiros `appsettings`, sendo obrigatório o uso do Vault.
+
+## 7.2. Promoção entre Ambientes
+
+A promoção de configurações entre ambientes (dev → staging → prod) deve seguir um processo controlado:
+
+- Ficheiros `appsettings.{Environment}.json` devem ser versionados no repositório (sem valores sensíveis).
+- Variáveis específicas de cada ambiente são geridas no sistema de deployment (Helm values, Kubernetes ConfigMaps).
+- Segredos são provisionados via Vault com políticas de acesso por ambiente.
+- Nenhuma configuração de produção deve ser aplicada manualmente — toda a promoção ocorre via pipeline CI/CD.
+
+## 7.3. Feature Flags
+
+Para funcionalidades que requerem ativação/desativação sem redeploy, deve ser definida uma estratégia de feature flags:
+
+- Considerar solução dedicada (ex.: LaunchDarkly, Unleash) para feature flags dinâmicas com targeting por utilizador, tenant ou percentagem de tráfego.
+- Para flags simples de on/off por ambiente, podem ser usadas variáveis de ambiente ou configuração hierárquica.
+- Feature flags devem ter ciclo de vida definido: data de criação, responsável e critérios de remoção após estabilização da feature.
+
+# 8. CI/CD
+
+## 8.1. Pipeline de Build
+
+Passos mínimos:
+
+1. Restore (`dotnet restore`)
+2. Build (`dotnet build -c Release`)
+3. Testes unitários (`dotnet test`)
+4. Testes de integração (opcional/conforme projeto)
+5. Análise estática de código (SonarQube, etc.)
+
+Dockerfile multi-stage (build + runtime).
+
+Tagging semântico (`vX.Y.Z`, `branch`, `commit sha`).
+
+## 8.2. Deploy
+
+- Deploy em Kubernetes (salvo excepções aprovadas).
+- Configuração via Helm/Manifest.
+- Rollout com estratégia de rolling update / blue-green, conforme criticidade.
+
+## 8.3. Execução de Testes de Integração com Testcontainers na Pipeline (CI/CD)
+
+Para garantir consistência entre ambientes de desenvolvimento, validação e produção, é  recomendado que todos os testes de integração baseados em Testcontainers rodem automaticamente na pipeline CI.
+
+Com Testcontainers, não é necessário subir containers manualmente. A pipeline só precisa garantir:
 
 ``` 
-[Authorize(Policy = "OrdersRead")]
+- Docker habilitado no runner
+- .NET instalado
+- Execução de dotnet test
 ```
-
-A integração é feita com o sistema de autenticação/autorização do [http://ASP.NET](http://ASP.NET)  Core, usando:
-
-- JWT bearer tokens
-- Claims
-- Roles
-- Policies
-
-Assim, o servidor GraphQL aplica as regras de segurança diretamente nos resolvers.
-
-## Integração com Entity Framework Core
-
-HotChocolate integra-se bem com EF Core, oferecendo:
-
-- projeções automáticas
-- paginação server-side
-- filtros e ordenação com UseFiltering/UseSorting
-- DataLoaders para evitar problemas de N+1 consultas
-
-Isso permite consultas eficientes, mesmo em cenários complexos de catálogo e pedidos.
 
 Exemplo:
 
+[https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#Exemplo-Completo-de-Pipeline-em-GitHub-Actions](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#Exemplo-Completo-de-Pipeline-em-GitHub-Actions)
+
+Para funcionar:
+
 ``` 
-descriptor.Field("products")
-          .ResolveWith<QueryResolvers>(x => x.GetProductsAsync(default!, default!))
-          .UseDbContext<AppDbContext>()
-          .UseFiltering()
-          .UseSorting()
-          .UsePaging();
+Docker Desktop (Windows), Podman ou Docker Engine (Linux) deve estar instalado
+Serviço do Docker a correr
+utilizador do runner com permissão para aceder ao Docker
 ```
 
-## Ferramentas de Teste e Playground
+Estrutura recomendada dos testes
 
-Durante o desenvolvimento é possível habilitar o Banana Cake Pop:
+``` 
+tests/
+ ├─ Modelo.Tests/                   → unit tests
+ └─ Modelo.Tests.Integration/       → integration tests (Testcontainers)
+```
 
-- interface gráfica acessível em /graphql-ui
-- permite testar queries, mutations e subscriptions
-- fornece autocomplete e documentação do schema
-- ajuda no onboarding de desenvolvedores e debug
+Cada container é criado por classe de teste:
 
-## Considerações de Segurança
+```csharp 
+public class OrderRepositoryTests : IAsyncLifetime
+{
+    private readonly PostgreSqlContainer _pg =
+        new PostgreSqlBuilder().WithDatabase("integration").Build();
+}
+```
 
-Ao expor um endpoint GraphQL:
+Boas práticas em pipelines CI para Testcontainers
 
-- exigir HTTPS sempre
-- exigir autenticação para operações sensíveis
-- limitar introspection em produção, se necessário
-- filtrar e sanitizar mensagens de erro
-- usar rate limiting e logging de segurança
+- Preferir `ubuntu-latest` (Linux) — containers iniciam muito mais rápido.
+- Aumentar timeouts caso necessário:
 
+```shell 
+dotnet test -- RunConfiguration.TestSessionTimeout=600000
+```
+
+- Evitar paralelismo exagerado se subir muitos containers pesados
+- Utilizar categorias:
+
+```csharp 
+[Trait("Category", "Integration")]
+```
+
+Com isso, todos os serviços passam a ter testes de integração reais rodando automaticamente no CI/CD, garantindo consistência, qualidade e segurança antes de cada merge ou deploy.
+
+## 8.4. Gestão de Vulnerabilidades em Imagens Docker
+
+A gestão de vulnerabilidades em imagens Docker segue o modelo DevSecOps, com responsabilidades claramente distribuídas entre Plataforma, Segurança e Squads de Desenvolvimento.
+
+### 8.4.1 Princípios
+
+- Todas as imagens Docker devem derivar de imagens base oficiais e aprovadas
+- Nenhuma imagem pode ser promovida para produção sem scan automático de vulnerabilidades
+- Vulnerabilidades são tratadas como dívida técnica de segurança, com SLA definido por severidade
+
+### 8.4.2 Responsabilidades
+
+| Atividade                                                         | Responsável                 |
+| ----------------------------------------------------------------- | --------------------------- |
+| Definição da imagem base oficial (.NET, distroless, alpine, etc.) | Plataforma / Infrastructure |
+| Manutenção e atualização da imagem base                           | Plataforma / Infrastructure |
+| Scanning automático de imagens (CI/CD)                            | DevSecOps / Plataforma      |
+| Correção de vulnerabilidades da imagem base                       | Plataforma / Infrastructure |
+| Correção de dependências da aplicação                             | Squad de Desenvolvimento    |
+| Avaliação e aceite de risco (exceções)                            | Segurança / Arquitetura     |
+
+### 8.4.3 Pipeline de Segurança
+
+O pipeline CI/CD deve incluir, obrigatoriamente:
+
+- Scan de vulnerabilidades da imagem Docker (ex.: Trivy, Snyk, Grype)
+- Classificação por severidade (Critical, High, Medium, Low)
+- Bloqueio automático para vulnerabilidade Critical ou High (sem exceção aprovada)
+
+
+
+Exemplo de políticas:
+
+> [!error]
+> **Critical / High** → build falha (salvo exceção formal)
+
+> [!warning]
+> **Medium / Low** → alertas e backlog técnico
+
+
+
+### 8.4.4 Atualização e Remediação
+
+- Realizar rebuilds periódicos de imagens.
+- Atualizar dependências vulneráveis da aplicação.
+- Correções devem seguir SLA definidos por severidade.
+
+# 9. Preocupações Transversais Adicionais
+
+## 9.1. Rate Limiting e Throttling
+
+Para proteger dependências downstream e prevenir abuso, todos os serviços devem definir estratégias de controlo de taxa:
+
+**A nível de API Gateway (Gravitee):**
+
+- Rate limiting por cliente/token para APIs expostas externamente.
+- Quotas por plano de subscrição.
+
+**A nível de aplicação:**
+
+- Throttling de chamadas a dependências externas (bases de dados, APIs de terceiros, brokers) para evitar sobrecarga em cascata.
+- Implementar backoff exponencial com jitter em retries.
+- Configurar semáforos ou filas internas para limitar concorrência por dependência.
+
+Combinar com Circuit Breaker (secção 6.2) para proteção em camadas: o throttling controla o ritmo de entrada, o circuit breaker protege quando a dependência falha.
+
+## 9.2. Estratégia de Cache
+
+O uso de cache deve ser explicitamente definido para reduzir latência e aliviar pressão sobre dependências:
+
+**Níveis de cache permitidos:**
+
+- **In-memory (IMemoryCache):** Dados de curta duração, locais ao pod. Não partilhado entre instâncias — usar apenas para dados imutáveis ou com baixa consistência exigida.
+- **Distribuído (ex.: Redis):** Dados partilhados entre pods. Obrigatório para sessões, tokens de idempotência e resultados de queries frequentes.
+
+**Regras de invalidação:**
+
+- Definir TTL explícito para todas as entradas de cache.
+- Preferir invalidação por evento (cache-aside com eventos de domínio) a TTL longo.
+- Evitar cache de dados transacionais que exijam consistência forte.
+
+**Consistência em cenários distribuídos:**
+
+- Em ambientes multi-pod, alterações a dados cacheados devem propagar invalidação via evento ou pub/sub.
+- Documentar o nível de consistência aceite para cada cache (eventual vs. forte).
+
+## 9.3. Multi-tenancy
+
+Para sistemas que suportam múltiplos tenants, as seguintes considerações são obrigatórias:
+
+**Isolamento de dados:**
+
+- A identificação do tenant (`tenantId`) deve ser propagada em todos os contextos: HTTP headers, mensagens de broker, tokens JWT e logs/traces.
+- Queries à base de dados devem incluir sempre o filtro de `tenantId` para evitar data leakage entre tenants.
+
+**Configuração por tenant:**
+
+- Suportar overrides de configuração por tenant (ex.: limites, features, canais de notificação) via Notification Policy Store ou equivalente.
+
+**Observabilidade:**
+
+- O campo `tenantId` é obrigatório em logs estruturados e atributos de trace (ver secção 2.3 — Correlação distribuída).
+- Dashboards e alertas devem permitir filtragem por tenant para diagnóstico isolado.
+
+## 9.4. Privacidade de Dados (GDPR/LGPD)
+
+Além da regra geral de não registar dados sensíveis (secção 2.5), os serviços devem cumprir os seguintes requisitos:
+
+**Campos obrigatoriamente mascarados ou excluídos de logs e traces:**
+
+- Dados pessoais identificáveis: nome completo, email, NIF, número de documento, data de nascimento.
+- Dados de pagamento: número de cartão, CVV, IBAN.
+- Credenciais e tokens de autenticação.
+- Dados de saúde ou categorias especiais (RGPD Art. 9).
+
+**Retenção de logs:**
+
+- Logs contendo dados pessoais (mesmo anonimizados) devem respeitar políticas de retenção definidas pela equipa de Privacidade/Legal.
+- Por omissão, não armazenar logs com PII por mais de 90 dias sem aprovação explícita.
+
+**Auditoria e consentimento:**
+
+- Operações sensíveis (acesso a dados pessoais, exportação, eliminação) devem gerar eventos de auditoria rastreáveis.
+- O consentimento do utilizador para comunicações (email marketing, push) deve ser registado e auditável — ver secção 5.1.3.
 
 ---
 
-# Event Driven Architecture
+## 9.5. Disaster Recovery para Componentes Stateful
 
-## **Visão Geral**
+Os componentes stateful da plataforma requerem estratégias explícitas de backup e recuperação:
 
-A **Arquitetura Orientada a Eventos (Event-Driven Architecture – EDA)** é um estilo arquitetural em que os componentes de um sistema se comunicam por meio de **eventos**, em vez de chamadas diretas e síncronas. Um **evento** representa algo que *já aconteceu* no domínio do negócio (por exemplo: *PedidoCriado*, *PagamentoConfirmado*, *EstoqueAtualizado*).
+**PostgreSQL:**
 
-Nesse modelo, os produtores de eventos **não conhecem** os consumidores. Eles apenas publicam eventos em um barramento (event bus, broker ou streaming platform), e os consumidores reagem a esses eventos de forma assíncrona. Isso promove **baixo acoplamento**, **alta escalabilidade** e **resiliência**.
+- Backups automáticos diários com retenção mínima de 30 dias.
+- Point-in-Time Recovery (PITR) habilitado para bases de dados críticas.
+- Testes de restore periódicos (pelo menos trimestrais) documentados.
+- RTO e RPO definidos por criticidade do serviço.
 
-## **Conceitos Fundamentais**
+**Solace (Broker):**
 
-### **Evento**
+- Definir política de retenção de mensagens em filas persistentes para cenários de falha do consumidor.
+- Em caso de falha catastrófica do broker, documentar o procedimento de replay ou reprocessamento a partir de fontes de origem.
+- DLQs devem ser monitorizadas e ter procedimento de reprocessamento documentado.
 
-Um evento é um fato imutável que descreve uma mudança de estado relevante no sistema.
+**Princípio geral:**
 
-- É sempre algo no passado
-- Não deve ser alterado após publicado
-- Deve conter apenas informações necessárias para os consumidores
-
-Exemplos:
-
-- UserRegistered
-- OrderPlaced
-- PaymentFailed
-
-### **Produtor de Eventos**
-
-Componente responsável por **emitir eventos** quando algo relevante ocorre.
-
-- Não sabe quem vai consumir o evento
-- Publica o evento em um broker ou stream
-
-Exemplo: o serviço de pedidos publica OrderPlaced.
-
-### **Consumidor de Eventos**
-
-Componente que **escuta e reage** a eventos.
-
-- Pode haver múltiplos consumidores para o mesmo evento
-- Cada consumidor executa sua própria lógica
-
-Exemplo:
-
-- Serviço de estoque reduz quantidade
-- Serviço de e-mail envia confirmação
-- Serviço de faturamento gera nota fiscal
-
-### **Event Broker / Event Bus**
-
-Infraestrutura responsável por transportar os eventos entre produtores e consumidores.
-
-Exemplos comuns:
-
-- Apache Kafka
-- RabbitMQ
-- Azure Event Hubs / Service Bus
-- AWS SNS/SQS
-- Google Pub/Sub
-
-### **Fluxo Básico de Funcionamento**
-
-1. Um evento ocorre no sistema (ex: pedido criado)
-2. O produtor publica o evento no broker
-3. O broker distribui o evento
-4. Um ou mais consumidores recebem o evento
-5. Cada consumidor executa sua ação de forma independente
-
-Esse fluxo elimina dependências diretas e permite evolução independente dos serviços.
-
-### **Tipos de Arquitetura Orientada a Eventos**
-
-#### **Event Notification**
-
-O evento serve apenas como **notificação**.
-
-- Contém dados mínimos
-- Consumidores buscam mais informações se necessário
-
-Uso comum em integrações simples.
-
-#### **Event-Carried State Transfer**
-
-O evento carrega **todo o estado necessário** para o consumidor.
-
-- Reduz chamadas adicionais
-- Aumenta o tamanho do evento
-
-Muito usado em microserviços distribuídos.
-
-#### **Event Sourcing**
-
-Os eventos são a **fonte da verdade** do sistema.
-
-- O estado atual é reconstruído a partir da sequência de eventos
-- Permite auditoria completa e time-travel
-
-Exemplo:
-
-- AccountCreated
-- MoneyDeposited
-- MoneyWithdrawn
-
-O saldo é calculado a partir desses eventos.
-
-### **Benefícios da EDA**
-
-- **Desacoplamento**: produtores e consumidores evoluem de forma independente
-- **Escalabilidade horizontal**: consumidores podem ser escalados facilmente
-- **Resiliência**: falhas em um consumidor não afetam os outros
-- **Extensibilidade**: novos comportamentos podem ser adicionados sem alterar produtores
-- **Alta performance** em sistemas assíncronos e distribuídos
-
-### **Desafios e Cuidados**
-
-#### **Consistência Eventual**
-
-- O sistema não é imediatamente consistente
-- Estados intermediários são normais
-- É necessário aceitar e modelar essa realidade
-
-#### **Idempotência**
-
-- Consumidores devem suportar eventos duplicados
-- Cada evento deve ser processado de forma segura mais de uma vez
-
-#### **Ordenação de Eventos**
-
-- Nem todos os brokers garantem ordem global
-- É comum garantir ordem apenas por chave (ex: orderId)
-
-#### **Versionamento de Eventos**
-
-- Eventos evoluem ao longo do tempo
-- Nunca quebrar consumidores existentes
-- Estratégias comuns:
-- Versionar o nome do evento
-- Tornar campos opcionais
-- Usar schemas (Avro, Protobuf, JSON Schema)
-
-### **EDA e Microserviços**
-
-EDA é extremamente comum em arquiteturas de **microserviços**, pois:
-
-- Evita comunicação síncrona excessiva
-- Reduz efeito cascata de falhas
-- Facilita integração entre domínios
-
-Exemplo prático:
-
-- Serviço de Pedido publica OrderPlaced
-- Serviço de Pagamento reage
-- Serviço de Estoque reage
-- Serviço de Analytics reage
-Nenhum deles depende diretamente do outro.
-
-### **Quando Usar Event-Driven Architecture**
-
-EDA é indicada quando:
-
-- O sistema é distribuído
-- Há necessidade de escalar consumidores independentemente
-- O domínio é orientado a eventos de negócio
-- A latência síncrona não é crítica
-- É desejável alta extensibilidade
-
-Não é indicada para:
-
-- Sistemas simples e monolíticos
-- Fluxos que exigem consistência forte imediata
-- Times sem maturidade em sistemas distribuídos
-
-### **Conclusão**
-
-A Arquitetura Orientada a Eventos é um pilar moderno para sistemas escaláveis, resilientes e desacoplados. Quando bem aplicada, ela permite que sistemas cresçam em complexidade sem crescimento proporcional de acoplamento. Porém, exige maturidade técnica, boa observabilidade e entendimento profundo de consistência eventual.
-
-Usada corretamente, EDA transforma eventos de simples mensagens em **primeiros cidadãos do domínio**, refletindo de forma natural como o negócio realmente funciona.
-
-# Processamento Assíncrono no Frontend Web
-
-Toda ação do utilizador que envolve I/O (ex.: criar pedido, salvar, atualizar) deve ser tratada 
-como uma operação assíncrona, ligada a um async Task no evento do componente
-(@onclick="PlaceFakeAsync"), com flags de estado (IsPlacing) para controlar UI (botões desabilitados, textos “Processando…”).
-
-- Um botão chama um método async:
-- @onclick="PlaceFakeAsync"
-- Dentro do método:
-- seta um flag (IsPlacing = true),
-- faz a chamada assíncrona para o BFF (await Service.PlaceAsync(req)),
-- trata erro/sucesso,
-- atualiza mensagens de status e/ou recarrega a lista (await LoadOrdersAsync()),
-- no finally, volta IsPlacing = false.
-
-Ideia central:
-
-> **Não bloquear a UI enquanto o utilizador executa uma ação remota**, evitando múltiplos cliques e dando feedback claro sobre o que está acontecendo.
-
-## **Exemplos em .Net Blazor:**
-
-- AsyncOrderService.cs fazendo chamadas HTTP assíncronas.
-- OrdersPage.razor com:
-- carregamento inicial async em OnInitializedAsync;
-- auto-refresh assíncrono que roda em loop em background no lado do cliente enquanto a página está aberta;
-- cancelamento com CancellationTokenSource;
-- e ações de UI (Fazer pedido) que disparam processamento assíncrono no cliente;
-
-Frontend/Features/Order/AsyncOrderService.cs
-
-``` 
-using System.Net.Http.Json;
-using Shared.Dtos;
-
-namespace Frontend.Features.Orders;
-
-public sealed class OrdersService
-{
-    private readonly HttpClient _http;
-
-    public OrdersService(HttpClient http)
-    {
-        _http = http;
-    }
-
-    /// <summary>
-    /// Lista pedidos existentes.
-    /// GET /api/orders
-    /// </summary>
-    public async Task<IReadOnlyList<PlaceOrderResponse>> ListAsync(CancellationToken ct = default)
-    {
-        var res = await _http.GetFromJsonAsync<OrdersListResponse>("/api/orders", ct);
-        return res?.Orders ?? Array.Empty<PlaceOrderResponse>();
-    }
-
-    /// <summary>
-    /// Envia um novo pedido para o BFF.
-    /// POST /api/orders/place
-    /// </summary>
-    public async Task<PlaceOrderResponse?> PlaceAsync(PlaceOrderRequest req, CancellationToken ct = default)
-    {
-        var res = await _http.PostAsJsonAsync("/api/orders/place", req, ct);
-        if (!res.IsSuccessStatusCode) return null;
-
-        return await res.Content.ReadFromJsonAsync<PlaceOrderResponse>(cancellationToken: ct);
-    }
-}
-```
-
-Frontend/Features/Orders/OrdersPage.razor
-
-``` 
-@page "/orders"
-@inherits OrdersPageBase
-
-<h3>Pedidos</h3>
-
-<div class="toolbar">
-    <button @onclick="PlaceFakeAsync" disabled="@IsPlacing">
-        @(IsPlacing ? "Criando pedido..." : "Fazer pedido de teste")
-    </button>
-
-    <button @onclick="ToggleAutoRefreshAsync">
-        @(AutoRefreshEnabled ? "Parar auto-refresh" : "Iniciar auto-refresh (5s)")
-    </button>
-</div>
-
-<StatusMessage Message="StatusMessage"
-               ErrorMessage="ErrorMessage"
-               IsLoading="IsLoading" />
-
-@if (!IsLoading && string.IsNullOrWhiteSpace(ErrorMessage))
-{
-    <OrdersList Items="Orders" />
-}
-
-<style>
-.toolbar {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-}
-button[disabled] {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-</style>
-```
-
-OrdersPage.razor.cs (Partial class)
-
-``` 
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Shared.Dtos;
-using Frontend.Features.Orders;
- 
-namespace Frontend.Features.Orders;
- 
-public class OrdersPageBase : ComponentBase, IAsyncDisposable
-{
-    [Inject] protected OrdersService Service { get; set; } = default!;
- 
-    protected IReadOnlyList<PlaceOrderResponse> Orders { get; set; } =
-        Array.Empty<PlaceOrderResponse>();
- 
-    protected bool IsLoading { get; set; }
-    protected bool IsPlacing { get; set; }
-    protected string? ErrorMessage { get; set; }
-    protected string? StatusMessage { get; set; }
- 
-    protected bool AutoRefreshEnabled { get; set; }
-    private CancellationTokenSource? _autoRefreshCts;
-    private PeriodicTimer? _autoRefreshTimer;
- 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadOrdersAsync();
-    }
- 
-    protected async Task LoadOrdersAsync()
-    {
-        IsLoading = true;
-        ErrorMessage = null;
- 
-        try
-        {
-            Orders = await Service.ListAsync();
-            StatusMessage = $"Última atualização: {DateTime.Now:T}";
-        }
-        catch (Exception ex)
-        {
-            Orders = Array.Empty<PlaceOrderResponse>();
-            ErrorMessage = $"Erro ao carregar pedidos: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
- 
-    protected async Task PlaceFakeAsync()
-    {
-        if (IsPlacing) return;
- 
-        IsPlacing = true;
-        ErrorMessage = null;
- 
-        try
-        {
-            var req = new PlaceOrderRequest(new[]
-            {
-                new OrderLineDto(Guid.NewGuid(), 2, 10m),
-                new OrderLineDto(Guid.NewGuid(), 1, 25.5m)
-            });
- 
-            var placed = await Service.PlaceAsync(req);
-            if (placed is null)
-            {
-                ErrorMessage = "Falha ao criar pedido.";
-            }
-            else
-            {
-                StatusMessage = $"Pedido criado: {placed.OrderId}, Total {placed.Total:C}";
-                await LoadOrdersAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Erro ao criar pedido: {ex.Message}";
-        }
-        finally
-        {
-            IsPlacing = false;
-        }
-    }
- 
-    protected async Task ToggleAutoRefreshAsync()
-    {
-        if (AutoRefreshEnabled)
-        {
-            AutoRefreshEnabled = false;
-            StatusMessage = "Auto-refresh desativado.";
-            _autoRefreshCts?.Cancel();
-            _autoRefreshTimer?.Dispose();
-            await InvokeAsync(StateHasChanged);
-            return;
-        }
- 
-        AutoRefreshEnabled = true;
-        StatusMessage = "Auto-refresh ativado (5s).";
-        _autoRefreshCts?.Cancel();
-        _autoRefreshCts = new CancellationTokenSource();
-        _autoRefreshTimer?.Dispose();
-        _autoRefreshTimer = new PeriodicTimer(TimeSpan.FromSeconds(5));
- 
-        _ = RunAutoRefreshLoopAsync(_autoRefreshCts.Token);
-        await InvokeAsync(StateHasChanged);
-    }
- 
-    private bool _isRefreshing; // Adicionado: flag para controlo de concorrência no auto-refresh
- 
-    private async Task RunAutoRefreshLoopAsync(CancellationToken ct)
-    {
-        try
-        {
-            if (_autoRefreshTimer is null)
-                return;
- 
-            // Corrigido: sem este controlo, se uma chamada a LoadOrdersAsync
-            // demorar mais de 5 segundos, múltiplas invocações ficam em curso simultaneamente,
-            // causando condições de corrida no estado da UI e chamadas redundantes ao BFF.
-            // O flag _isRefreshing garante que cada iteração aguarda a conclusão da anterior.
-            while (await _autoRefreshTimer.WaitForNextTickAsync(ct))
-            {
-                if (_isRefreshing) continue;
- 
-                _isRefreshing = true;
-                try
-                {
-                    await LoadOrdersAsync();
-                }
-                finally
-                {
-                    _isRefreshing = false;
-                }
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // esperado
-        }
-    }
- 
-    public async ValueTask DisposeAsync()
-    {
-        AutoRefreshEnabled = false;
-        _autoRefreshCts?.Cancel();
-        _autoRefreshTimer?.Dispose();
-        _autoRefreshCts?.Dispose();
-        await Task.CompletedTask;
-    }
-}
-```
- 
-```adf 
-{"type":"paragraph","attrs":{"localId":"30f90260-71e5-4caf-8227-463eee796d5a"},"content":[{"text":"Explicação adicional:","type":"text","marks":[{"type":"underline"}]}]}
-```
-
-```adf 
-{"type":"paragraph","attrs":{"localId":"30f90260-71e5-4caf-8227-463eee796d5a"},"content":[{"text":"Explicação adicional:","type":"text","marks":[{"type":"underline"}]}]}
-```
-
-- OnInitializedAsync carrega os pedidos **sem travar a UI.**
-- PlaceFakeAsync faz:
-- chamada assíncrona para o BFF,
-- recarrega listagem de forma assíncrona,
-- mostra mensagens de status.
-- ToggleAutoRefreshAsync:
-- inicia um loop assíncrono em background no cliente (RunAutoRefreshLoopAsync),
-- usa PeriodicTimer + CancellationToken,
-- enquanto estiver ligado, a página vai atualizando automaticamente a cada 5 segundos sem interação do utilizador.
-- DisposeAsync garante que o loop assíncrono pare quando a página for destruída/navegação mudar.
-
-
----
-
-# **Client-side Composition**
-
-O ecrã é montado no cliente, compondo componentes menores (layout + menu + features), em vez de vir “pronto” do servidor.
-
-## **Exemplo:**
-
-**Layout + composição de componentes:**
-
-Shared/MainLayout.razor:
-
-``` 
-<div class="page">
-  <aside>
-    <Shared.NavMenu />
-  </aside>
-  <main>
-    @Body
-  </main>
-</div>
-```
-
-Shared/NavMenu.razor:
-
-``` 
-<nav>
-  <h4>Modular Monolith</h4>
-  <a href="/">Home</a>
-  <a href="/catalog">Catálogo</a>
-  <a href="/orders">Pedidos</a>
-</nav>
-```
-
-E uma página de feature:
-
-``` 
-@page "/catalog"
-@inject CatalogService Service
-
-<h3>Catálogo</h3>
-<!-- conteúdo daqui pra baixo -->
-```
-
-Como funciona na prática:
-
-1. O Router decide qual página renderizar (CatalogPage, OrdersPage, etc.).
-2. O MainLayout envolve essa página com sidebar e header.
-3. O NavMenu é outro componente, plugado no layout.
-4. Tudo isso é **combinado no cliente **pelo runtime do Blazor.
-
-Isso é client-side composition: montar a UI final no browser, compondo partes menores.
-
-# **Modular Monolith**
-
-Um único frontend SPA (um bundle, um deploy), mas organizado internamente em módulos de negócio bem isolados com módulos verticalizados, por domínio:
-
--Features/Catalog → tudo de catálogo
-
--Features/Orders → tudo de pedidos
-
--Features/Admin → tudo de administração
-
-Cada módulo tem:
-
-- suas páginas (.razor com @page "/catalog" etc.),
-- seus serviços (ex.: CatalogService, OrdersService),
-- seus componentes,
-- opcionalmente sua navegação (links de menu, ícones, etc.).
-
-Mas tudo corre na mesma SPA, no mesmo Program.cs, no mesmo App.razor.
-
-## Exemplo:
-
-Frontend/Program.cs
-
-``` 
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Frontend.Features.Catalog;
-using Frontend.Features.Orders;
-
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
-
-builder.RootComponents.Add<App>("#app");
-
-// HttpClient para chamar o BFF (URL de exemplo)
-var bffBase = builder.Configuration["BffBaseUrl"] ?? "http://localhost:5005";
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(bffBase) });
-
-// Registrar módulos de frontend
-CatalogModule.RegisterServices(builder.Services);
-OrdersModule.RegisterServices(builder.Services);
-
-await builder.Build().RunAsync();
-```
-
-Frontend/App.razor
-
-``` 
-@using Microsoft.AspNetCore.Components.Routing
-
-<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <Shared.MainLayout>
-            <p role="alert">Página não encontrada.</p>
-        </Shared.MainLayout>
-    </NotFound>
-</Router>
-```
-
-Features/Catalog/CatalogModule.cs
-
-``` 
-// Frontend/Features/Catalog/CatalogModule.cs
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Frontend.Features.Catalog;
-
-public static class CatalogModule
-{
-    public static void RegisterServices(IServiceCollection services)
-    {
-        services.AddScoped<CatalogService>();
-    }
-}
-```
-
-Features/Catalog/CatalogService.cs
-
-``` 
-// Frontend/Features/Catalog/CatalogService.cs
-using System.Net.Http.Json;
-
-namespace Frontend.Features.Catalog;
-
-public sealed class CatalogService
-{
-    private readonly HttpClient _http;
-
-    public CatalogService(HttpClient http)
-    {
-        _http = http;
-    }
-
-    public async Task<IReadOnlyList<CatalogItemDto>> ListAsync(CancellationToken ct = default)
-    {
-        // Chamando BFF, mas poderia ser qualquer fonte
-        var items = await _http.GetFromJsonAsync<IReadOnlyList<CatalogItemDto>>(
-            "/api/catalog/items",
-            ct);
-
-        return items ?? Array.Empty<CatalogItemDto>();
-    }
-}
-
-public sealed record CatalogItemDto(Guid Id, string Name, decimal Price);
-```
-
-Features/Catalog/Pages/CatalogPage.razor
-
-``` 
-@page "/catalog"
-@inject Frontend.Features.Catalog.CatalogService Service
-
-<h3>Catálogo</h3>
-
-@if (_isLoading)
-{
-    <p>Carregando...</p>
-}
-else if (!string.IsNullOrWhiteSpace(_errorMessage))
-{
-    <p style="color:red">@_errorMessage</p>
-}
-else if (_items is null || _items.Count == 0)
-{
-    <p>Nenhum item encontrado.</p>
-}
-else
-{
-    <table class="catalog-table">
-        <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Preço</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var i in _items)
-        {
-            <tr>
-                <td>@i.Name</td>
-                <td>@i.Price.ToString("C")</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-}
-
-@code {
-    private IReadOnlyList<CatalogItemDto>? _items;
-    private bool _isLoading;
-    private string? _errorMessage;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _isLoading = true;
-        _errorMessage = null;
-
-        try
-        {
-            _items = await Service.ListAsync();
-        }
-        catch (Exception ex)
-        {
-            _items = Array.Empty<CatalogItemDto>();
-            _errorMessage = $"Erro ao carregar catálogo: {ex.Message}";
-        }
-        finally
-        {
-            _isLoading = false;
-        }
-    }
-}
-
-<style>
-.catalog-table {
-    border-collapse: collapse;
-    min-width: 320px;
-}
-.catalog-table th,
-.catalog-table td {
-    border: 1px solid #ddd;
-    padding: .4rem .6rem;
-}
-.catalog-table thead {
-    background-color: #f5f5f5;
-}
-</style>
-```
-
-# **Clean Architecture** 
-
-## **Visão Geral**
-
-**Clean Architecture** é um estilo arquitetural proposto por **Robert C. Martin (Uncle Bob)** cujo objetivo principal é criar sistemas **independentes de frameworks**, **testáveis**, **manuteníveis** e **fáceis de evoluir ao longo do tempo**.
-
-A ideia central é organizar o software de forma que **as regras de negócio sejam o núcleo do sistema**, enquanto detalhes técnicos (UI, base de dados, frameworks, mensageria) fiquem na periferia.
-
-Em Clean Architecture, **políticas de alto nível não dependem de detalhes de baixo nível**. Ao contrário, os detalhes é que dependem das regras de negócio.
-
-## **Princípio Fundamental**
-
-> **Dependências sempre apontam para dentro.**
-
-Isso significa que:
-
-- A camada de domínio **não conhece** base de dados
-- Não conhece frameworks web
-- Não conhece filas, brokers ou UI
-- Não conhece ORM, REST, GraphQL ou gRPC
-
-Ela conhece apenas **regras de negócio puras**.
-
-## **Estrutura em Camadas**
-
-Visualmente, a Clean Architecture é representada como **círculos concêntricos**:
-
-1. **Entities**
-2. **Use Cases (Application)**
-3. **Interface Adapters**
-4. **Frameworks & Drivers**
-
-Cada camada externa depende apenas das camadas internas.
-
-## **Entities (Domínio)**
-
-### **Responsabilidade**
-
-- Representar as **regras de negócio mais estáveis**
-- Conter invariantes do domínio
-- Ser completamente independente de tecnologia
-
-Exemplos:
-
-- Order
-- Customer
-- Account
-
-Características:
-
-- Código puro
-- Sem anotações de framework
-- Fácil de testar
-- Alta longevidade
-
-## **Use Cases (Application Layer)**
-
-### **Responsabilidade**
-
-- Orquestrar regras de negócio
-- Representar **casos de uso do sistema**
-- Coordenar entidades e portas (interfaces)
-
-Exemplos:
-
-- CreateOrder
-- TransferMoney
-- RegisterUser
-
-Aqui ficam:
-
-- Regras de aplicação
-- Fluxos
-- Validações de negócio que não pertencem a uma única entidade
-
-Os use cases **não sabem**:
-
-- Como os dados são persistidos
-- Como a API é exposta
-- Quem chama o caso de uso
-
-## **Interface Adapters**
-
-### **Responsabilidade**
-
-- Adaptar o mundo externo para o modelo interno
-- Converter dados entre formatos externos e internos
-
-Inclui:
-
-- Controllers (REST, GraphQL, gRPC)
-- Presenters / ViewModels
-- Repositórios (implementações)
-- Gateways
-
-Essa camada:
-
-- Implementa interfaces definidas nos Use Cases
-- Traduz DTOs ↔ Entidades
-
-## **Frameworks & Drivers**
-
-### **Responsabilidade**
-
-- Lidar com detalhes técnicos
-- Infraestrutura e ferramentas
-
-Exemplos:
-
-- Spring Boot / [http://ASP.NET](http://ASP.NET)  Core
-- React / Angular
-- base de dados
-- ORM (Hibernate, EF Core)
-- Brokers (Kafka, RabbitMQ)
-
-Essa camada **é descartável**.
-
-Se amanhã você trocar Spring por outro framework, o domínio não muda.
-
-## **Inversão de Dependência**
-
-Clean Architecture se apoia fortemente no **Dependency Inversion Principle (DIP)**:
-
-- Interfaces são definidas nas camadas internas
-- Implementações ficam nas camadas externas
-
-Exemplo:
-
-- OrderRepository definido no domínio ou application
-- JpaOrderRepository implementado na infraestrutura
-
-Isso garante:
-
-- Testes sem BD
-- Troca fácil de tecnologia
-- Baixo acoplamento
-
-## **Clean Architecture vs MVC Tradicional**
-
-| Aspecto | MVC Tradicional (Data-Centric) | Clean Architecture |
-| --- | --- | --- |
-| **Núcleo (Domínio)** | Dependente de frameworks e bancos de dados. | **Independente**de detalhes técnicos (Plain Objects). |
-| **Direção das Dependências** | **Acoplamento Direto**(Domínio → Infraestrutura). | **Inversão de Dependência**(Infraestrutura → Domínio). |
-| **Lógica de Negócio** | Muitas vezes fragmentada entre Controllers e Services. | **Centralizada** e protegida em Entidades e Casos de Uso. |
-| **Testabilidade** | **Moderada** (frequentemente exige mocks de DB ou integração). | **Alta** (testes unitários puros, sem IO ou infra). |
-| **Portabilidade** | Difícil (trocar o DB ou Framework exige refatorar o Core). | **Facilitada** (o Core não conhece o mundo externo). |
-
-
-## **Clean Architecture e Hexagonal Architecture**
-
-Clean Architecture e **Arquitetura Hexagonal (Ports and Adapters)** são conceitos muito próximos:
-
-- Ambas isolam o domínio
-- Ambas usam portas e adaptadores
-- Diferença principal é **ênfase e representação**
-
-Hexagonal foca mais na ideia de portas/adaptadores
-
-Clean Architecture foca mais em **políticas vs detalhes**
-
-Na prática, muitos sistemas combinam as duas.
-
-## **Clean Architecture e Microserviços**
-
-Clean Architecture funciona muito bem em:
-
-- Monólitos bem estruturados
-- Monólitos modulares
-- Microserviços
-
-Em microserviços:
-
-- Cada serviço tem seu próprio domínio isolado
-- Facilita testes
-- Reduz dependência entre times
-- Evita que o framework “vaze” para o core
-
-## **Benefícios da Clean Architecture**
-
-- **Testabilidade extrema**
-- **Baixo acoplamento**
-- **Alta coesão**
-- **Evolução segura**
-- **Framework-agnostic**
-- **Código orientado ao negócio**
-
-## **Desafios e Armadilhas**
-
-### **Overengineering**
-
-- Pode ser exagero para sistemas pequenos
-- Requer disciplina
-
-### **Curva de Aprendizado**
-
-- Times acostumados com MVC tendem a misturar camadas
-
-### **Excesso de Abstrações**
-
-- Interfaces sem necessidade real
-- Camadas artificiais
-
-## **Quando Usar Clean Architecture**
-
-Indicada quando:
-
-- O sistema é grande ou tende a crescer
-- Regras de negócio são complexas
-- Longevidade é importante
-- Há múltiplas interfaces (API, batch, eventos)
-
-Não indicada quando:
-
-- Projeto é pequeno e descartável
-- Time é muito júnior sem acompanhamento
-- Time-to-market é extremamente curto
-
-## **Conclusão**
-
-Clean Architecture não é sobre pastas ou frameworks, mas sobre **proteção do domínio**.
-
-Ela força decisões arquiteturais que colocam o negócio no centro e empurram detalhes técnicos para as bordas.
-
-Quando bem aplicada, resulta em sistemas mais fáceis de testar, manter e evoluir — mesmo após anos de mudanças tecnológicas.
-
-
----
-
-# **CQRS (Command Query Responsibility Segregation)**
-
-## **Visão Geral**
-
-**CQRS (Command Query Responsibility Segregation)** é um padrão arquitetural que propõe a **separação explícita entre operações de escrita (Commands)** e **operações de leitura (Queries)** em um sistema.
-
-Enquanto arquiteturas tradicionais usam o mesmo modelo para ler e escrever dados, o CQRS reconhece que **leitura e escrita têm necessidades muito diferentes** e, por isso, devem ser tratadas de forma distinta.
-
-O princípio central é simples:
-
-> **Commands mudam estado. Queries apenas leem estado. Nunca os dois.**
-
-## **Conceitos Fundamentais**
-
-### **Command**
-
-Um **Command** representa uma intenção de mudança no sistema.
-
-- Expressa *o intuito do utilizador*
-- Sempre tenta alterar o estado
-- Não retorna dados (no máximo um status ou ID)
-
-Exemplos:
-
-- CreateOrder
-- CancelOrder
-- UpdateCustomerAddress
-
-Características:
-
-- Verbos no imperativo
-- Validação forte
-- Executados de forma transacional
-
-### **Query**
-
-Uma **Query** representa uma solicitação de leitura.
-
-- Nunca altera estado
-- Retorna dados
-- Pode ser altamente otimizada para leitura
-
-Exemplos:
-
-- GetOrderById
-- ListOrdersByCustomer
-- SearchProducts
-
-### **Command Model (Write Model)**
-
-O **modelo de escrita** é responsável por:
-
-- Garantir regras de negócio
-- Manter consistência
-- Executar validações
-
-Normalmente:
-
-- Usa entidades ricas
-- Segue princípios de DDD
-- Prioriza integridade sobre performance
-
-### **Query Model (Read Model)**
-
-O **modelo de leitura** é responsável por:
-
-- Entregar dados rapidamente
-- Atender necessidades específicas da UI
-- Suportar consultas complexas
-
-Normalmente:
-
-- Usa DTOs simples
-- Pode ter modelos diferentes por ecrã
-- Pode usar BDs ou índices diferentes
-
-
----
-
-## **Fluxo Básico de CQRS**
-
-1. O cliente envia um **Command**
-2. O Command Handler valida e executa regras de negócio
-3. O estado é persistido
-4. Um ou mais eventos são publicados
-5. O Read Model é atualizado (sincronamente ou não)
-6. O cliente executa **Queries** contra o Read Model
-
-Leitura e escrita seguem caminhos totalmente independentes.
-
-## **CQRS Simples vs CQRS Completo**
-
-### **CQRS Simples**
-
-- Mesma base de dados
-- Modelos diferentes para leitura e escrita
-- Separação lógica, não física
-
-Muito comum e recomendado como primeiro passo.
-
-### **CQRS Completo**
-
-- BDs separados
-- Atualização do Read Model via eventos
-- Consistência eventual
-
-Mais complexo, porém altamente escalável.
-
-## **CQRS e Event-Driven Architecture**
-
-CQRS é frequentemente combinado com **Event-Driven Architecture**:
-
-- Commands geram eventos
-- Eventos atualizam Read Models
-- Consumidores independentes processam projeções
-
-Exemplo:
-
-- OrderPlaced → atualiza visão de pedidos
-- PaymentConfirmed → atualiza dashboard financeiro
-
-Essa combinação é extremamente poderosa em sistemas distribuídos.
-
-## **CQRS e Event Sourcing**
-
-Em uma abordagem mais avançada:
-
-- Commands geram eventos
-- Eventos são a fonte da verdade
-- Read Models são projeções desses eventos
-
-Benefícios:
-
-- Auditoria completa
-- Time travel
-- Rebuild de projeções
-
-Custo:
-
-- Complexidade elevada
-- Requer maturidade técnica
-
-## **Benefícios do CQRS**
-
-- **Escalabilidade independente** de leitura e escrita
-- **Modelos otimizados** para cada caso
-- **Melhor desempenho** em cenários de leitura intensa
-- **Clareza de intenção** no código
-- **Facilidade de integração** com eventos
-
-## **Desafios e Armadilhas**
-
-### **Complexidade**
-
-- Mais camadas
-- Mais código
-- Mais pontos de falha
-
-### **Consistência Eventual**
-
-- Leitura pode não refletir escrita imediatamente
-- UI deve lidar com estados intermediários
-
-### **Overengineering**
-
-- Desnecessário para CRUD simples
-- Pode atrasar o time-to-market
-
-## **CQRS vs CRUD Tradicional**
-
-| **Aspecto**         | **CRUD Tradicional** | **CQRS**     |
-| ------------------- | -------------------- | ------------ |
-| Modelo              | Único                | Separado     |
-| Leitura             | Acoplada à escrita   | Independente |
-| Escalabilidade      | Limitada             | Alta         |
-| Complexidade        | Baixa                | Média/Alta   |
-| Clareza de intenção | Média                | Alta         |
-
-## **CQRS e Clean Architecture**
-
-CQRS se encaixa naturalmente em **Clean Architecture**:
-
-- Commands e Queries vivem na camada de Application
-- Domínio protege regras de negócio
-- Infraestrutura implementa handlers, repositórios e projeções
-
-A separação reforça o isolamento do domínio e melhora testabilidade.
-
-## **Quando Usar CQRS**
-
-Indicado quando:
-
-- Leitura é muito mais frequente que escrita
-- Consultas são complexas
-- Há necessidade de escalabilidade
-- O domínio possui regras ricas
-
-Não indicado quando:
-
-- Aplicação é simples
-- CRUD básico resolve o problema
-- Time não tem experiência com sistemas distribuídos
-
-## **Exemplo de Uso Prático**
-
-Sistema de e-commerce:
-
-- Commands:
-- PlaceOrder
-- CancelOrder
-- Queries:
-- GetOrderDetails
-- ListOrdersByStatus
-
-Modelo de escrita garante:
-
-- Estoque
-- Pagamento
-- Regras de cancelamento
-
-Modelo de leitura entrega:
-
-- Listagens rápidas
-- Dashboards
-- Relatórios
-
-## **Conclusão**
-
-CQRS não é um requisito, é uma **opção estratégica**. Ele traz clareza, escalabilidade e flexibilidade, mas cobra um preço em complexidade.
-
-Quando aplicado nos contextos certos — especialmente combinado com Event-Driven Architecture e Clean Architecture — o CQRS se torna uma poderosa ferramenta para construir sistemas robustos, performáticos e preparados para crescer.
-
-
----
-
-# **Design for Failure**
-
-A arquitetura é projetada para ser resiliente a falhas. O uso de filas de *dead-letter*, políticas de *retry* com *exponential backoff* e a natureza assíncrona da comunicação garantem que o sistema possa se recuperar de falhas temporárias sem perda de dados.
-
-
----
-
-# **Infraestrutura como Código (IaC)**
-
-Toda a infraestrutura é definida em código (Terraform), o que garante a reprodutibilidade, o controle de versão e a automação do provisionamento de ambientes.
-
-
----
+- Todo o componente stateful deve ter RTO (Recovery Time Objective) e RPO (Recovery Point Objective) definidos, validados e documentados antes de entrar em produção.
+- Os procedimentos de DR devem ser testados em ambiente não-produtivo pelo menos uma vez por semestre.
