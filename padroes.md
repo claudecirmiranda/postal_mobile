@@ -2,73 +2,70 @@
 ------
 
 - [DAS Backend API Messaging](#das-backend-api-messaging)
-        - [Detalhe: Serviços internos de backend (APIs, BFFs, workers, integradores)](#detalhe-serviços-internos-de-backend-apis-bffs-workers-integradores)
-        - [Histórico de Revisões](#histórico-de-revisões)
-    - [1. Introdução](#1-introdução)
-        - [1.1. Propósito e Objetivos](#11-propósito-e-objetivos)
-        - [1.2. Público-Alvo](#12-público-alvo)
-        - [1.3. Serviços Abrangidos](#13-serviços-abrangidos)
-        - [1.4. Âmbito](#14-âmbito)
-    - [2. Dependências e Referências](#2-dependências-e-referências)
-    - [3. Regras de Utilização](#3-regras-de-utilização)
-    - [4. Arquitetura da Tipologia](#4-arquitetura-da-tipologia)
-        - [4.1. Camadas](#41-camadas)
-        - [4.2. Fronteiras e Dependências](#42-fronteiras-e-dependências)
-        - [4.3. Estratégia de Testes](#43-estratégia-de-testes)
-        - [4.4. Fluxo End-to-End de Exemplo](#44-fluxo-end-to-end-de-exemplo)
-        - [4.5. Padrões de Design para Resiliência](#45-padrões-de-design-para-resiliência)
-            - [4.5.1. Retries em Publicação de Mensagens](#451-retries-em-publicação-de-mensagens)
-            - [4.5.2. Retries em Consumo de Mensagens](#452-retries-em-consumo-de-mensagens)
-            - [4.5.3. Circuit Breaker](#453-circuit-breaker)
-            - [4.5.4. Outbox Pattern](#454-outbox-pattern)
-        - [4.6. Versionamento de Eventos](#46-versionamento-de-eventos)
-        - [4.7. Processamento em Background (Jobs)](#47-processamento-em-background-jobs)
-    - [5. Estrutura do Projeto](#5-estrutura-do-projeto)
-    - [6. Tecnologias Utilizadas](#6-tecnologias-utilizadas)
-        - [6.2. Boas Práticas em Cliente de Mensageria](#62-boas-práticas-em-cliente-de-mensageria)
-            - [Confiabilidade e Garantias de Entrega](#confiabilidade-e-garantias-de-entrega)
-            - [Resiliência e Tolerância a Falhas](#resiliência-e-tolerância-a-falhas)
-            - [Desempenho e Escalabilidade](#desempenho-e-escalabilidade)
-            - [Contratos de Mensagem](#contratos-de-mensagem)
-            - [Segurança na Mensageria](#segurança-na-mensageria)
-        - [6.3. Quando Utilizar gRPC](#63-quando-utilizar-grpc)
-        - [6.4. Gestão de Configurações Aplicacionais](#64-gestão-de-configurações-aplicacionais)
-            - [6.4.1. Princípios](#641-princípios)
-            - [6.4.2. Exemplo – appsettings.json](#642-exemplo-appsettingsjson)
-            - [6.4.3. Classe de Options](#643-classe-de-options)
-            - [6.4.4. Binding e Validação no Startup](#644-binding-e-validação-no-startup)
-            - [6.4.5. Uso via IOptions / IOptionsMonitor](#645-uso-via-ioptions-ioptionsmonitor)
-    - [7. Segurança](#7-segurança)
-    - [8. Infraestrutura](#8-infraestrutura)
-    - [9. Padrões e Princípios Arquiteturais](#9-padrões-e-princípios-arquiteturais)
-        - [9.1. Princípios Fundamentais](#91-princípios-fundamentais)
-        - [9.2. Diretrizes Gerais](#92-diretrizes-gerais)
-        - [9.3. Governança](#93-governança)
-        - [9.4. Quando Utilizar API Assíncrona ou Evento](#94-quando-utilizar-api-assíncrona-ou-evento)
-        - [9.5. Gestão de Erros de Domínio](#95-gestão-de-erros-de-domínio)
-    - [10. Observabilidade](#10-observabilidade)
-        - [10.1. Instrumentação em .NET com OpenTelemetry](#101-instrumentação-em-net-com-opentelemetry)
+- [Histórico de Revisões](#histórico-de-revisões)
+- [1. Introdução](#1-introdução)
+    - [1.1. Propósito e Objetivos](#11-propósito-e-objetivos)
+    - [1.2. Público-Alvo](#12-público-alvo)
+    - [1.3. Serviços Abrangidos](#13-serviços-abrangidos)
+    - [1.4. Âmbito](#14-âmbito)
+- [2. Dependências e Referências](#2-dependências-e-referências)
+- [3. Regras de Utilização](#3-regras-de-utilização)
+- [4. Arquitetura da Tipologia](#4-arquitetura-da-tipologia)
+    - [4.1. Camadas](#41-camadas)
+    - [4.2. Fronteiras e Dependências](#42-fronteiras-e-dependências)
+    - [4.3. Estratégia de Testes](#43-estratégia-de-testes)
+    - [4.4. Fluxo End-to-End de Exemplo](#44-fluxo-end-to-end-de-exemplo)
+    - [4.5. Padrões de Design para Resiliência](#45-padrões-de-design-para-resiliência)
+        - [4.5.1. Retries em Publicação de Mensagens](#451-retries-em-publicação-de-mensagens)
+        - [4.5.2. Retries em Consumo de Mensagens](#452-retries-em-consumo-de-mensagens)
+        - [4.5.3. Circuit Breaker](#453-circuit-breaker)
+        - [4.5.4. Outbox Pattern](#454-outbox-pattern)
+    - [4.6. Versionamento de Eventos](#46-versionamento-de-eventos)
+    - [4.7. Processamento em Background (Jobs)](#47-processamento-em-background-jobs)
+- [5. Estrutura do Projeto](#5-estrutura-do-projeto)
+- [6. Tecnologias Utilizadas](#6-tecnologias-utilizadas)
+    - [6.2. Boas Práticas em Cliente de Mensageria](#62-boas-práticas-em-cliente-de-mensageria)
+        - [Confiabilidade e Garantias de Entrega](#confiabilidade-e-garantias-de-entrega)
+        - [Resiliência e Tolerância a Falhas](#resiliência-e-tolerância-a-falhas)
+        - [Desempenho e Escalabilidade](#desempenho-e-escalabilidade)
+        - [Contratos de Mensagem](#contratos-de-mensagem)
+        - [Segurança na Mensageria](#segurança-na-mensageria)
+    - [6.3. Quando Utilizar gRPC](#63-quando-utilizar-grpc)
+    - [6.4. Gestão de Configurações Aplicacionais](#64-gestão-de-configurações-aplicacionais)
+        - [6.4.1. Princípios](#641-princípios)
+        - [6.4.2. Exemplo – appsettings.json](#642-exemplo-appsettingsjson)
+        - [6.4.3. Classe de Options](#643-classe-de-options)
+        - [6.4.4. Binding e Validação no Startup](#644-binding-e-validação-no-startup)
+        - [6.4.5. Uso via IOptions / IOptionsMonitor](#645-uso-via-ioptions-ioptionsmonitor)
+- [7. Segurança](#7-segurança)
+- [8. Infraestrutura](#8-infraestrutura)
+- [9. Padrões e Princípios Arquiteturais](#9-padrões-e-princípios-arquiteturais)
+    - [9.1. Princípios Fundamentais](#91-princípios-fundamentais)
+    - [9.2. Diretrizes Gerais](#92-diretrizes-gerais)
+    - [9.3. Governança](#93-governança)
+    - [9.4. Quando Utilizar API Assíncrona ou Evento](#94-quando-utilizar-api-assíncrona-ou-evento)
+    - [9.5. Gestão de Erros de Domínio](#95-gestão-de-erros-de-domínio)
+- [10. Observabilidade](#10-observabilidade)
+    - [10.1. Instrumentação em .NET com OpenTelemetry](#101-instrumentação-em-net-com-opentelemetry)
             - [Auto-instrumentação (preferencial)](#auto-instrumentação-preferencial)
             - [Instrumentação manual (quando necessária)](#instrumentação-manual-quando-necessária)
-        - [10.2. Logging Estruturado com Microsoft.Extensions.Logging](#102-logging-estruturado-com-microsoftextensionslogging)
-            - [Regras](#regras)
-        - [10.3. Correlação em Serviços Backend](#103-correlação-em-serviços-backend)
-        - [10.4. Métricas Mínimas Esperadas em Backends](#104-métricas-mínimas-esperadas-em-backends)
-            - [APIs / BFFs](#apis-bffs)
-            - [Workers / Mensageria](#workers-mensageria)
-            - [Dependências Externas](#dependências-externas)
-        - [10.5. Boas Práticas Específicas para .NET](#105-boas-práticas-específicas-para-net)
-    - [Apêndice](#apêndice)
-        - [Template de Projeto](#template-de-projeto)
-        - [Convenções de Nomenclatura C#](#convenções-de-nomenclatura-c)
+    - [10.2. Logging Estruturado com Microsoft.Extensions.Logging](#102-logging-estruturado-com-microsoftextensionslogging)
+        - [Regras](#regras)
+    - [10.3. Correlação em Serviços Backend](#103-correlação-em-serviços-backend)
+    - [10.4. Métricas Mínimas Esperadas em Backends](#104-métricas-mínimas-esperadas-em-backends)
+        - [APIs / BFFs](#apis-bffs)
+        - [Workers / Mensageria](#workers-mensageria)
+        - [Dependências Externas](#dependências-externas)
+    - [10.5. Boas Práticas Específicas para .NET](#105-boas-práticas-específicas-para-net)
+- [Apêndice](#apêndice)
+    - [Template de Projeto](#template-de-projeto)
+    - [Convenções de Nomenclatura C#](#convenções-de-nomenclatura-c)
 
 # DAS Backend API Messaging
 
-### Detalhe: Serviços internos de backend (APIs, BFFs, workers, integradores)
+**Detalhe: Serviços internos de backend (APIs, BFFs, workers, integradores)**
 
----
-
-### Histórico de Revisões
+# Histórico de Revisões
 
 | Versão | Data       | Autor(es)         | Resumo das Mudanças                                                                                     |
 |--------|------------|-------------------|---------------------------------------------------------------------------------------------------------|
@@ -81,9 +78,9 @@
 
 ---
 
-## 1. Introdução
+# 1. Introdução
 
-### 1.1. Propósito e Objetivos
+## 1.1. Propósito e Objetivos
 
 Este documento define as diretrizes técnicas e de arquitetura para desenvolvimento, evolução e operação de backends internos em .NET, com foco em:
 
@@ -95,13 +92,13 @@ Este documento define as diretrizes técnicas e de arquitetura para desenvolvime
 
 O objetivo é servir como **documento de arquitetura de referência** para equipas de backend, arquitetura e DevOps, garantindo consistência entre os serviços.
 
-### 1.2. Público-Alvo
+## 1.2. Público-Alvo
 
 - Engenharia
 - Suporte
 - Arquitetura
 
-### 1.3. Serviços Abrangidos
+## 1.3. Serviços Abrangidos
 
 Esta arquitetura aplica-se a:
 
@@ -109,7 +106,7 @@ Esta arquitetura aplica-se a:
 - BFFs (Backends for Frontends) para web/mobile
 - Evolução/migração de monólitos legados para modelo modular/microserviços
 
-### 1.4. Âmbito
+## 1.4. Âmbito
 
 Os seguintes objetivos visam endereçar os problemas relatados na etapa de Assessment.
 
@@ -120,10 +117,7 @@ Os seguintes objetivos visam endereçar os problemas relatados na etapa de Asses
 | **Observabilidade desde o design**                 | Documentação deficiente; pouca visibilidade de impacto e métricas; suporte e operação precisam "mergulhar no código" durante incidentes.              | Implantar **OpenTelemetry + Prometheus + Grafana/Jaeger** para métricas e tracing distribuído; logs estruturados com MS.Extensions.Logging (JSON) e **CorrelationId** desde a origem.                                                                                                                                                                    |
 | **Automação de ponta a ponta (CI/CD)**             | Deploys pouco automatizados e com erros básicos; resistência em seguir processos de mudança; ausência de pipelines padronizados.                      | Criar pipelines únicos com build, testes (xUnit, Testcontainers), análise estática e deploy automatizados; integração com SonarQube e Swagger para documentação automática.                                                                                                                                                                               |
 | **Governança de parceiros e retenção de conhecimento** | Integrações de sistemas externos feitas diretamente pelo negócio sem seguir padrões internos; falta de documentação; risco de "caixa preta".       | Estabelecer contrato arquitetural e documentação via Swagger/NSwag e ARDOQ; obrigatoriedade de seguir padrões de stack e arquitetura definida.                                                                                                                                                                                                            |
-
----
-
-## 2. Dependências e Referências
+# 2. Dependências e Referências
 
 > **Nota editorial:** Os links abaixo parecem ser placeholders copiados — todos apontam para o mesmo URL. Verificar e corrigir para os URLs específicos de cada tópico (Gateway, Messaging, Secrets, Identity).
 
@@ -132,19 +126,15 @@ Os seguintes objetivos visam endereçar os problemas relatados na etapa de Asses
 - Secrets Management — *(verificar URL específico)*
 - Identity, Authentication & Authorization — *(verificar URL específico)*
 
----
-
-## 3. Regras de Utilização
+# 3. Regras de Utilização
 
 Cada tipologia terá abordados aspetos específicos, incluindo, sempre que aplicável, referências a diretrizes, padrões gerais e boas práticas.
 
 Este documento não é um conjunto de regras inflexíveis, mas sim um guia de **fortes recomendações**. Desvios devem ser justificados, aprovados por Arquitetura/DevPlatforms e registados num ADR.
 
----
+# 4. Arquitetura da Tipologia
 
-## 4. Arquitetura da Tipologia
-
-### 4.1. Camadas
+## 4.1. Camadas
 
 1. **Apresentação (API / BFF)**
    1. ASP.NET Core Controllers.
@@ -167,7 +157,7 @@ Este documento não é um conjunto de regras inflexíveis, mas sim um guia de **
    3. Serviços externos (HTTP clients, etc.).
    4. Configuração de IoC/DI.
 
-### 4.2. Fronteiras e Dependências
+## 4.2. Fronteiras e Dependências
 
 Dependências e fronteiras (camadas) dentro de um projeto de desenvolvimento de software.
 
@@ -178,7 +168,7 @@ Dependências e fronteiras (camadas) dentro de um projeto de desenvolvimento de 
 
 > **Nota arquitetural:** A `Infrastructure` deve depender apenas das **interfaces/contratos** definidos em `Application`/`Domain` — nunca de tipos concretos de lógica de negócio ou casos de uso. Isto garante a inversão de dependência e evita acoplamento circular.
 
-### 4.3. Estratégia de Testes
+## 4.3. Estratégia de Testes
 
 - Unit tests (Domain/Application)
 - Integration tests (Infra, messaging, DB)
@@ -186,7 +176,7 @@ Dependências e fronteiras (camadas) dentro de um projeto de desenvolvimento de 
 
 Observar estratégia e implementação de testes em: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5483724895
 
-### 4.4. Fluxo End-to-End de Exemplo
+## 4.4. Fluxo End-to-End de Exemplo
 
 ```plaintext
 [1] Cliente chama POST /api/orders
@@ -205,11 +195,11 @@ Observar estratégia e implementação de testes em: https://ecom4isi.atlassian.
    → Atualiza sistemas externos / ERP / etc.
 ```
 
-### 4.5. Padrões de Design para Resiliência
+## 4.5. Padrões de Design para Resiliência
 
 Mensageria sem estratégia de **resiliência** vira um gerador de problemas difíceis de rastrear. Aqui definimos como tratar **falhas temporárias**, **indisponibilidade de brokers** e **erros em consumidores**.
 
-#### 4.5.1. Retries em Publicação de Mensagens
+### 4.5.1. Retries em Publicação de Mensagens
 
 - **Retries com backoff exponencial** para falhas transitórias (ex.: timeout, conexão recusada, erro 5xx).
 - **Limite máximo de tentativas**, para evitar tempestades de retries.
@@ -250,7 +240,7 @@ public async Task PublishWithRetryAsync<TEvent>(
 }
 ```
 
-#### 4.5.2. Retries em Consumo de Mensagens
+### 4.5.2. Retries em Consumo de Mensagens
 
 **Retries imediatos (in-memory)**
 
@@ -299,7 +289,7 @@ public async Task ProcessMessageAsync(string json, CancellationToken ct)
 }
 ```
 
-#### 4.5.3. Circuit Breaker
+### 4.5.3. Circuit Breaker
 
 O **circuit breaker** é um padrão de resiliência usado para **proteger o sistema contra falhas em cascata** quando uma dependência externa (API, broker, BD, serviço remoto) começa a falhar ou responder lentamente.
 
@@ -331,7 +321,7 @@ A biblioteca **Polly** é o padrão de mercado em .NET para resiliência.
 
 Observar exemplo em: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5483724895
 
-#### 4.5.4. Outbox Pattern
+### 4.5.4. Outbox Pattern
 
 O Outbox Pattern garante consistência entre a base de dados e o envio de mensagens para um broker.
 
@@ -341,7 +331,7 @@ A aplicação grava o dado e a mensagem numa tabela *outbox* dentro da **mesma t
 
 Observar exemplo em: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5483724895
 
-### 4.6. Versionamento de Eventos
+## 4.6. Versionamento de Eventos
 
 Os tópicos utilizam sufixo de versão (ex.: `.v1`, `corp/modelo/orders/order-created/v1`). Para garantir evolução segura do schema de eventos sem quebrar consumidores existentes, devem ser seguidas as seguintes diretrizes:
 
@@ -351,7 +341,7 @@ Os tópicos utilizam sufixo de versão (ex.: `.v1`, `corp/modelo/orders/order-cr
 
 > **Nota:** Embora o documento mencione `v1` nos tópicos, não havia diretrizes explícitas para evolução de schema. Esta secção endereça essa lacuna.
 
-### 4.7. Processamento em Background (Jobs)
+## 4.7. Processamento em Background (Jobs)
 
 Nem todo processamento assíncrono precisa (ou deve) acontecer dentro da thread principal ou request HTTP. Utilizar uma task ou thread em background permite executar processamento assíncrono sem bloquear o fluxo principal da aplicação:
 
@@ -362,7 +352,7 @@ Mais detalhes em: https://ecom4isi.atlassian.net/wiki/x/qQETOAE
 
 ---
 
-## 5. Estrutura do Projeto
+# 5. Estrutura do Projeto
 
 ```plaintext
 /src
@@ -471,9 +461,7 @@ Mais detalhes em: https://ecom4isi.atlassian.net/wiki/x/qQETOAE
 
 Observar exemplos de implementação e casos de uso de camadas em: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5483724895
 
----
-
-## 6. Tecnologias Utilizadas
+# 6. Tecnologias Utilizadas
 
 | Categoria          | Tecnologia                                  | Observações                                                                 |
 |--------------------|---------------------------------------------|-----------------------------------------------------------------------------|
@@ -492,34 +480,34 @@ Observar exemplos de implementação e casos de uso de camadas em: https://ecom4
 
 > **Nota editorial:** A tabela anterior indicava "Depende do domínio / legado" para PostgreSQL, o que criava ambiguidade face à indicação de C# como "Padrão para todos os serviços backend". A observação foi clarificada acima.
 
-### 6.2. Boas Práticas em Cliente de Mensageria
+## 6.2. Boas Práticas em Cliente de Mensageria
 
 Um cliente de mensageria (producer/consumer) é um ponto crítico da arquitetura orientada a eventos. Erros nesse nível geram efeitos em cascata: mensagens perdidas, duplicadas, atrasos, backpressure e falhas difíceis de diagnosticar. Abaixo estão as principais boas práticas, organizadas por responsabilidade.
 
-#### Confiabilidade e Garantias de Entrega
+### Confiabilidade e Garantias de Entrega
 
 - **Confirmações (acks)** explícitas após processamento bem-sucedido; evitar *auto-ack* sem controlo.
 - **Retries com backoff exponencial** e *jitter* para evitar thundering herd.
 
-#### Resiliência e Tolerância a Falhas
+### Resiliência e Tolerância a Falhas
 
 - **Timeouts bem definidos** em conexões, publish e consume (nunca infinitos).
 - **Dead Letter Queue (DLQ)** para mensagens inválidas ou que excederam tentativas.
 - **Bulkhead**: limite de concorrência por tópico/fila para evitar saturação global.
 
-#### Desempenho e Escalabilidade
+### Desempenho e Escalabilidade
 
 - **Batching** (quando o broker suporta) para reduzir overhead de rede.
 - **Controlo de concorrência**: consumidores paralelos, mas respeitando ordem quando necessário.
 - **Prefetch / fetch size** ajustado ao payload e à latência esperada.
 - **Backpressure**: pause/resume de consumo quando o processamento atrasa.
 
-#### Contratos de Mensagem
+### Contratos de Mensagem
 
 - **Headers padronizados**: `correlationId`, `causationId`, `eventType`, `version`, `timestamp`. Obrigatórios e aplicados por middleware/decorator.
 - **Evitar payloads gigantes**; preferir referências (ex.: IDs) quando possível.
 
-#### Segurança na Mensageria
+### Segurança na Mensageria
 
 Para garantir a integridade das comunicações via Solace, os seguintes requisitos de segurança devem ser observados:
 
@@ -529,7 +517,7 @@ Para garantir a integridade das comunicações via Solace, os seguintes requisit
 
 > Para detalhes completos, consultar o documento de Segurança em: *(verificar URL específico)*.
 
-### 6.3. Quando Utilizar gRPC
+## 6.3. Quando Utilizar gRPC
 
 gRPC é recomendado para:
 
@@ -554,7 +542,7 @@ var response = await client.CreateOrderAsync(request);
 Console.WriteLine($"Pedido criado: {response.OrderId}");
 ```
 
-### 6.4. Gestão de Configurações Aplicacionais
+## 6.4. Gestão de Configurações Aplicacionais
 
 A gestão de configurações deve seguir o **Options Pattern do .NET**, garantindo:
 
@@ -563,14 +551,14 @@ A gestão de configurações deve seguir o **Options Pattern do .NET**, garantin
 - Separação clara entre configuração e segredo
 - Facilidade de troca de provider (local, cloud, vault)
 
-#### 6.4.1. Princípios
+### 6.4.1. Princípios
 
 - **Configurações não sensíveis** → Podem residir em `appsettings.json`
 - **Segredos (passwords, tokens, keys)** → **Nunca** devem ser versionados. Devem ser providos via variáveis de ambiente ou Secret Manager.
 - A Application Layer não deve aceder a `IConfiguration` diretamente.
 - O acesso deve ser feito **exclusivamente via** `IOptions<T>` ou `IOptionsMonitor<T>`.
 
-#### 6.4.2. Exemplo – appsettings.json
+### 6.4.2. Exemplo – appsettings.json
 
 ```json
 {
@@ -588,9 +576,9 @@ A gestão de configurações deve seguir o **Options Pattern do .NET**, garantin
 }
 ```
 
-> ⚠️ **Passwords, connection strings completas e tokens não devem estar contidas neste ficheiro.**
+> **Passwords, connection strings completas e tokens não devem estar contidas neste ficheiro.**
 
-#### 6.4.3. Classe de Options
+### 6.4.3. Classe de Options
 
 ```csharp
 public sealed class SolaceOptions
@@ -601,7 +589,7 @@ public sealed class SolaceOptions
 }
 ```
 
-#### 6.4.4. Binding e Validação no Startup
+### 6.4.4. Binding e Validação no Startup
 
 ```csharp
 builder.Services
@@ -611,7 +599,7 @@ builder.Services
     .ValidateOnStart();
 ```
 
-#### 6.4.5. Uso via IOptions / IOptionsMonitor
+### 6.4.5. Uso via IOptions / IOptionsMonitor
 
 ```csharp
 public sealed class SolaceEventPublisher : IEventPublisher
@@ -627,25 +615,21 @@ public sealed class SolaceEventPublisher : IEventPublisher
 
 ---
 
-## 7. Segurança
+# 7. Segurança
 
 Observar definições globais em: *(verificar URL específico do documento de segurança)*
 
 > **Nota arquitetural:** Para o contexto específico de mensageria, os requisitos de segurança do Solace (autenticação de clientes, encriptação em trânsito, ACLs por tópico) estão resumidos na Secção 6.2 deste documento, mesmo que os detalhes completos residam no documento de segurança corporativo.
 
----
-
-## 8. Infraestrutura
+# 8. Infraestrutura
 
 Observar definições globais em: *(verificar URL específico)*
 
----
-
-## 9. Padrões e Princípios Arquiteturais
+# 9. Padrões e Princípios Arquiteturais
 
 A arquitetura segue princípios essenciais que garantem consistência e evolução sustentável.
 
-### 9.1. Princípios Fundamentais
+## 9.1. Princípios Fundamentais
 
 **Domínio em primeiro lugar (DDD)**
 - Modelo de domínio como fonte da verdade para regras de negócio.
@@ -675,19 +659,19 @@ A arquitetura segue princípios essenciais que garantem consistência e evoluç�
 **Automação de ponta a ponta**
 - Build, testes, análise estática e deploy automatizados em pipelines.
 
-### 9.2. Diretrizes Gerais
+## 9.2. Diretrizes Gerais
 
 - Evitar acoplamento desnecessário e dependências cíclicas.
 - Manter serviços e handlers pequenos, focados e coesos.
 - Aplicar resiliência e tratar falhas como parte natural do fluxo.
 
-### 9.3. Governança
+## 9.3. Governança
 
 - Revisão técnica contínua.
 - Conformidade com padrões corporativos.
 - Garantia de testabilidade em todos os níveis.
 
-### 9.4. Quando Utilizar API Assíncrona ou Evento
+## 9.4. Quando Utilizar API Assíncrona ou Evento
 
 **Utilizar API Assíncrona quando:**
 - Existe relação direta entre quem chama e quem responde.
@@ -701,16 +685,14 @@ A arquitetura segue princípios essenciais que garantem consistência e evoluç�
 - Os consumidores podem processar em ritmos diferentes.
 - O sistema precisa de alto desacoplamento e escala independente.
 
-### 9.5. Gestão de Erros de Domínio
+## 9.5. Gestão de Erros de Domínio
 
 Os erros de domínio devem ser mapeados de forma consistente para os seus equivalentes na camada de saída:
 
 - **Erros de domínio → HTTP**: as exceções de domínio (ex.: `OrderNotFoundException`, `InvalidOrderStateException`) devem ser capturadas no middleware de exceções da camada API e mapeadas para os códigos HTTP adequados (ex.: 404, 422). A lógica de mapeamento não deve residir nos Controllers.
 - **Erros de domínio → Mensageria**: falhas no processamento de eventos que resultem de regras de negócio devem ser distinguidas de erros de infraestrutura. Erros funcionais não devem ser reenviados para retry nem enviados para DLQ sem enriquecimento de contexto.
 
----
-
-## 10. Observabilidade
+# 10. Observabilidade
 
 Observar o padrão em: *(verificar URL específico)*
 
@@ -718,9 +700,7 @@ Esta secção descreve como implementar observabilidade em serviços backend .NE
 
 O objetivo é que qualquer API, BFF ou Worker tenha **logs estruturados, métricas e tracing distribuído ativos por defeito.**
 
----
-
-### 10.1. Instrumentação em .NET com OpenTelemetry
+## 10.1. Instrumentação em .NET com OpenTelemetry
 
 Os serviços devem usar OpenTelemetry SDK e auto-instrumentação para capturar telemetria com o mínimo de código adicional.
 
@@ -747,11 +727,11 @@ Evitar instrumentar métodos triviais ou de infraestrutura interna.
 
 ---
 
-### 10.2. Logging Estruturado com Microsoft.Extensions.Logging
+## 10.2. Logging Estruturado com Microsoft.Extensions.Logging
 
 Todos os serviços devem utilizar logging estruturado, nunca texto solto.
 
-#### Regras
+### Regras
 
 - Usar message templates com propriedades nomeadas.
 - Não usar string interpolation para logs estruturados.
@@ -774,7 +754,7 @@ _logger.LogInformation($"Order created {order.Id}");
 
 ---
 
-### 10.3. Correlação em Serviços Backend
+## 10.3. Correlação em Serviços Backend
 
 Os serviços devem garantir que logs e traces estão correlacionados.
 
@@ -792,28 +772,28 @@ Em mensageria, os consumidores devem:
 
 ---
 
-### 10.4. Métricas Mínimas Esperadas em Backends
+## 10.4. Métricas Mínimas Esperadas em Backends
 
-#### APIs / BFFs
+### APIs / BFFs
 
 - Latência por endpoint (p50/p95/p99)
 - Taxa de erro (4xx/5xx)
 - Throughput (requests/s)
 
-#### Workers / Mensageria
+### Workers / Mensageria
 
 - Tempo de processamento por mensagem
 - Número de retries
 - Mensagens enviadas para DLQ
 - Backlog/lag de fila (quando disponível)
 
-#### Dependências Externas
+### Dependências Externas
 
 - Latência e taxa de erro por dependência (HTTP, base de dados, cache)
 
 ---
 
-### 10.5. Boas Práticas Específicas para .NET
+## 10.5. Boas Práticas Específicas para .NET
 
 - Usar `ILogger<T>` via DI, nunca instanciar loggers manualmente.
 - Garantir que exceções não tratadas são registadas com `LogError`.
@@ -822,9 +802,9 @@ Em mensageria, os consumidores devem:
 
 ---
 
-## Apêndice
+# Apêndice
 
-### Template de Projeto
+## Template de Projeto
 
 Ver repositório base (exemplo): `modelo-backend-ddd` com:
 
@@ -838,7 +818,7 @@ Projetos:
 - Modelo.API
 ```
 
-### Convenções de Nomenclatura C#
+## Convenções de Nomenclatura C#
 
 - https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names
 - https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
@@ -847,4 +827,4 @@ Projetos:
 - **Tópicos Solace:** `corp/modelo/<boundedContext>/<evento>/vN`
 - **Branches Git:** `main`, `develop`, `feature/<nome>`, `hotfix/<nome>`
 
-> ℹ️ **Aplicação de Exemplo:** https://github.com/mcdigital-devplatforms/sample-swrefarch-backend-api-messaging
+> **Aplicação de Exemplo:** https://github.com/mcdigital-devplatforms/sample-swrefarch-backend-api-messaging
