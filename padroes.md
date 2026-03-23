@@ -1,1006 +1,850 @@
 Índice
 ------
 
-- [1. Infrastructure Platform](#1-infrastructure-platform)
-    - [1.1. Container/Kubernetes based PGSQL Database](#11-containerkubernetes-based-pgsql-database)
-    - [1.2. API Gateway Platform](#12-api-gateway-platform)
-    - [1.3. Streaming & Messaging Platform](#13-streaming-messaging-platform)
-    - [1.4. Secrets Management](#14-secrets-management)
-- [2. Observability Platform](#2-observability-platform)
-    - [2.1. Objectivos](#21-objectivos)
-    - [2.2. Os três pilares](#22-os-três-pilares)
-    - [2.3. Correlação distribuída](#23-correlação-distribuída)
-    - [2.4. O que medir](#24-o-que-medir)
-    - [2.5. Regras de Logging](#25-regras-de-logging)
-    - [2.6. Dashboards e Alertas](#26-dashboards-e-alertas)
-    - [2.7. Anti-padrões](#27-anti-padrões)
-    - [2.8. Stack de Observabilidade](#28-stack-de-observabilidade)
-    - [2.9. Estratégia de Sampling](#29-estratégia-de-sampling)
-    - [2.10. Documentação Logging:](#210-documentação-logging)
-- [3. Health Checks](#3-health-checks)
-- [4. Security - Identity, Authentication & Authorization](#4-security-identity-authentication-authorization)
-    - [4.1. Requisitos Mínimos de Segurança](#41-requisitos-mínimos-de-segurança)
-    - [4.2. Documentação Security by Design (SbD)](#42-documentação-security-by-design-sbd)
-- [5. Notification Pattern](#5-notification-pattern)
-    - [**5.1 Padrão base: Event-driven + Notification Service**](#51-padrão-base-event-driven-notification-service)
-        - [5.1.1 Componentes essenciais](#511-componentes-essenciais)
-        - [5.1.2 Garantias de entrega: at-least-once com idempotência](#512-garantias-de-entrega-at-least-once-com-idempotência)
-        - [5.1.3 Preferências do utilizador e governança](#513-preferências-do-utilizador-e-governança)
-        - [5.1.4 In-app: persistir + entregar em tempo real](#514-in-app-persistir-entregar-em-tempo-real)
-        - [5.1.5 Push: gestão de tokens e falhas](#515-push-gestão-de-tokens-e-falhas)
-        - [5.1.6 Email: templates, rastreio e compliance](#516-email-templates-rastreio-e-compliance)
-        - [5.1.7 Observabilidade mínima](#517-observabilidade-mínima)
-- [6. Fiabilidade e Operação](#6-fiabilidade-e-operação)
-    - [6.1. Idempotency](#61-idempotency)
-    - [**6.2 Onde Aplicar Idempotência na Arquitetura**](#62-onde-aplicar-idempotência-na-arquitetura)
-    - [6.3. Scalability](#63-scalability)
-        - [**6.3.1 Arquitetura de Escala com KEDA**](#631-arquitetura-de-escala-com-keda)
-        - [**6.3.2 Estratégias Avançadas**](#632-estratégias-avançadas)
-        - [**6.3.3 Boas Práticas**](#633-boas-práticas)
-        - [**6.3.4 Resultado Esperado**](#634-resultado-esperado)
-        - [**6.3.5 Casos de Uso**](#635-casos-de-uso)
-    - [6.4. Graceful Shutdown](#64-graceful-shutdown)
-        - [**6.4.1. O que é Graceful Shutdown**](#641-o-que-é-graceful-shutdown)
-        - [**6.4.2. Por que Graceful Shutdown é crítico**](#642-por-que-graceful-shutdown-é-crítico)
-        - [**6.4.3. Graceful Shutdown no contexto de APIs HTTP**](#643-graceful-shutdown-no-contexto-de-apis-http)
-        - [**6.4.4. Graceful Shutdown em consumidores de Broker**](#644-graceful-shutdown-em-consumidores-de-broker)
-        - [**6.4.5 Regra fundamental**](#645-regra-fundamental)
-        - [**6.4.6. Interação com Kubernetes**](#646-interação-com-kubernetes)
-        - [**6.4.7. Relação com Escalabilidade e Autoscaling**](#647-relação-com-escalabilidade-e-autoscaling)
-        - [**6.4.8. Boas práticas essenciais**](#648-boas-práticas-essenciais)
-        - [**6.4.9. Anti-patterns comuns**](#649-anti-patterns-comuns)
-        - [**6.4.10. Graceful Shutdown e Idempotência**](#6410-graceful-shutdown-e-idempotência)
-- [7. Gestão de Configuração](#7-gestão-de-configuração)
-    - [7.1. Hierarquia de Configuração](#71-hierarquia-de-configuração)
-    - [7.2. Promoção entre Ambientes](#72-promoção-entre-ambientes)
-    - [7.3. Feature Flags](#73-feature-flags)
-- [8. CI/CD](#8-cicd)
-    - [8.1. Pipeline de Build](#81-pipeline-de-build)
-    - [8.2. Deploy](#82-deploy)
-    - [8.3. Execução de Testes de Integração com Testcontainers na Pipeline (CI/CD)](#83-execução-de-testes-de-integração-com-testcontainers-na-pipeline-cicd)
-    - [8.4. Gestão de Vulnerabilidades em Imagens Docker](#84-gestão-de-vulnerabilidades-em-imagens-docker)
-        - [8.4.1 Princípios](#841-princípios)
-        - [8.4.2 Responsabilidades](#842-responsabilidades)
-        - [8.4.3 Pipeline de Segurança](#843-pipeline-de-segurança)
-        - [8.4.4 Atualização e Remediação](#844-atualização-e-remediação)
-- [9. Preocupações Transversais Adicionais](#9-preocupações-transversais-adicionais)
-    - [9.1. Rate Limiting e Throttling](#91-rate-limiting-e-throttling)
-    - [9.2. Estratégia de Cache](#92-estratégia-de-cache)
-    - [9.3. Multi-tenancy](#93-multi-tenancy)
-    - [9.4. Privacidade de Dados (GDPR/LGPD)](#94-privacidade-de-dados-gdprlgpd)
-    - [9.5. Disaster Recovery para Componentes Stateful](#95-disaster-recovery-para-componentes-stateful)
+- [DAS Backend API Messaging](#das-backend-api-messaging)
+        - [Detalhe: Serviços internos de backend (APIs, BFFs, workers, integradores)](#detalhe-serviços-internos-de-backend-apis-bffs-workers-integradores)
+        - [Histórico de Revisões](#histórico-de-revisões)
+    - [1. Introdução](#1-introdução)
+        - [1.1. Propósito e Objetivos](#11-propósito-e-objetivos)
+        - [1.2. Público-Alvo](#12-público-alvo)
+        - [1.3. Serviços Abrangidos](#13-serviços-abrangidos)
+        - [1.4. Âmbito](#14-âmbito)
+    - [2. Dependências e Referências](#2-dependências-e-referências)
+    - [3. Regras de Utilização](#3-regras-de-utilização)
+    - [4. Arquitetura da Tipologia](#4-arquitetura-da-tipologia)
+        - [4.1. Camadas](#41-camadas)
+        - [4.2. Fronteiras e Dependências](#42-fronteiras-e-dependências)
+        - [4.3. Estratégia de Testes](#43-estratégia-de-testes)
+        - [4.4. Fluxo End-to-End de Exemplo](#44-fluxo-end-to-end-de-exemplo)
+        - [4.5. Padrões de Design para Resiliência](#45-padrões-de-design-para-resiliência)
+            - [4.5.1. Retries em Publicação de Mensagens](#451-retries-em-publicação-de-mensagens)
+            - [4.5.2. Retries em Consumo de Mensagens](#452-retries-em-consumo-de-mensagens)
+            - [4.5.3. Circuit Breaker](#453-circuit-breaker)
+            - [4.5.4. Outbox Pattern](#454-outbox-pattern)
+        - [4.6. Versionamento de Eventos](#46-versionamento-de-eventos)
+        - [4.7. Processamento em Background (Jobs)](#47-processamento-em-background-jobs)
+    - [5. Estrutura do Projeto](#5-estrutura-do-projeto)
+    - [6. Tecnologias Utilizadas](#6-tecnologias-utilizadas)
+        - [6.2. Boas Práticas em Cliente de Mensageria](#62-boas-práticas-em-cliente-de-mensageria)
+            - [Confiabilidade e Garantias de Entrega](#confiabilidade-e-garantias-de-entrega)
+            - [Resiliência e Tolerância a Falhas](#resiliência-e-tolerância-a-falhas)
+            - [Desempenho e Escalabilidade](#desempenho-e-escalabilidade)
+            - [Contratos de Mensagem](#contratos-de-mensagem)
+            - [Segurança na Mensageria](#segurança-na-mensageria)
+        - [6.3. Quando Utilizar gRPC](#63-quando-utilizar-grpc)
+        - [6.4. Gestão de Configurações Aplicacionais](#64-gestão-de-configurações-aplicacionais)
+            - [6.4.1. Princípios](#641-princípios)
+            - [6.4.2. Exemplo – appsettings.json](#642-exemplo-appsettingsjson)
+            - [6.4.3. Classe de Options](#643-classe-de-options)
+            - [6.4.4. Binding e Validação no Startup](#644-binding-e-validação-no-startup)
+            - [6.4.5. Uso via IOptions / IOptionsMonitor](#645-uso-via-ioptions-ioptionsmonitor)
+    - [7. Segurança](#7-segurança)
+    - [8. Infraestrutura](#8-infraestrutura)
+    - [9. Padrões e Princípios Arquiteturais](#9-padrões-e-princípios-arquiteturais)
+        - [9.1. Princípios Fundamentais](#91-princípios-fundamentais)
+        - [9.2. Diretrizes Gerais](#92-diretrizes-gerais)
+        - [9.3. Governança](#93-governança)
+        - [9.4. Quando Utilizar API Assíncrona ou Evento](#94-quando-utilizar-api-assíncrona-ou-evento)
+        - [9.5. Gestão de Erros de Domínio](#95-gestão-de-erros-de-domínio)
+    - [10. Observabilidade](#10-observabilidade)
+        - [10.1. Instrumentação em .NET com OpenTelemetry](#101-instrumentação-em-net-com-opentelemetry)
+            - [Auto-instrumentação (preferencial)](#auto-instrumentação-preferencial)
+            - [Instrumentação manual (quando necessária)](#instrumentação-manual-quando-necessária)
+        - [10.2. Logging Estruturado com Microsoft.Extensions.Logging](#102-logging-estruturado-com-microsoftextensionslogging)
+            - [Regras](#regras)
+        - [10.3. Correlação em Serviços Backend](#103-correlação-em-serviços-backend)
+        - [10.4. Métricas Mínimas Esperadas em Backends](#104-métricas-mínimas-esperadas-em-backends)
+            - [APIs / BFFs](#apis-bffs)
+            - [Workers / Mensageria](#workers-mensageria)
+            - [Dependências Externas](#dependências-externas)
+        - [10.5. Boas Práticas Específicas para .NET](#105-boas-práticas-específicas-para-net)
+    - [Apêndice](#apêndice)
+        - [Template de Projeto](#template-de-projeto)
+        - [Convenções de Nomenclatura C#](#convenções-de-nomenclatura-c)
 
-# 1. Infrastructure Platform
+# DAS Backend API Messaging
 
-## 1.1. Container/Kubernetes based PGSQL Database
-
-Documentação interna sobre como implementar PGSQL em container ou Kubernetes.
-
-[Documentação PGSQL em Kubernetes (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/INFRA/pages/4733960854)
-
-
-## 1.2. API Gateway Platform
-
-A plataforma corporativa de API Gateway é o [Gravitee](https://www.gravitee.io/).
-
-[Documentação do Gravitee (Confluence)](https://ecom4isi.atlassian.net/wiki/x/zwBS9)
-
-## 1.3. Streaming & Messaging Platform
-
-Nossa plataforma de Streaming & Messaging é o [Solace](https://solace.com/).
-
-- Pacote: `SolaceSystems.SolClient.Messaging`
-- Uso principal: integração com event mesh corporativo e sistemas legados.
-
-[Documentação Solace – Integração Corporativa (Confluence)](https://ecom4isi.atlassian.net/wiki/x/qIC6EQE)
-
-[Documentação Solace – Guia de Configuração (Confluence)](https://ecom4isi.atlassian.net/wiki/x/EYKsGgE)
-
-## 1.4. Secrets Management
-
-Nossa plataforma preferencial de Secrets Management é o [Hashicorp Vault](https://www.hashicorp.com/en/products/vault). Azure Key Vault encontra-se em phase-out. GitHub Secrets podem ser usados apenas em contexto de CI/CD.
-
-[Documentação Hashicorp Vault – Gestão de Segredos (Confluence)](https://ecom4isi.atlassian.net/wiki/x/qgBP9)
-
+### Detalhe: Serviços internos de backend (APIs, BFFs, workers, integradores)
 
 ---
 
-# 2. Observability Platform
+### Histórico de Revisões
 
-Observabilidade é um requisito obrigatório para todos os serviços e componentes da plataforma. O objetivo é garantir visibilidade operacional consistente, diagnóstico eficiente e suporte a decisões baseadas em dados.
+| Versão | Data       | Autor(es)         | Resumo das Mudanças                                                                                     |
+|--------|------------|-------------------|---------------------------------------------------------------------------------------------------------|
+| 1.0    | 21/11/2025 | Thiago Giraldes   | Criação inicial do documento de arquitetura de referência.                                              |
+| 2.0    | 16/12/2025 | Thiago Giraldes   | Ajustes de Formatação para uniformizar todos os DAS. Ajustes conforme comentários deixados no Confluence.|
+| 3.0    | 17/12/2025 | Thiago Giraldes   | Ajustes conforme comentários deixados no Confluence.                                                    |
+| 3.1    | 05/04/2026 | Felipe Klussmann  | Pequenos ajustes.                                                                                       |
 
-## 2.1. Objectivos
-
-- Reduzir o tempo de diagnóstico (MTTR)
-- Correlacionar logs, métricas e traces
-- Permitir monitorização de SLO/SLI
-- Evitar silos de monitorização por tecnologia ou equipa
-
+> **Nota editorial:** Confirmar se as datas das versões 1.0–3.0 (novembro/dezembro 2025) estão alinhadas com o ciclo de vida atual (contexto de 2026). Garantir que a versão 3.1 reflete o estado atual do documento em produção.
 
 ---
 
-## 2.2. Os três pilares
+## 1. Introdução
 
-**Logs**
+### 1.1. Propósito e Objetivos
 
-- Registos estruturados que descrevem eventos relevantes da aplicação.
+Este documento define as diretrizes técnicas e de arquitetura para desenvolvimento, evolução e operação de backends internos em .NET, com foco em:
 
-**Métricas**
+- APIs REST / BFFs em **ASP.NET Core LTS**
+- Serviços orientados a domínio (DDD / Clean Architecture)
+- Arquitetura orientada a eventos (Event-Driven Architecture – EDA)
+- Uso de Solace como broker de mensagens
+- Integrações com bases de dados, cache, serviços externos e frontends corporativos
 
-- Medições agregadas que permitem monitorizar comportamento ao longo do tempo.
+O objetivo é servir como **documento de arquitetura de referência** para equipas de backend, arquitetura e DevOps, garantindo consistência entre os serviços.
 
-**Traces**
+### 1.2. Público-Alvo
 
-- Representação distribuída de uma operação ponta-a-ponta entre serviços.
+- Engenharia
+- Suporte
+- Arquitetura
 
+### 1.3. Serviços Abrangidos
 
-## 2.3. Correlação distribuída
+Esta arquitetura aplica-se a:
 
-Todos os sistemas devem suportar correlação ponta-a-ponta.
+- Novas APIs REST internas e externas
+- BFFs (Backends for Frontends) para web/mobile
+- Evolução/migração de monólitos legados para modelo modular/microserviços
 
-Campos obrigatórios:
+### 1.4. Âmbito
 
-- `traceId`
-- `spanId`
-- `correlationId`
-- `service.name`
-- `environment`
+Os seguintes objetivos visam endereçar os problemas relatados na etapa de Assessment.
 
-Broker deve incluir também:
-
-- `causationId`
-- `eventType`
-- `eventVersion`
-- `timestamp`
-
-
-
-## 2.4. O que medir
-
-**HTTP**
-
-- Latência (p95 mínimo)
-- Taxa de erro
-- Throughput
-
-**Broker**
-
-- Tempo de processamento
-- Retries
-- DLQ
-- Backlog/lag
-
-**Dependências**
-
-- Latência
-- Taxa de falha
-- Timeouts
-
-## 2.5. Regras de Logging
-
-- Logs devem ser estruturados
-- Níveis de log devem seguir padrão corporativo
-- Dados sensíveis não podem estar contidos em log
-- Retenção e sampling seguem política de plataforma
-
-## 2.6. Dashboards e Alertas
-
-Cada serviço deve ter:
-
-- Dashboard padrão com latência, erros e throughput
-- Monitorização de dependências
-- Alertas baseados em sintomas (ex.: aumento de 5xx + latência)
-
-## 2.7. Anti-padrões
-
-- Logs com PII ou segredos
-- Traces gigantes sem valor operacional
-- Logging excessivo que aumente custos e ruído
-- Métricas sem dono ou sem utilização prática
-
-## 2.8. Stack de Observabilidade
-
-A stack de observabilidade corporativa baseia-se em **OpenTelemetry, Prometheus e Grafana**.
-
-- **Logs:** Seguir o padrão OTEL: Microsoft Logging Extensions → (provider) OpenTelemetry logging → OTLP exporter → collector/backend. Os campos de correlação são automaticamente propagados quando existe Activity ativa e o provider OpenTelemetry está corretamente configurado. Campos adicionais podem ser enriquecidos via scopes ou processors.
-
-- **Métricas:** Métricas chave como lag do consumidor de Broker, latência de processamento e taxa de erros serão coletadas.
-
-  ```
-  Métricas técnicas e de negócio:
-  - orders_created_total
-  - orders_kafka_published_total
-  - orders_solace_consumed_total
-  ```
-
-- **Traces:** Observar guidelines em [Documentação de Traces OpenTelemetry (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5425692703)
-
-  - O SDK do OpenTelemetry ([opentelemetry-dotnet-instrumentation](https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation)) deve ser utilizado para instrumentação distribuída. Sempre que possível será usada auto-instrumentação (agente), podendo ser complementada por instrumentação via SDK nos serviços quando necessário, permitindo rastrear uma requisição desde a sua origem até a sua persistência final. A propagação de contexto deve seguir o padrão W3C Trace Context para HTTP e mecanismos equivalentes para Broker. Os traces serão enviados para o Grafana Tempo.
-
-- **Dashboards:** O Grafana será a ferramenta central para visualização de métricas, exploração de logs e análise de traces, com dashboards dedicados para a saúde da plataforma de ingestão.
-
-## 2.9. Estratégia de Sampling
-
-Em cenários de alto volume, a recolha integral de traces pode saturar o backend de observabilidade (Tempo/Grafana) e aumentar custos de forma não linear. A estratégia de sampling deve ser configurável por ambiente:
-
-- **Erros e exceções:** head-based sampling a 100% — todos os traces com erro devem ser recolhidos.
-- **Tráfego normal:** tail-based ou probabilístico, com taxa configurável por ambiente (ex.: 10–20% em produção, 100% em staging/dev).
-- **Operações críticas de negócio** (ex.: pagamentos, checkout): sampling elevado independentemente do resultado.
-
-A configuração de sampling deve ser externalizada via variável de ambiente ou ficheiro de configuração, sem necessidade de redeploy.
-
-## 2.10. Documentação Logging:
-
-[Documentação de Logging Corporativo (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5039063075)
-
-[Microsoft Logging Extensions – Documentação Oficial](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line) / [NuGet Microsoft.Extensions.Logging](https://www.nuget.org/packages/Microsoft.Extensions.Logging)
-
-[OpenTelemetry .NET Instrumentation (GitHub)](https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation)
-
-# 3. Health Checks
-
-Health checks são mecanismos automáticos usados para verificar se uma aplicação está viva, está pronta para receber tráfego e continua saudável ao longo do tempo. Eles são fundamentais em arquiteturas modernas, pois permitem que plataformas de orquestração, balanceadores e sistemas de monitorização tomem decisões automáticas — como reiniciar instâncias, remover tráfego ou escalar serviços.
-
-**Tipos de Health Check**
-
-1. **Liveness Check**
-
-Verifica se o processo da aplicação ainda está em execução e não entrou em estado irrecuperável (deadlock, loop infinito, crash silencioso).
-
-Se falhar, a instância pode ser reiniciada automaticamente.
-
-1. **Readiness Check**
-
-Indica se a aplicação está pronta para atender requests agora.
-
-Pode falhar mesmo que a aplicação esteja “viva”.
-
-Se falhar, o tráfego é retirado temporariamente, sem reiniciar a app.
-
-1. **Startup Check**
-
-Usado quando a aplicação demora a inicializar (cold start, bootstrap pesado).
-
-Evita que o liveness check mate a app antes do startup terminar.
-
-**Boas práticas**
-
-- Ser rápido (milissegundos)
-- Não depender de chamadas externas lentas
-- Retornar status simples (200 / 503)
-- Ter lógica clara e determinística
-- Separar *liveness* de *readiness*
-
-**Evite**
-
-- Consultas pesadas à BD
-- Chamadas a APIs externas críticas
-- Lógica de negócio complexa
-- Efeitos colaterais (writes, locks)
-
-**Operacionalização**
-
-- Endpoints `/health` (liveness) e `/health/ready` (readiness).
-- Integração com probes do Kubernetes.
-
-Health checks não substituem métricas, logs e traces, mas trabalham em conjunto:
-
-- **Health check** → decisão binária (ok / não ok)
-- **Métricas** → tendências e degradação
-- **Logs** → causa raiz
-- **Traces** → latência e dependências
-
+| Objetivo Arquitetural                              | Problema Endereçado                                                                                                                                   | Solução Proposta                                                                                                                                                                                                                                                                                                                                          |
+|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Modernização contínua e eliminação de legados**  | Tecnologias obsoletas (PHP 5, .NET Framework 4.x, Oracle Forms); dificuldade de manutenção e falta de profissionais especializados.                    | Definir arquiteturas modulares e evolutivas, divididas por contexto, que permitam a substituição incremental de componentes legados, garantindo compatibilidade, baixo risco e continuidade operacional. A modernização pode ocorrer através de: evolução de monólitos para monólitos modulares; extração progressiva de componentes para serviços independentes; adoção de integração assíncrona e mensageria orientada a eventos para reduzir acoplamento. Atualização contínua para versões LTS suportadas é mandatória. |
+| **Segurança by default**                           | Fluxo de autenticação e autorização complexo e instável devido à coexistência de múltiplos Identity Providers; falta de aplicação consistente de segurança. | Implementar segurança aplicada por padrão no backend (middleware ASP.NET Core + autenticação padronizada); segredos armazenados em cofres seguros.                                                                                                                                                                                                         |
+| **Observabilidade desde o design**                 | Documentação deficiente; pouca visibilidade de impacto e métricas; suporte e operação precisam "mergulhar no código" durante incidentes.              | Implantar **OpenTelemetry + Prometheus + Grafana/Jaeger** para métricas e tracing distribuído; logs estruturados com MS.Extensions.Logging (JSON) e **CorrelationId** desde a origem.                                                                                                                                                                    |
+| **Automação de ponta a ponta (CI/CD)**             | Deploys pouco automatizados e com erros básicos; resistência em seguir processos de mudança; ausência de pipelines padronizados.                      | Criar pipelines únicos com build, testes (xUnit, Testcontainers), análise estática e deploy automatizados; integração com SonarQube e Swagger para documentação automática.                                                                                                                                                                               |
+| **Governança de parceiros e retenção de conhecimento** | Integrações de sistemas externos feitas diretamente pelo negócio sem seguir padrões internos; falta de documentação; risco de "caixa preta".       | Estabelecer contrato arquitetural e documentação via Swagger/NSwag e ARDOQ; obrigatoriedade de seguir padrões de stack e arquitetura definida.                                                                                                                                                                                                            |
 
 ---
 
-# 4. Security - Identity, Authentication & Authorization
+## 2. Dependências e Referências
 
-Identity Managers centralizam e padronizam quem é o utilizador (autenticação) e o que ele pode fazer (autorização) em sistemas distribuídos. Eles atuam como uma camada dedicada de identidade, reduzindo acoplamento entre aplicações e evitando que cada serviço implemente sua própria lógica de segurança.
+> **Nota editorial:** Os links abaixo parecem ser placeholders copiados — todos apontam para o mesmo URL. Verificar e corrigir para os URLs específicos de cada tópico (Gateway, Messaging, Secrets, Identity).
 
-Na autenticação, o Identity Manager valida credenciais (password, MFA, certificados, social login) e emite tokens (ex.: JWT, opaque tokens) que representam a identidade do utilizador ou serviço. Esses tokens são assinados, possuem expiração e podem carregar claims como userId, tenant e roles.
-
-Na autorização, os serviços consomem esses tokens para decidir acesso com base em roles, scopes ou políticas. A decisão pode ser local (validação de claims) ou centralizada (policy engine), garantindo consistência de permissões em todo o ecossistema.
-
-Essa abordagem é essencial para arquiteturas modernas (microserviços, BFFs, APIs públicas), pois suporta SSO, multi-tenant, zero trust, integração com parceiros e evolução de regras de acesso sem impacto direto no código das aplicações.
-
-## 4.1. Requisitos Mínimos de Segurança
-
-Independentemente dos detalhes nos documentos especializados, todos os serviços devem cumprir obrigatoriamente os seguintes requisitos:
-
-1. **Validação de tokens:** Todos os serviços devem validar tokens JWT assinados pelo IdP corporativo. Tokens expirados ou com assinatura inválida devem resultar em rejeição com HTTP 401.
-2. **Gestão de segredos:** Segredos, credenciais e chaves de API devem ser geridos exclusivamente via Hashicorp Vault. É proibido armazenar segredos em variáveis de ambiente não geridas, ficheiros de configuração ou repositórios de código.
-3. **Encriptação em trânsito:** Toda a comunicação entre serviços deve usar TLS 1.2 ou superior. Comunicação em texto simples não é permitida em nenhum ambiente (incluindo desenvolvimento).
-4. **Princípio do menor privilégio:** Cada serviço deve operar com o conjunto mínimo de permissões necessário. Scopes e roles devem ser revistos periodicamente.
-5. **Sem dados sensíveis em logs:** PII, segredos, tokens ou dados de pagamento nunca devem ser registados. Ver secção de regras de logging (2.5).
-
-Os detalhes completos de implementação encontram-se na documentação Security by Design referenciada abaixo.
-
-## 4.2. Documentação Security by Design (SbD)
-
-[Princípios de Security by Design – Visão Geral (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4099309677)
-
-[Autenticação e Gestão de Identidade (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4099145846)
-
-[Autorização e Controlo de Acesso (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4092919859)
-
-[Gestão de Segredos e Credenciais (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4098621650)
-
-[Encriptação e Comunicação Segura (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4099342508)
-
-[Zero Trust e Segurança em Microserviços (Confluence)](https://ecom4isi.atlassian.net/wiki/spaces/SBDR/pages/4092690474)
-
+- API Gateway Platform — *(verificar URL específico)*
+- Streaming & Messaging Platform — *(verificar URL específico)*
+- Secrets Management — *(verificar URL específico)*
+- Identity, Authentication & Authorization — *(verificar URL específico)*
 
 ---
 
-# 5. Notification Pattern
+## 3. Regras de Utilização
 
-Envio de notificações por email, push e in-app para comunicação com o utilizador.
+Cada tipologia terá abordados aspetos específicos, incluindo, sempre que aplicável, referências a diretrizes, padrões gerais e boas práticas.
 
-Implementar notificações (e-mail, push, in-app) em arquiteturas distribuídas funciona melhor quando se trata notificação como um produto/serviço separado, acionado por eventos e entregue por canais plugáveis.
+Este documento não é um conjunto de regras inflexíveis, mas sim um guia de **fortes recomendações**. Desvios devem ser justificados, aprovados por Arquitetura/DevPlatforms e registados num ADR.
 
-## **5.1 Padrão base: Event-driven + Notification Service**
+---
 
-1. Um serviço de domínio (Orders, Payments, Shipping) publica um evento de negócio: OrderPaid, DeliveryDelayed, PasswordChanged.
-2. Um Notification Orchestrator (ou “Notification Service”) consome esses eventos.
-3. Ele aplica regras (preferências do utilizador, severidade, horário quiet hours, opt-in/opt-out, tenancy).
-4. Ele cria comandos de entrega por canal: SendEmail, SendPush, CreateInApp.
-5. “Providers” por canal fazem o envio (SMTP/SES/SendGrid; FCM/APNs; In-app via DB + websocket/polling).
+## 4. Arquitetura da Tipologia
 
-Benefícios: desacoplamento, escala independente, resiliente a falhas de canais.
+### 4.1. Camadas
 
-### 5.1.1 Componentes essenciais
+1. **Apresentação (API / BFF)**
+   1. ASP.NET Core Controllers.
+   2. Autenticação, autorização, validação de entrada.
+   3. Não contém lógica de domínio.
 
-- Event Bus / Broker
-- Pub/Sub (Kafka, RabbitMQ, SNS/SQS, Azure Service Bus).
-- Eventos imutáveis e versionados.
-- Consumer groups para escalar consumidores.
-- Notification Orchestrator
-- Responsável por:
-- Deduplicação (idempotência com eventId/messageId)
-- Enriquecimento (buscar e-mail, device tokens, idioma, tenant)
-- Routing e policies (quem recebe, por qual canal, quando)
-- Fan-out (um evento → múltiplos destinatários/canais)
-- **Políticas de fallback entre canais:** se um canal primário falhar (ex.: push notification após 2 tentativas), o Orchestrator deve tentar canais alternativos consoante a severidade do evento. Exemplo: para eventos de severidade alta (pagamento, segurança), fallback automático para email se o push falhar. As políticas devem ser configuráveis por tipo de evento.
-- Canal como “adapters”
-- EmailAdapter, PushAdapter, InAppAdapter.
-- Cada adapter com:
-- Retentativas + backoff
-- Circuit breaker
-- Métricas e DLQ (dead-letter queue)
+2. **Aplicação (Application)**
+   1. Casos de uso (Commands/Queries).
+   2. Orquestra fluxo de operações: chama repositórios, serviços de domínio, mensageria.
+   3. Conhece DTOs de entrada/saída.
 
-### 5.1.2 Garantias de entrega: at-least-once com idempotência
+3. **Domínio (Domain)**
+   1. Entidades, Value Objects, agregados, regras de negócio.
+   2. Eventos de domínio.
+   3. Interfaces de repositório (sem implementação).
 
-- Outbox pattern no serviço produtor (grava evento no mesmo commit do dado de negócio).
-- Consumidores idempotentes:
-- Tabela/redis de “processed message ids”
-- Chave idempotente por (eventId, userId, channel).
+4. **Infraestrutura (Infrastructure)**
+   1. Implementação de repositórios (EF Core).
+   2. DbContext, migrations.
+   3. Serviços externos (HTTP clients, etc.).
+   4. Configuração de IoC/DI.
 
-### 5.1.3 Preferências do utilizador e governança
+### 4.2. Fronteiras e Dependências
 
-Modele como um serviço/feature própria:
+Dependências e fronteiras (camadas) dentro de um projeto de desenvolvimento de software.
 
-- Opt-in/opt-out por canal e tipo (marketing, transactional, security)
-- Horário silencioso (“quiet hours”)
-- Limites (rate limits) e anti-spam
-- Templates por idioma e tenant
+- `API` depende de `Application` e `Infrastructure`.
+- `Application` depende apenas de `Domain`.
+- `Domain` não depende de nenhum outro projeto.
+- `Infrastructure` depende de `Domain` e implementa as interfaces definidas em `Application`/`Domain` (para implementar os contratos que eles definem, como `IEventPublisher`, `IOrderRepository`, etc.). A ligação é feita via composição (DI) no arranque da aplicação.
 
-Dica prática: manter uma “Notification Policy Store” (DB) e cache leve.
+> **Nota arquitetural:** A `Infrastructure` deve depender apenas das **interfaces/contratos** definidos em `Application`/`Domain` — nunca de tipos concretos de lógica de negócio ou casos de uso. Isto garante a inversão de dependência e evita acoplamento circular.
 
-### 5.1.4 In-app: persistir + entregar em tempo real
+### 4.3. Estratégia de Testes
 
-In-app geralmente é:
+- Unit tests (Domain/Application)
+- Integration tests (Infra, messaging, DB)
+- Contract tests (API/events)
 
-- Persistência em notifications (por user/tenant, status read/unread)
-- API para listar/paginar e marcar como lida
-- “Real-time”: websocket / SSE / pubsub → gateway
+Observar estratégia e implementação de testes em: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5483724895
 
-Assim você garante que a notificação aparece mesmo se o user estiver offline.
+### 4.4. Fluxo End-to-End de Exemplo
 
-### 5.1.5 Push: gestão de tokens e falhas
-
-- Token registry por user/device/tenant
-- Rotação/expiração de tokens (limpar tokens inválidos)
-- Fallback: se push falhar, manter in-app (e opcionalmente e-mail, dependendo do tipo)
-
-### 5.1.6 Email: templates, rastreio e compliance
-
-- Templates versionados (HTML/text)
-- Conteúdo transacional separado de marketing
-- Tracking (delivery, bounce) via webhooks do provider
-- LGPD/GDPR: consentimento, retenção mínima, auditoria
-
-### 5.1.7 Observabilidade mínima
-
-- Métricas: sent_total, failed_total, retry_total, latency_ms por canal
-- Logs com correlationId, eventId, userId, tenantId
-- Traces do evento até o provider
-- Alarmes: aumento de DLQ, bounce rate, falhas de provider, backlog alto
-
-# 6. Fiabilidade e Operação
-
-## 6.1. Idempotency
-
-Capacidade de uma operação ser executada múltiplas vezes, retomando a partir do ponto onde parou, sem repetir itens previamente processados e garantindo sempre o mesmo resultado final.
-
-Duplicações podem ocorrer por:
-
-- Retries no producer (falhas transitórias).
-- Reentrega pelo broker (at-least-once delivery).
-- Reprocessamento manual via DLQ.
-- Escalonamento horizontal de consumidores.
-- Falhas após commit parcial (ex.: DB commit feito, mas ack não enviado).
-
-## **6.2 Onde Aplicar Idempotência na Arquitetura**
-
-**Producers (API / Application)**
-
-- Todo evento publicado deve conter um identificador único:
-- eventId
-- correlationId
-- causationId
-- Esse identificador deve ser imutável e persistente.
-
-**Consumers (Regra Crítica)**
-
-Todo consumidor deve verificar se o evento já foi processado antes de executar lógica de negócio.
-
-Padrão recomendado:
-
-**Inbox Pattern (Event Deduplication)**
-
-- Tabela dedicada:
-
-``` 
-processed_events
-----------------
-event_id (PK)
-processed_at
-handler_name
+```plaintext
+[1] Cliente chama POST /api/orders
+   → Modelo.API (OrdersController) valida e manda CreateOrderCommand pro Wolverine
+[2] Application (CreateOrderCommandHandler)
+   → Cria entidade Order
+   → Persiste via IOrderRepository + IUnitOfWork
+   → Dispara OrderCreatedEvent
+   → Tópico modelo.orders.order-created.v1 recebe o evento
+[4] Serviço B (outro microserviço)
+   → Aplica lógica de negócio (ex.: criar fatura)
+[5] Solace (event mesh)
+   → Tópico corp/modelo/orders/order-created/v1 recebe espelho do evento
+[6] Sistema legado / integração corporativa
+   → SolaceOrderCreatedConsumer lê o evento
+   → Atualiza sistemas externos / ERP / etc.
 ```
 
-- Fluxo:
+### 4.5. Padrões de Design para Resiliência
 
-1. Recebe mensagem
-2. Verifica se event_id já existe
-3. Se existir → ACK e retorna
-4. Se não existir → processa e grava
+Mensageria sem estratégia de **resiliência** vira um gerador de problemas difíceis de rastrear. Aqui definimos como tratar **falhas temporárias**, **indisponibilidade de brokers** e **erros em consumidores**.
 
-Exemplo de Implementação (Consumer):
+#### 4.5.1. Retries em Publicação de Mensagens
 
-[https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#Exemplo-de-Implementa%C3%A7%C3%A3o-(Consumer)](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#Exemplo-de-Implementa%C3%A7%C3%A3o-(Consumer))
+- **Retries com backoff exponencial** para falhas transitórias (ex.: timeout, conexão recusada, erro 5xx).
+- **Limite máximo de tentativas**, para evitar tempestades de retries.
+- **Logging estruturado** por tentativa, com `eventId`, `topic`, `retryCount`, `error`.
 
-**Observações importantes**
-
-- A verificação e o processamento devem ser atômicos.
-- Preferencialmente dentro da mesma transação BD.
-- O ACK só ocorre após sucesso completo.
-
-**Idempotência em Commands HTTP**
-
-Para APIs expostas (ex.: POST /orders):
-
-- Aceitar Idempotency-Key no header.
-- Persistir a chave com o resultado da operação.
-- Retornar o mesmo resultado em chamadas repetidas.
-
-``` 
-POST /api/orders
-Idempotency-Key: 8f6d1e...
-```
-
-## 6.3. Scalability
-
-Garantir que a aplicação ou serviço pode escalar horizontalmente, permitindo que vários pods partilhem o trabalho de forma segura, e que o escalamento é feito com base em métricas ou eventos (ex.: KEDA).
-
-O Escalonamento Horizontal baseado em CPU/memória é insuficiente, porque:
-
-- Não entende backlog
-- Reage tarde
-- Escala errado em consumers I/O bound
-- Não protege contra overload de broker
-
-KEDA ajuda a mitigar este problema com scaling baseado em métricas externas.
-
-### **6.3.1 Arquitetura de Escala com KEDA**
-
-``` 
-Solace / Broker
-   ↓
-Métrica (queue depth / lag)
-   ↓
-Prometheus / Adapter
-   ↓
-KEDA ScaledObject
-   ↓
-Deployment Consumer
-```
-
-**Métricas de Broker**
-
-Exemplos:
-
-- solace_queue_depth
-- messages_ready
-- messages_unacked
-- consumer_lag
-
-**Métricas de Aplicação**
-
-Expor via OpenTelemetry:
-
-- message_processing_duration_seconds
-- message_processing_errors_total
-- dlq_messages_total
-
-Essas métricas ajudam a ajustar thresholds, detectar saturação lógica e evitar scale infinito.
-
-Exemplo de ScaledObject (Consumer):
-
-[https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#ScaledObject-(Consumer)%3A](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#ScaledObject-(Consumer)%3A)
-
-### **6.3.2 Estratégias Avançadas**
-
-**Backpressure Controlado**
-
-- Limitar concorrência por pod
-- Preferir mais pods com menos threads
-- Evitar saturar dependências downstream
-
-**Escala + Circuit Breaker**
-
-Combinar:
-
-- KEDA (escala)
-- Circuit breaker (proteção)
-
-Exemplo:
-
-- Se DB está lento → circuit abre
-- Mensagens acumulam → KEDA escala
-- Após recuperação → consumo normaliza
-
-### **6.3.3 Boas Práticas**
-
-- Sempre definir maxReplicaCount
-- Nunca escalar infinitamente
-- Métrica ≠ CPU
-- Escala deve respeitar limites de throughput e concorrência definidos pelo broker para evitar rejeição de mensagens ou degradação
-- Testar scale em ambientes não-prod
-
-### **6.3.4 Resultado Esperado**
-
-- Consumo elástico
-- Redução de latência sob pico
-- Custos controlados
-- Sistema previsível sob carga
-
-### **6.3.5 Casos de Uso**
-
-1. **Aplicações que lêem o mesmo arquivo texto**
-
-File → Queue → Consumers (modelo correto para escala)
-
-Transforme o arquivo em fonte, não em meio de coordenação.
-
-``` 
-Arquivo
-   ↓
-Producer (1x)
-   ↓
-Fila / Topic
-   ↓
-App A   App B   App C
-```
-
-**Por quê?**
-
-- Cada linha vira uma mensagem
-- Broker garante distribuição
-- Escala horizontal nativa
-- Retry, DLQ, backpressure
-
-**Exemplo**
-
-- Arquivo CSV → Kafka / Rabbit / Solace
-- Cada linha = evento
-
-## 6.4. Graceful Shutdown
-
-Garantir que, ao receber um sinal de encerramento, a aplicação deixa de aceitar novos pedidos e tenta finalizar os que estão em curso; caso não seja possível, deve propagar um cancellation token para interromper corretamente a operação.
-
-### **6.4.1. O que é Graceful Shutdown**
-
-Graceful shutdown é a capacidade de uma aplicação encerrar sua execução de forma controlada, garantindo que:
-
-- Nenhuma nova requisição/mensagem seja aceita
-- Processamentos em andamento sejam concluídos (ou interrompidos com segurança)
-- Recursos sejam liberados corretamente
-- O sistema não gere efeitos colaterais indesejados (dados inconsistentes, mensagens duplicadas, corrupção de estado)
-
-Em arquiteturas modernas (containers, Kubernetes, Broker), o shutdown não é um evento raro, mas parte do fluxo normal de operação (deploys, autoscaling, falhas, rebalanceamentos).
-
-### **6.4.2. Por que Graceful Shutdown é crítico**
-
-Sem graceful shutdown, a aplicação pode:
-
-- Perder mensagens em processamento
-- Processar mensagens parcialmente
-- Quebrar idempotência
-- Gerar duplicações
-- Deixar locks, transações ou conexões abertas
-- Corromper dados
-
-Em sistemas event-driven, o risco é ainda maior, pois:
-
-- Brokers assumem que o consumidor falhou
-- Mensagens são reenviadas
-- Reprocessamento ocorre automaticamente
-
-### **6.4.3. Graceful Shutdown no contexto de APIs HTTP**
-
-Fluxo correto ao receber um sinal de shutdown (SIGTERM):
-
-1. Parar de aceitar novas requisições
-2. Permitir que requisições em andamento terminem
-3. Aplicar timeout máximo de espera
-4. Encerrar a aplicação
-
-**Exemplo conceitual**
-
-- A aplicação deve sinalizar readiness=false antes de iniciar o shutdown, permitindo ao Kubernetes retirar o pod do tráfego.
-- Load balancer remove o pod do tráfego
-- Requests existentes finalizam
-- Após o timeout, o processo encerra
-
-Sem isso:
-
-- Requests são interrompidas abruptamente
-- Clientes recebem erros
-- Estados intermediários ficam inconsistentes
-
-### **6.4.4. Graceful Shutdown em consumidores de Broker**
-
-Para consumers, o shutdown deve seguir esta ordem exata:
-
-1. Parar de consumir novas mensagens
-2. Aguardar mensagens em processamento
-3. Commit / ACK apenas após sucesso
-4. Encerrar conexões com o broker
-5. Finalizar o processo
-
-### **6.4.5 Regra fundamental**
-
-> [!error]
-> Nunca dar ACK antes do processamento terminar.
-
-Caso contrário:
-
-- A mensagem é considerada processada
-- O efeito colateral pode não ter ocorrido
-- O sistema entra em estado inconsistente
-
-### **6.4.6. Interação com Kubernetes**
-
-No Kubernetes, o fluxo é previsível:
-
-1. Pod recebe SIGTERM
-2. terminationGracePeriodSeconds inicia
-3. K8s aguarda a aplicação encerrar
-4. Se exceder o tempo → SIGKILL
-
-Isso exige que a aplicação:
-
-- Escute sinais do sistema
-- Respeite CancellationToken
-- Tenha tempo suficiente para finalizar
-
-### **6.4.7. Relação com Escalabilidade e Autoscaling**
-
-Graceful shutdown é obrigatório para:
-
-- Rolling updates
-- Horizontal scaling
-- KEDA / HPA
-- Rebalanceamento de consumers
-
-Sem graceful shutdown:
-
-- Escalar para cima funciona
-- Escalar para baixo quebra o sistema
-
-### **6.4.8. Boas práticas essenciais**
-
-- Sempre tratar SIGTERM
-- Parar intake antes de finalizar
-- Esperar processamento ativo
-- Usar timeouts claros
-- Nunca confiar em shutdown abrupto
-- Testar shutdown em ambiente real
-
-### **6.4.9. Anti-patterns comuns**
-
-- process.exit() imediato
-- Ignorar sinais do SO
-- ACK antes de persistir
-- Timeout infinito
-- Assumir que o pod “morre rápido”
-
-### **6.4.10. Graceful Shutdown e Idempotência**
-
-Mesmo com graceful shutdown:
-
-- Falhas podem ocorrer
-- Mensagens podem ser reenviadas
-
-Por isso:
-
-> [!info]
-> Graceful shutdown reduz riscos, idempotência elimina o problema.
-
-Os dois sempre devem coexistir.
-
-# 7. Gestão de Configuração
-
-## 7.1. Hierarquia de Configuração
-
-A configuração dos serviços deve seguir uma hierarquia clara de precedência, do menor para o maior nível de prioridade:
-
-```
-appsettings.json (defaults do serviço)
-   ↓
-appsettings.{Environment}.json (overrides por ambiente)
-   ↓
-Variáveis de ambiente (definidas no deployment)
-   ↓
-Hashicorp Vault (segredos e valores sensíveis)
-```
-
-O Options Pattern do .NET deve ser utilizado para acesso fortemente tipado às configurações. Configurações sensíveis (credenciais, chaves, tokens) nunca devem constar nos ficheiros `appsettings`, sendo obrigatório o uso do Vault.
-
-## 7.2. Promoção entre Ambientes
-
-A promoção de configurações entre ambientes (dev → staging → prod) deve seguir um processo controlado:
-
-- Ficheiros `appsettings.{Environment}.json` devem ser versionados no repositório (sem valores sensíveis).
-- Variáveis específicas de cada ambiente são geridas no sistema de deployment (Helm values, Kubernetes ConfigMaps).
-- Segredos são provisionados via Vault com políticas de acesso por ambiente.
-- Nenhuma configuração de produção deve ser aplicada manualmente — toda a promoção ocorre via pipeline CI/CD.
-
-## 7.3. Feature Flags
-
-Para funcionalidades que requerem ativação/desativação sem redeploy, deve ser definida uma estratégia de feature flags:
-
-- Considerar solução dedicada (ex.: LaunchDarkly, Unleash) para feature flags dinâmicas com targeting por utilizador, tenant ou percentagem de tráfego.
-- Para flags simples de on/off por ambiente, podem ser usadas variáveis de ambiente ou configuração hierárquica.
-- Feature flags devem ter ciclo de vida definido: data de criação, responsável e critérios de remoção após estabilização da feature.
-
-# 8. CI/CD
-
-## 8.1. Pipeline de Build
-
-Passos mínimos:
-
-1. Restore (`dotnet restore`)
-2. Build (`dotnet build -c Release`)
-3. Testes unitários (`dotnet test`)
-4. Testes de integração (opcional/conforme projeto)
-5. Análise estática de código (SonarQube, etc.)
-
-Dockerfile multi-stage (build + runtime).
-
-Tagging semântico (`vX.Y.Z`, `branch`, `commit sha`).
-
-## 8.2. Deploy
-
-- Deploy em Kubernetes (salvo excepções aprovadas).
-- Configuração via Helm/Manifest.
-- Rollout com estratégia de rolling update / blue-green, conforme criticidade.
-
-## 8.3. Execução de Testes de Integração com Testcontainers na Pipeline (CI/CD)
-
-Para garantir consistência entre ambientes de desenvolvimento, validação e produção, é  recomendado que todos os testes de integração baseados em Testcontainers rodem automaticamente na pipeline CI.
-
-Com Testcontainers, não é necessário subir containers manualmente. A pipeline só precisa garantir:
-
-``` 
-- Docker habilitado no runner
-- .NET instalado
-- Execução de dotnet test
-```
-
-Exemplo:
-
-[https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#Exemplo-Completo-de-Pipeline-em-GitHub-Actions](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5378539587#Exemplo-Completo-de-Pipeline-em-GitHub-Actions)
-
-Para funcionar:
-
-``` 
-Docker Desktop (Windows), Podman ou Docker Engine (Linux) deve estar instalado
-Serviço do Docker a correr
-utilizador do runner com permissão para aceder ao Docker
-```
-
-Estrutura recomendada dos testes
-
-``` 
-tests/
- ├─ Modelo.Tests/                   → unit tests
- └─ Modelo.Tests.Integration/       → integration tests (Testcontainers)
-```
-
-Cada container é criado por classe de teste:
-
-```csharp 
-public class OrderRepositoryTests : IAsyncLifetime
+```csharp
+public async Task PublishWithRetryAsync<TEvent>(
+    string topic,
+    TEvent @event,
+    CancellationToken ct = default)
 {
-    private readonly PostgreSqlContainer _pg =
-        new PostgreSqlBuilder().WithDatabase("integration").Build();
+    var retries = 3;
+    var delay = TimeSpan.FromSeconds(2);
+
+    for (int attempt = 1; attempt <= retries; attempt++)
+    {
+        try
+        {
+            await PublishAsync(topic, @event, ct);
+            return;
+        }
+        catch (Exception ex) when (attempt < retries)
+        {
+            _logger.LogWarning(ex,
+                "Falha ao publicar mensagem. Tentativa {Attempt}/{Retries}. Topic={Topic}",
+                attempt, retries, topic);
+
+            await Task.Delay(delay, ct);
+            delay = delay * 2; // backoff exponencial
+        }
+    }
+
+    // Se chegou aqui, todas as tentativas falharam
+    _logger.LogError(
+        "Falha definitiva ao publicar mensagem após {Retries} tentativas. Topic={Topic}",
+        retries, topic);
+    throw;
 }
 ```
 
-Boas práticas em pipelines CI para Testcontainers
+#### 4.5.2. Retries em Consumo de Mensagens
 
-- Preferir `ubuntu-latest` (Linux) — containers iniciam muito mais rápido.
-- Aumentar timeouts caso necessário:
+**Retries imediatos (in-memory)**
 
-```shell 
-dotnet test -- RunConfiguration.TestSessionTimeout=600000
+O consumidor tenta processar a mensagem **até 3 vezes** dentro do mesmo loop (retry local).
+
+- Útil para erros transitórios (timeout, erro de rede, dependência lenta).
+- Mantém o processamento rápido sem pressionar o broker.
+
+**Fallback para Dead Letter Queue**
+
+Se todas as tentativas falharem, a mensagem deve ser enviada para uma **DLQ** específica por evento:
+
+`modelo.<boundedContext>.<evento>.dlq`
+
+- **Solace:** `corp/modelo/<boundedContext>/<evento>/dlq`
+
+**Exemplo de retry interno + fallback para DLQ**
+
+```csharp
+public async Task ProcessMessageAsync(string json, CancellationToken ct)
+{
+    const int maxAttempts = 3;
+
+    for (int attempt = 1; attempt <= maxAttempts; attempt++)
+    {
+        try
+        {
+            var evt = JsonSerializer.Deserialize<OrderCreatedEvent>(json);
+            // Chamar Application/Domain aqui
+            await _domainHandler.HandleAsync(evt, ct);
+            return;
+        }
+        catch (Exception ex) when (attempt < maxAttempts)
+        {
+            _logger.LogWarning(ex,
+                "Erro ao processar mensagem. Tentativa {Attempt}/{MaxAttempts}",
+                attempt, maxAttempts);
+        }
+    }
+
+    _logger.LogError(
+        "Mensagem enviada para DLQ após {MaxAttempts} tentativas.",
+        maxAttempts);
+
+    await _dlqPublisher.PublishAsync("modelo.orders.order-created.dlq", json, ct);
+}
 ```
 
-- Evitar paralelismo exagerado se subir muitos containers pesados
-- Utilizar categorias:
+#### 4.5.3. Circuit Breaker
 
-```csharp 
-[Trait("Category", "Integration")]
-```
+O **circuit breaker** é um padrão de resiliência usado para **proteger o sistema contra falhas em cascata** quando uma dependência externa (API, broker, BD, serviço remoto) começa a falhar ou responder lentamente.
 
-Com isso, todos os serviços passam a ter testes de integração reais rodando automaticamente no CI/CD, garantindo consistência, qualidade e segurança antes de cada merge ou deploy.
+Em vez de insistir em chamadas que vão falhar, o circuito **"abre"** temporariamente, bloqueando novas tentativas até que o sistema tenha chance de se recuperar.
 
-## 8.4. Gestão de Vulnerabilidades em Imagens Docker
+**Estados do Circuit Breaker**
 
-A gestão de vulnerabilidades em imagens Docker segue o modelo DevSecOps, com responsabilidades claramente distribuídas entre Plataforma, Segurança e Squads de Desenvolvimento.
+1. **Closed (Fechado)** — As chamadas fluem normalmente. Falhas são monitorizadas.
+2. **Open (Aberto)** — Chamadas são bloqueadas imediatamente (*fail fast*). Evita consumo de recursos desnecessários.
+3. **Half-Open (Meio-aberto)** — Após um tempo de espera, permite poucas chamadas de teste. Se tiver sucesso → volta para *Closed*. Se falhar → retorna para *Open*.
 
-### 8.4.1 Princípios
+**Quando usar**
 
-- Todas as imagens Docker devem derivar de imagens base oficiais e aprovadas
-- Nenhuma imagem pode ser promovida para produção sem scan automático de vulnerabilidades
-- Vulnerabilidades são tratadas como dívida técnica de segurança, com SLA definido por severidade
+- Chamadas HTTP para serviços externos
+- Producers/consumers de mensageria
+- Integrações com APIs de terceiros
+- Qualquer dependência **fora do seu controlo**
 
-### 8.4.2 Responsabilidades
+**Boas práticas**
 
-| Atividade                                                         | Responsável                 |
-| ----------------------------------------------------------------- | --------------------------- |
-| Definição da imagem base oficial (.NET, distroless, alpine, etc.) | Plataforma / Infrastructure |
-| Manutenção e atualização da imagem base                           | Plataforma / Infrastructure |
-| Scanning automático de imagens (CI/CD)                            | DevSecOps / Plataforma      |
-| Correção de vulnerabilidades da imagem base                       | Plataforma / Infrastructure |
-| Correção de dependências da aplicação                             | Squad de Desenvolvimento    |
-| Avaliação e aceite de risco (exceções)                            | Segurança / Arquitetura     |
+- Sempre combinar com **timeouts** (circuit breaker não substitui timeout)
+- Usar junto com **retry com backoff**
+- Expor **métricas**: `circuit_open`, `failures`, `half_open`
+- Não usar circuit breaker para **erros funcionais** (ex.: validação de input)
 
-### 8.4.3 Pipeline de Segurança
+**Exemplo em C# usando Polly**
 
-O pipeline CI/CD deve incluir, obrigatoriamente:
+A biblioteca **Polly** é o padrão de mercado em .NET para resiliência.
 
-- Scan de vulnerabilidades da imagem Docker (ex.: Trivy, Snyk, Grype)
-- Classificação por severidade (Critical, High, Medium, Low)
-- Bloqueio automático para vulnerabilidade Critical ou High (sem exceção aprovada)
+Observar exemplo em: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5483724895
 
+#### 4.5.4. Outbox Pattern
 
+O Outbox Pattern garante consistência entre a base de dados e o envio de mensagens para um broker.
 
-Exemplo de políticas:
+A aplicação grava o dado e a mensagem numa tabela *outbox* dentro da **mesma transação**. Depois, um processo assíncrono lê essa tabela e envia a mensagem ao broker, garantindo que nada se perde mesmo em caso de falhas.
 
-> [!error]
-> **Critical / High** → build falha (salvo exceção formal)
+> **Nota arquitetural:** Especificar o mecanismo de relay responsável pelo envio das mensagens da tabela *outbox* para o broker. As opções são: (a) **polling via `BackgroundService`** na mesma aplicação, ou (b) **processo/serviço externo** dedicado. A escolha deve ser documentada para garantir consistência operacional e evitar duplicação de envios.
 
-> [!warning]
-> **Medium / Low** → alertas e backlog técnico
+Observar exemplo em: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5483724895
 
+### 4.6. Versionamento de Eventos
 
+Os tópicos utilizam sufixo de versão (ex.: `.v1`, `corp/modelo/orders/order-created/v1`). Para garantir evolução segura do schema de eventos sem quebrar consumidores existentes, devem ser seguidas as seguintes diretrizes:
 
-### 8.4.4 Atualização e Remediação
+- **Eventos devem ser aditivos**: apenas adicionar campos opcionais; nunca remover ou renomear campos existentes numa versão publicada.
+- **Breaking changes** requerem uma nova versão do tópico (ex.: `v2`), mantendo a versão anterior ativa durante o período de transição.
+- Considerar o uso de um **Schema Registry** para validar contratos de mensagem em tempo de publicação/consumo.
 
-- Realizar rebuilds periódicos de imagens.
-- Atualizar dependências vulneráveis da aplicação.
-- Correções devem seguir SLA definidos por severidade.
+> **Nota:** Embora o documento mencione `v1` nos tópicos, não havia diretrizes explícitas para evolução de schema. Esta secção endereça essa lacuna.
 
-# 9. Preocupações Transversais Adicionais
+### 4.7. Processamento em Background (Jobs)
 
-## 9.1. Rate Limiting e Throttling
+Nem todo processamento assíncrono precisa (ou deve) acontecer dentro da thread principal ou request HTTP. Utilizar uma task ou thread em background permite executar processamento assíncrono sem bloquear o fluxo principal da aplicação:
 
-Para proteger dependências downstream e prevenir abuso, todos os serviços devem definir estratégias de controlo de taxa:
+- quando usar (tarefas longas, retries, batch)
+- boas práticas (idempotência, cancelamento, observabilidade)
 
-**A nível de API Gateway (Gravitee):**
-
-- Rate limiting por cliente/token para APIs expostas externamente.
-- Quotas por plano de subscrição.
-
-**A nível de aplicação:**
-
-- Throttling de chamadas a dependências externas (bases de dados, APIs de terceiros, brokers) para evitar sobrecarga em cascata.
-- Implementar backoff exponencial com jitter em retries.
-- Configurar semáforos ou filas internas para limitar concorrência por dependência.
-
-Combinar com Circuit Breaker (secção 6.2) para proteção em camadas: o throttling controla o ritmo de entrada, o circuit breaker protege quando a dependência falha.
-
-## 9.2. Estratégia de Cache
-
-O uso de cache deve ser explicitamente definido para reduzir latência e aliviar pressão sobre dependências:
-
-**Níveis de cache permitidos:**
-
-- **In-memory (IMemoryCache):** Dados de curta duração, locais ao pod. Não partilhado entre instâncias — usar apenas para dados imutáveis ou com baixa consistência exigida.
-- **Distribuído (ex.: Redis):** Dados partilhados entre pods. Obrigatório para sessões, tokens de idempotência e resultados de queries frequentes.
-
-**Regras de invalidação:**
-
-- Definir TTL explícito para todas as entradas de cache.
-- Preferir invalidação por evento (cache-aside com eventos de domínio) a TTL longo.
-- Evitar cache de dados transacionais que exijam consistência forte.
-
-**Consistência em cenários distribuídos:**
-
-- Em ambientes multi-pod, alterações a dados cacheados devem propagar invalidação via evento ou pub/sub.
-- Documentar o nível de consistência aceite para cada cache (eventual vs. forte).
-
-## 9.3. Multi-tenancy
-
-Para sistemas que suportam múltiplos tenants, as seguintes considerações são obrigatórias:
-
-**Isolamento de dados:**
-
-- A identificação do tenant (`tenantId`) deve ser propagada em todos os contextos: HTTP headers, mensagens de broker, tokens JWT e logs/traces.
-- Queries à base de dados devem incluir sempre o filtro de `tenantId` para evitar data leakage entre tenants.
-
-**Configuração por tenant:**
-
-- Suportar overrides de configuração por tenant (ex.: limites, features, canais de notificação) via Notification Policy Store ou equivalente.
-
-**Observabilidade:**
-
-- O campo `tenantId` é obrigatório em logs estruturados e atributos de trace (ver secção 2.3 — Correlação distribuída).
-- Dashboards e alertas devem permitir filtragem por tenant para diagnóstico isolado.
-
-## 9.4. Privacidade de Dados (GDPR/LGPD)
-
-Além da regra geral de não registar dados sensíveis (secção 2.5), os serviços devem cumprir os seguintes requisitos:
-
-**Campos obrigatoriamente mascarados ou excluídos de logs e traces:**
-
-- Dados pessoais identificáveis: nome completo, email, NIF, número de documento, data de nascimento.
-- Dados de pagamento: número de cartão, CVV, IBAN.
-- Credenciais e tokens de autenticação.
-- Dados de saúde ou categorias especiais (RGPD Art. 9).
-
-**Retenção de logs:**
-
-- Logs contendo dados pessoais (mesmo anonimizados) devem respeitar políticas de retenção definidas pela equipa de Privacidade/Legal.
-- Por omissão, não armazenar logs com PII por mais de 90 dias sem aprovação explícita.
-
-**Auditoria e consentimento:**
-
-- Operações sensíveis (acesso a dados pessoais, exportação, eliminação) devem gerar eventos de auditoria rastreáveis.
-- O consentimento do utilizador para comunicações (email marketing, push) deve ser registado e auditável — ver secção 5.1.3.
+Mais detalhes em: https://ecom4isi.atlassian.net/wiki/x/qQETOAE
 
 ---
 
-## 9.5. Disaster Recovery para Componentes Stateful
+## 5. Estrutura do Projeto
 
-Os componentes stateful da plataforma requerem estratégias explícitas de backup e recuperação:
+```plaintext
+/src
+  /Modelo.API
+      Controllers/
+      Middlewares/
+      Filters/
+      Extensions/
+      Config/
+      Program.cs
+      appsettings.json
 
-**PostgreSQL:**
+  /Modelo.Application
+      DTOs/
+      Commands/
+          Orders/
+      Queries/
+      Handlers/
+          Orders/
+      Services/
+      Interfaces/
 
-- Backups automáticos diários com retenção mínima de 30 dias.
-- Point-in-Time Recovery (PITR) habilitado para bases de dados críticas.
-- Testes de restore periódicos (pelo menos trimestrais) documentados.
-- RTO e RPO definidos por criticidade do serviço.
+  /Modelo.Domain
+      Entities/
+          Order.cs
+      ValueObjects/
+      Aggregates/
+      Interfaces/
+          IRepository.cs
+          IUnitOfWork.cs
+          IOrderRepository.cs
+      Events/
+          OrderCreatedEvent.cs
+      Exceptions/
+      Specifications/
 
-**Solace (Broker):**
+  /Modelo.Infrastructure
+      Context/
+          AppDbContext.cs
+      Mappings/
+      Repositories/
+          OrderRepository.cs
+      Services/
+      Migrations/
+      Configurations/
+      IoC/
+          DependencyInjection.cs
+      Messaging/
+          Solace/
+              SolaceEventPublisher.cs
+              SolaceOrderCreatedConsumer.cs
+      BackgroundJobs/
+          Hangfire/
+              HangfireBackgroundJobScheduler.cs
+              HangfireJobs/
+                  ReprocessarFaturasJob.cs
+                  EnviarEmailsJob.cs
 
-- Definir política de retenção de mensagens em filas persistentes para cenários de falha do consumidor.
-- Em caso de falha catastrófica do broker, documentar o procedimento de replay ou reprocessamento a partir de fontes de origem.
-- DLQs devem ser monitorizadas e ter procedimento de reprocessamento documentado.
+/tests
+  /Modelo.Tests
+      Domain/
+      Application/
+      Infrastructure/
+      API/
+```
 
-**Princípio geral:**
+| Diretório / Ficheiro            | Papel Principal                                                                                                       |
+|---------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| /src/Modelo.API                 | Camada de entrada da aplicação (Interface Adapters). Expõe endpoints REST/HTTP, configurações e integrações externas. |
+| Controllers/                    | Pontos de entrada da API, responsáveis por orquestrar chamadas para Application Layer sem conter lógica de negócio.   |
+| Middlewares/                    | Tratamento transversal (logging, autenticação, observabilidade, exceções).                                            |
+| Filters/                        | Filtros de requisição/resposta, validação e cross-cutting concerns.                                                   |
+| Extensions/                     | Métodos de extensão para facilitar configuração e reutilização.                                                       |
+| Config/                         | Configurações específicas da API (ex.: Swagger, CORS, observabilidade).                                               |
+| Program.cs                      | Ponto inicial da aplicação, configuração do host.                                                                     |
+| appsettings.json                | Configurações externas (conexões, mensageria, observabilidade).                                                       |
+| **/src/Modelo.Application**     | Camada de aplicação (Application Layer). Orquestra casos de uso, sem lógica de domínio.                               |
+| DTOs/                           | Objetos de transporte entre camadas (entrada/saída).                                                                  |
+| Commands/Orders/                | Comandos que representam intenções de mudança de estado (ex.: criar pedido).                                          |
+| Queries/                        | Consultas de leitura, seguindo CQRS.                                                                                  |
+| Handlers/Orders/                | Manipuladores de comandos/queries, coordenam execução de casos de uso.                                                |
+| Services/                       | Serviços de aplicação, encapsulam lógica de orquestração.                                                             |
+| Interfaces/                     | Contratos que definem dependências externas (ex.: serviços de mensageria).                                            |
+| **/src/Modelo.Domain**          | Camada de domínio (Core Domain). Contém regras de negócio e invariantes.                                              |
+| Entities/Order.cs               | Entidades centrais do domínio, com identidade e comportamento.                                                        |
+| ValueObjects/                   | Objetos de valor imutáveis, sem identidade própria.                                                                   |
+| Aggregates/                     | Raízes de agregados que garantem consistência de invariantes.                                                         |
+| Interfaces/                     | Contratos de persistência e abstrações (Repository, UnitOfWork).                                                      |
+| Events/OrderCreatedEvent.cs     | Eventos de domínio para suportar EDA e integração assíncrona.                                                         |
+| Exceptions/                     | Exceções específicas do domínio.                                                                                      |
+| Specifications/                 | Padrão Specification para regras de negócio reutilizáveis.                                                            |
+| **/src/Modelo.Infrastructure**  | Camada de infraestrutura (Infra Layer). Implementa interfaces do domínio e application.                               |
+| Context/AppDbContext.cs         | Contexto de persistência (EF Core).                                                                                   |
+| Mappings/                       | Configuração de mapeamento ORM.                                                                                       |
+| Repositories/OrderRepository.cs | Implementação concreta dos repositórios.                                                                              |
+| Services/                       | Serviços de infraestrutura (ex.: envio de e-mails, integração externa).                                               |
+| Migrations/                     | Scripts de migração de base de dados.                                                                                 |
+| Configurations/                 | Configurações adicionais de infraestrutura.                                                                           |
+| IoC/DependencyInjection.cs      | Configuração de injeção de dependência para infraestrutura.                                                           |
+| Messaging/Solace/               | Publicadores e consumidores de eventos via Solace.                                                                    |
+| **/tests/Modelo.Tests**         | Testes automatizados para garantir qualidade e evolução segura.                                                       |
+| Domain/                         | Testes de regras de negócio (unitários).                                                                              |
+| Application/                    | Testes de casos de uso e handlers.                                                                                    |
+| Infrastructure/                 | Testes de integração com BD, mensageria, serviços externos.                                                           |
+| API/                            | Testes de contrato e integração da API.                                                                               |
 
-- Todo o componente stateful deve ter RTO (Recovery Time Objective) e RPO (Recovery Point Objective) definidos, validados e documentados antes de entrar em produção.
-- Os procedimentos de DR devem ser testados em ambiente não-produtivo pelo menos uma vez por semestre.
+Observar exemplos de implementação e casos de uso de camadas em: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5483724895
+
+---
+
+## 6. Tecnologias Utilizadas
+
+| Categoria          | Tecnologia                                  | Observações                                                                 |
+|--------------------|---------------------------------------------|-----------------------------------------------------------------------------|
+| Linguagem          | C#                                          | Padrão para todos os serviços backend.                                      |
+| Runtime            | .NET LTS                                    | Long Term Support; foco em performance.                                     |
+| Web Framework      | ASP.NET Core                                | APIs REST, BFFs, webhooks.                                                  |
+| Arquitetura        | DDD + Clean Architecture                    | Domain / Application / Infrastructure / API.                                |
+| ORM                | Entity Framework Core LTS                   | Regras de acesso a dados, migrations.                                       |
+| DB Relacional      | PostgreSQL                                  | Preferencial para novos serviços; para serviços em contexto de legado, a escolha pode variar — confirmar com a equipa de Arquitetura. |
+| Mensageria         | Solace (SolaceSystems.SolClient)            | EDA, integração entre serviços, event mesh.                                 |
+| DI                 | Microsoft.Extensions.DependencyInjection    | Injeção de dependência nativa do .NET.                                      |
+| Logging            | MS.Extensions.Logging                       | Logs estruturados.                                                          |
+| Observabilidade    | OpenTelemetry + Prometheus + Grafana        | Métricas e tracing distribuído.                                             |
+| Testes             | xUnit, FluentAssertions, Testcontainers     | Testes unitários e de integração.                                           |
+| Documentação API   | Swashbuckle (Swagger) / NSwag               | Documentação e geração de clientes.                                         |
+
+> **Nota editorial:** A tabela anterior indicava "Depende do domínio / legado" para PostgreSQL, o que criava ambiguidade face à indicação de C# como "Padrão para todos os serviços backend". A observação foi clarificada acima.
+
+### 6.2. Boas Práticas em Cliente de Mensageria
+
+Um cliente de mensageria (producer/consumer) é um ponto crítico da arquitetura orientada a eventos. Erros nesse nível geram efeitos em cascata: mensagens perdidas, duplicadas, atrasos, backpressure e falhas difíceis de diagnosticar. Abaixo estão as principais boas práticas, organizadas por responsabilidade.
+
+#### Confiabilidade e Garantias de Entrega
+
+- **Confirmações (acks)** explícitas após processamento bem-sucedido; evitar *auto-ack* sem controlo.
+- **Retries com backoff exponencial** e *jitter* para evitar thundering herd.
+
+#### Resiliência e Tolerância a Falhas
+
+- **Timeouts bem definidos** em conexões, publish e consume (nunca infinitos).
+- **Dead Letter Queue (DLQ)** para mensagens inválidas ou que excederam tentativas.
+- **Bulkhead**: limite de concorrência por tópico/fila para evitar saturação global.
+
+#### Desempenho e Escalabilidade
+
+- **Batching** (quando o broker suporta) para reduzir overhead de rede.
+- **Controlo de concorrência**: consumidores paralelos, mas respeitando ordem quando necessário.
+- **Prefetch / fetch size** ajustado ao payload e à latência esperada.
+- **Backpressure**: pause/resume de consumo quando o processamento atrasa.
+
+#### Contratos de Mensagem
+
+- **Headers padronizados**: `correlationId`, `causationId`, `eventType`, `version`, `timestamp`. Obrigatórios e aplicados por middleware/decorator.
+- **Evitar payloads gigantes**; preferir referências (ex.: IDs) quando possível.
+
+#### Segurança na Mensageria
+
+Para garantir a integridade das comunicações via Solace, os seguintes requisitos de segurança devem ser observados:
+
+- **Autenticação de clientes**: todos os producers e consumers devem autenticar-se no broker (ex.: SASL ou certificados de cliente).
+- **Encriptação em trânsito**: as ligações ao Solace devem usar TLS/mTLS.
+- **Controlo de acesso por tópico**: definir ACLs para restringir quais serviços podem publicar ou consumir em cada tópico.
+
+> Para detalhes completos, consultar o documento de Segurança em: *(verificar URL específico)*.
+
+### 6.3. Quando Utilizar gRPC
+
+gRPC é recomendado para:
+
+- Comunicação síncrona de alta performance entre serviços internos.
+- Cenários de baixo overhead com necessidade de contrato fortemente tipado.
+- Streaming bidirecional.
+- Integração entre aplicações em diferentes linguagens com alto throughput.
+
+**Exemplo básico de envio via gRPC**
+
+```csharp
+var channel = GrpcChannel.ForAddress("https://servico-interno");
+var client = new OrdersGrpc.OrdersGrpcClient(channel);
+
+var request = new CreateOrderRequest
+{
+    CustomerId = "123",
+    TotalAmount = 150.0
+};
+
+var response = await client.CreateOrderAsync(request);
+Console.WriteLine($"Pedido criado: {response.OrderId}");
+```
+
+### 6.4. Gestão de Configurações Aplicacionais
+
+A gestão de configurações deve seguir o **Options Pattern do .NET**, garantindo:
+
+- Forte tipagem
+- Validação em tempo de startup
+- Separação clara entre configuração e segredo
+- Facilidade de troca de provider (local, cloud, vault)
+
+#### 6.4.1. Princípios
+
+- **Configurações não sensíveis** → Podem residir em `appsettings.json`
+- **Segredos (passwords, tokens, keys)** → **Nunca** devem ser versionados. Devem ser providos via variáveis de ambiente ou Secret Manager.
+- A Application Layer não deve aceder a `IConfiguration` diretamente.
+- O acesso deve ser feito **exclusivamente via** `IOptions<T>` ou `IOptionsMonitor<T>`.
+
+#### 6.4.2. Exemplo – appsettings.json
+
+```json
+{
+  "Database": {
+    "Host": "localhost",
+    "Port": 5432,
+    "Name": "modelo",
+    "User": "modelo_user"
+  },
+  "Solace": {
+    "Host": "tcp://localhost:55555",
+    "VpnName": "default",
+    "Username": "default"
+  }
+}
+```
+
+> ⚠️ **Passwords, connection strings completas e tokens não devem estar contidas neste ficheiro.**
+
+#### 6.4.3. Classe de Options
+
+```csharp
+public sealed class SolaceOptions
+{
+    public string Host { get; init; } = default!;
+    public string VpnName { get; init; } = default!;
+    public string Username { get; init; } = default!;
+}
+```
+
+#### 6.4.4. Binding e Validação no Startup
+
+```csharp
+builder.Services
+    .AddOptions<SolaceOptions>()
+    .Bind(builder.Configuration.GetSection("Solace"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+```
+
+#### 6.4.5. Uso via IOptions / IOptionsMonitor
+
+```csharp
+public sealed class SolaceEventPublisher : IEventPublisher
+{
+    private readonly SolaceOptions _options;
+
+    public SolaceEventPublisher(IOptions<SolaceOptions> options)
+    {
+        _options = options.Value;
+    }
+}
+```
+
+---
+
+## 7. Segurança
+
+Observar definições globais em: *(verificar URL específico do documento de segurança)*
+
+> **Nota arquitetural:** Para o contexto específico de mensageria, os requisitos de segurança do Solace (autenticação de clientes, encriptação em trânsito, ACLs por tópico) estão resumidos na Secção 6.2 deste documento, mesmo que os detalhes completos residam no documento de segurança corporativo.
+
+---
+
+## 8. Infraestrutura
+
+Observar definições globais em: *(verificar URL específico)*
+
+---
+
+## 9. Padrões e Princípios Arquiteturais
+
+A arquitetura segue princípios essenciais que garantem consistência e evolução sustentável.
+
+### 9.1. Princípios Fundamentais
+
+**Domínio em primeiro lugar (DDD)**
+- Modelo de domínio como fonte da verdade para regras de negócio.
+- Linguagem global partilhada entre negócio e tecnologia.
+- Modelagem orientada ao negócio e centrada no domínio.
+
+**Clean Architecture / Ports & Adapters**
+- Separação clara entre Domínio, Aplicação, Infraestrutura e Apresentação.
+- Dependências apontam para o centro (API → Application → Domain); a Infrastructure implementa contratos definidos em Domain/Application.
+
+**Event-Driven Architecture (EDA)**
+- Uso de eventos de domínio e/ou de integração para comunicar mudanças relevantes.
+
+**Serviços pequenos, claros e evolutivos**
+- Foco em contextos claros.
+- Componentes desacoplados e comunicando-se por interfaces.
+- Evitar serviços multifunção com vários contextos.
+
+**Observabilidade by design**
+- Logs estruturados, métricas e tracing desde o início.
+- CorrelationId em toda cadeia de chamada.
+
+**Segurança por padrão**
+- Autenticação e autorização aplicadas "by default".
+- Segredos sempre em vault apropriado.
+
+**Automação de ponta a ponta**
+- Build, testes, análise estática e deploy automatizados em pipelines.
+
+### 9.2. Diretrizes Gerais
+
+- Evitar acoplamento desnecessário e dependências cíclicas.
+- Manter serviços e handlers pequenos, focados e coesos.
+- Aplicar resiliência e tratar falhas como parte natural do fluxo.
+
+### 9.3. Governança
+
+- Revisão técnica contínua.
+- Conformidade com padrões corporativos.
+- Garantia de testabilidade em todos os níveis.
+
+### 9.4. Quando Utilizar API Assíncrona ou Evento
+
+**Utilizar API Assíncrona quando:**
+- Existe relação direta entre quem chama e quem responde.
+- O producer precisa saber se a requisição foi aceite.
+- O fluxo pode ser processado em background, mas continua a ser uma interação ponto-a-ponto (ex.: 202 Accepted + endpoint de estado / callback).
+- Há necessidade de controlo de erros e contratos mais explícitos entre os serviços.
+
+**Utilizar Evento quando:**
+- O producer não deve conhecer os consumidores.
+- Uma ação pode gerar efeitos em múltiplos serviços.
+- Os consumidores podem processar em ritmos diferentes.
+- O sistema precisa de alto desacoplamento e escala independente.
+
+### 9.5. Gestão de Erros de Domínio
+
+Os erros de domínio devem ser mapeados de forma consistente para os seus equivalentes na camada de saída:
+
+- **Erros de domínio → HTTP**: as exceções de domínio (ex.: `OrderNotFoundException`, `InvalidOrderStateException`) devem ser capturadas no middleware de exceções da camada API e mapeadas para os códigos HTTP adequados (ex.: 404, 422). A lógica de mapeamento não deve residir nos Controllers.
+- **Erros de domínio → Mensageria**: falhas no processamento de eventos que resultem de regras de negócio devem ser distinguidas de erros de infraestrutura. Erros funcionais não devem ser reenviados para retry nem enviados para DLQ sem enriquecimento de contexto.
+
+---
+
+## 10. Observabilidade
+
+Observar o padrão em: *(verificar URL específico)*
+
+Esta secção descreve como implementar observabilidade em serviços backend .NET, alinhado com os standards corporativos definidos no documento de Cross-cutting Concerns.
+
+O objetivo é que qualquer API, BFF ou Worker tenha **logs estruturados, métricas e tracing distribuído ativos por defeito.**
+
+---
+
+### 10.1. Instrumentação em .NET com OpenTelemetry
+
+Os serviços devem usar OpenTelemetry SDK e auto-instrumentação para capturar telemetria com o mínimo de código adicional.
+
+#### Auto-instrumentação (preferencial)
+
+Sempre que suportado pela plataforma, deve ser ativada para recolher automaticamente:
+
+- Requests ASP.NET Core (entrada HTTP)
+- Chamadas HttpClient (dependências externas)
+- Métricas de runtime (GC, CPU, memória — quando disponível)
+
+Isto garante cobertura base sem alterar código de negócio.
+
+#### Instrumentação manual (quando necessária)
+
+Adicionar spans ou métricas manuais apenas em pontos de negócio relevantes, por exemplo:
+
+- Processamento de pagamentos
+- Cálculo de preços
+- Integrações críticas
+- Processamento de mensagens long-running
+
+Evitar instrumentar métodos triviais ou de infraestrutura interna.
+
+---
+
+### 10.2. Logging Estruturado com Microsoft.Extensions.Logging
+
+Todos os serviços devem utilizar logging estruturado, nunca texto solto.
+
+#### Regras
+
+- Usar message templates com propriedades nomeadas.
+- Não usar string interpolation para logs estruturados.
+- Incluir sempre contexto técnico relevante.
+
+**Exemplo correto**
+
+```csharp
+_logger.LogInformation(
+    "Order created successfully. OrderId={OrderId} CustomerId={CustomerId}",
+    order.Id,
+    order.CustomerId);
+```
+
+**Exemplo incorreto**
+
+```csharp
+_logger.LogInformation($"Order created {order.Id}");
+```
+
+---
+
+### 10.3. Correlação em Serviços Backend
+
+Os serviços devem garantir que logs e traces estão correlacionados.
+
+Em .NET, a correlação é facilitada quando OpenTelemetry está ativo, mas requer configuração explícita — nomeadamente, garantir que o `ActivityIdFormat` está definido para W3C e que os headers de propagação (`traceparent`, `tracestate`) são lidos e emitidos corretamente. Não é automático sem essa configuração.
+
+Deve ser assegurado que:
+
+- O `TraceId` está presente nos logs.
+- O `CorrelationId` (quando existir no pedido ou mensagem) é propagado.
+
+Em mensageria, os consumidores devem:
+
+- Ler `correlationId` e `causationId` dos headers.
+- Reemitir esses valores em logs e novos eventos.
+
+---
+
+### 10.4. Métricas Mínimas Esperadas em Backends
+
+#### APIs / BFFs
+
+- Latência por endpoint (p50/p95/p99)
+- Taxa de erro (4xx/5xx)
+- Throughput (requests/s)
+
+#### Workers / Mensageria
+
+- Tempo de processamento por mensagem
+- Número de retries
+- Mensagens enviadas para DLQ
+- Backlog/lag de fila (quando disponível)
+
+#### Dependências Externas
+
+- Latência e taxa de erro por dependência (HTTP, base de dados, cache)
+
+---
+
+### 10.5. Boas Práticas Específicas para .NET
+
+- Usar `ILogger<T>` via DI, nunca instanciar loggers manualmente.
+- Garantir que exceções não tratadas são registadas com `LogError`.
+- Não fazer logging de dados sensíveis (tokens, passwords, PII).
+- Não fazer logs excessivos dentro de loops ou retries sem controlo.
+
+---
+
+## Apêndice
+
+### Template de Projeto
+
+Ver repositório base (exemplo): `modelo-backend-ddd` com:
+
+```
+Solution: Modelo.sln
+
+Projetos:
+- Modelo.Domain
+- Modelo.Application
+- Modelo.Infrastructure
+- Modelo.API
+```
+
+### Convenções de Nomenclatura C#
+
+- https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names
+- https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
+
+- **Namespaces:** `Modelo.<Camada>.<Contexto>`
+- **Tópicos Solace:** `corp/modelo/<boundedContext>/<evento>/vN`
+- **Branches Git:** `main`, `develop`, `feature/<nome>`, `hotfix/<nome>`
+
+> ℹ️ **Aplicação de Exemplo:** https://github.com/mcdigital-devplatforms/sample-swrefarch-backend-api-messaging
