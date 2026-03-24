@@ -1,907 +1,507 @@
 Índice
 ------
 
-- [DAS Backend API Messaging — Documento de Apoio](#das-backend-api-messaging-documento-de-apoio)
-- [4.3. Estratégia de Testes](#43-estratégia-de-testes)
-	- [4.3.1. Testes Unitários](#431-testes-unitários)
-	- [4.3.2. Testes de Integração](#432-testes-de-integração)
-	- [4.3.3. Testes de Contrato](#433-testes-de-contrato)
-	- [4.3.4. Testes de Performance](#434-testes-de-performance)
-	- [4.3.5. Exemplos de Testes de Unidade](#435-exemplos-de-testes-de-unidade)
-		- [4.3.5.1. Teste de Entidade de Domínio](#4351-teste-de-entidade-de-domínio)
-		- [4.3.5.2. Teste de Caso de Uso (Application)](#4352-teste-de-caso-de-uso-application)
-		- [4.3.5.3. Teste de Envio de Evento](#4353-teste-de-envio-de-evento)
-	- [4.3.6. Testcontainers — Exemplos Práticos](#436-testcontainers-exemplos-práticos)
-		- [4.3.6.1. Exemplo de Teste de Repositório com PostgreSQL Real](#4361-exemplo-de-teste-de-repositório-com-postgresql-real)
-		- [4.3.6.2. Exemplo de Teste de Integração com Wolverine Tracking](#4362-exemplo-de-teste-de-integração-com-wolverine-tracking)
-		- [4.3.6.3. Exemplo de Teste End-to-End](#4363-exemplo-de-teste-end-to-end)
-	- [4.5.3. Circuit Breaker](#453-circuit-breaker)
-	- [4.5.4. Outbox Pattern](#454-outbox-pattern)
-- [5. Estrutura do Projeto — Exemplos de Implementação de Camadas](#5-estrutura-do-projeto-exemplos-de-implementação-de-camadas)
-	- [5.1. Camada Domain — Núcleo do Sistema](#51-camada-domain-núcleo-do-sistema)
-	- [5.2. Camada Application — Casos de Uso](#52-camada-application-casos-de-uso)
-	- [5.3. Camada Infrastructure — Implementações Técnicas](#53-camada-infrastructure-implementações-técnicas)
-	- [5.4. Camada API — Apresentação](#54-camada-api-apresentação)
+- [DAS Integration Service / Adapter](#das-integration-service-adapter)
+- [Histórico de Revisões](#histórico-de-revisões)
+- [1. Introdução](#1-introdução)
+    - [1.1. Propósito e Objetivo](#11-propósito-e-objetivo)
+    - [1.2. Público-Alvo](#12-público-alvo)
+    - [1.3. Serviços Abrangidos](#13-serviços-abrangidos)
+    - [1.4. Âmbito](#14-âmbito)
+- [2. Dependências e Referências](#2-dependências-e-referências)
+- [3. Regras de Utilização](#3-regras-de-utilização)
+- [4. Arquitetura da Tipologia](#4-arquitetura-da-tipologia)
+    - [4.1. Camadas](#41-camadas)
+    - [4.2. Diagrama de Sequência](#42-diagrama-de-sequência)
+    - [4.3. Princípios Arquiteturais](#43-princípios-arquiteturais)
+    - [4.4. Casos de Uso](#44-casos-de-uso)
+    - [4.5. Estratégia de Testes](#45-estratégia-de-testes)
+- [5. Estrutura do Projeto](#5-estrutura-do-projeto)
+- [6. Tecnologias Utilizadas](#6-tecnologias-utilizadas)
+- [7. Segurança](#7-segurança)
+    - [7.1. Requisitos Mínimos Obrigatórios](#71-requisitos-mínimos-obrigatórios)
+- [8. Infraestrutura](#8-infraestrutura)
+    - [8.1. CI/CD e DevOps](#81-cicd-e-devops)
+- [9. Padrões e Princípios Arquiteturais](#9-padrões-e-princípios-arquiteturais)
+    - [9.1. Paginação Padronizada](#91-paginação-padronizada)
+    - [9.2. Padrões de Códigos de Erro](#92-padrões-de-códigos-de-erro)
+    - [9.3. Padrões de Rate Limit](#93-padrões-de-rate-limit)
+    - [9.4. Sugestões para Tamanho de Payload](#94-sugestões-para-tamanho-de-payload)
+    - [9.5. Padrões de Timeout](#95-padrões-de-timeout)
+    - [9.6. Controlo de Backpressure](#96-controlo-de-backpressure)
+    - [9.7. Versionamento e Depreciação de APIs](#97-versionamento-e-depreciação-de-apis)
+    - [9.8. Resumo em JSON para Contratos Internos](#98-resumo-em-json-para-contratos-internos)
+    - [9.9. Contrato API-first (OpenAPI exemplo YAML)](#99-contrato-api-first-openapi-exemplo-yaml)
+    - [9.10. Exemplo de Código – .NET 8 (Minimal API)](#910-exemplo-de-código-net-8-minimal-api)
+    - [9.11. Integração para Data Analytics / Data Lake](#911-integração-para-data-analytics-data-lake)
+- [10. Observabilidade](#10-observabilidade)
+    - [10.1. Requisitos Mínimos Obrigatórios](#101-requisitos-mínimos-obrigatórios)
+    - [10.2. O que Deve Ser Coletado](#102-o-que-deve-ser-coletado)
+    - [10.3. Monitorização de SLA por Integração](#103-monitorização-de-sla-por-integração)
+    - [10.4. Contexto Mínimo Obrigatório (labels)](#104-contexto-mínimo-obrigatório-labels)
 
-# DAS Backend API Messaging — Documento de Apoio
+# DAS Integration Service / Adapter
 
-> **Âmbito deste documento:** Exemplos práticos de implementação para o DAS Backend API Messaging. Consultar o documento principal para diretrizes arquiteturais, fronteiras de camadas e padrões de design.
->
-> **Nota:** `Modelo` é um placeholder nos exemplos de código — substituir pelo nome do bounded context real (ex.: `Pedidos`, `Faturacao`, `Catalogo`).
+**Detalhe: Middleware de Integração (transformação de dados, sync jobs, adaptação de APIs)**
 
-## 4.3. Estratégia de Testes
+# Histórico de Revisões
 
-### 4.3.1. Testes Unitários
+| Versão | Data       | Autor(es)        | Resumo das Mudanças                      |
+|--------|------------|------------------|------------------------------------------|
+| 1.0    | 05/12/2025 | Jamil Costa      | Criação inicial do documento de arquitetura de referência. |
+| 2.0    | 06/01/2026 | William Alves    | Adição de Observabilidade.               |
+| 2.1    | 19/06/2026 | Felipe Klussmann | Pequenos ajustes e correções.            |
 
-- xUnit + FluentAssertions + Moq.
-- Foco em:
-  - Regras de domínio (Domain).
-  - Casos de uso (Application).
-  - Mocks para repositórios e serviços externos.
+# 1. Introdução
 
-### 4.3.2. Testes de Integração
+## 1.1. Propósito e Objetivo
 
-- Validar integração real com dependências técnicas:
-  - EF Core + PostgreSQL (via Testcontainers).
-  - API → Application → Infrastructure → DB.
-  - (Quando aplicável) integração com mensageria via *test harness* / stubs / ambiente de testes.
+Este documento provê diretrizes arquiteturais e práticas recomendadas para times técnicos que desenvolvem, mantêm e operam serviços de integração do tipo **Integration Service / Adapter**. O objetivo principal é garantir **interoperabilidade**, **robustez**, **eficiência** e **modelo consistente** na comunicação entre sistemas distintos, reduzindo o acoplamento e aumentando a escalabilidade. Os owners das aplicações são autônomos e responsáveis por garantir o desenvolvimento e compliance com a arquitetura.
 
-> **Boas práticas com Testcontainers:** Cada teste deve ser responsável por criar e limpar os seus próprios dados. Evitar partilha de estado entre testes para garantir isolamento e repetibilidade.
+O principal caso de uso deste documento é o cenário em que não seja possível (ou não seja recomendável) a comunicação direta entre dois sistemas/serviços.
 
-### 4.3.3. Testes de Contrato
+## 1.2. Público-Alvo
 
-- **REST:** Pact (consumer-driven contracts) para contratos entre serviços.
-- **Eventos:** validar schema/versão (ex.: JSON Schema/Avro/Protobuf) e regras de compatibilidade.
+- Engenharia
+- Suporte
+- Arquitetura
 
-> **Versionamento de eventos em testes de contrato:** Ao evoluir o schema de um evento, incluir testes que validem compatibilidade retroativa — ou seja, que consumidores da versão anterior continuam a processar corretamente mensagens da versão nova. Schemas aditivos devem ser aceites sem erro; breaking changes devem ser detectadas em tempo de CI.
+## 1.3. Serviços Abrangidos
 
-### 4.3.4. Testes de Performance
+- Middleware para integração entre sistemas internos e/ou externos
+- Transformação e enriquecimento de dados
+- Serviços de sincronização periódica (sync jobs)
+- Mapeamento e adaptação de APIs
+- Conectores para protocolos diversos (REST, SOAP, MQ, SFTP, etc.)
 
-- k6/JMeter para cenários críticos (login, checkout, criação de pedido, etc.).
-- Medir e acompanhar regressões:
-  - Latência p95/p99 por endpoint/operação.
-  - Throughput.
-  - Taxa de erro e timeouts.
+## 1.4. Âmbito
 
-> **Critérios de aceitação:** Definir thresholds mínimos por cenário (ex.: p95 < 300 ms para criação de pedido, taxa de erro < 0,1%). Os testes de performance devem falhar o pipeline quando esses limites forem excedidos.
+Os seguintes objetivos visam endereçar os problemas relatados na etapa de Assessment.
 
-### 4.3.5. Exemplos de Testes de Unidade
+| Objetivos Arquiteturais                          | Problemas Solucionados                                                        |
+|--------------------------------------------------|-------------------------------------------------------------------------------|
+| **Event-driven architecture**                    | Evita sobrecarga em APIs síncronas e melhora escalabilidade                   |
+| **API-first e contrato versionado**              | Garante consistência e evita breaking changes                                 |
+| **Padronização de paginação e códigos de erro**  | Mitiga falta de paginação e inconsistências em APIs externas                  |
+| **Desacoplamento por adaptadores/mensageria**    | Reduz dependência direta entre aplicações                                     |
+| **Rate-limit e payload limit**                   | Protege serviços contra sobrecarga                                            |
+| **Observabilidade e rastreabilidade distribuída**| Facilita análise de problemas e auditoria em sistemas distribuídos            |
 
-#### 4.3.5.1. Teste de Entidade de Domínio
+# 2. Dependências e Referências
 
-```csharp
-using FluentAssertions;
-using Modelo.Domain.Entities;
-using Xunit;
+Este tipo de serviço depende de alguns elementos fundamentais para operar com segurança e consistência:
 
-public class OrderTests
+- **Contratos de integração**: OpenAPI / AsyncAPI / XSD (para REST, eventos e SOAP).
+- **Broker**: Solace.
+- **API Gateway / IAM corporativo**: Autenticação, autorização, rate-limit e auditoria.
+- **Ferramentas de observabilidade**: OpenTelemetry, Grafana, Prometheus.
+
+> **Nota editorial:** As secções de Segurança (7), Infraestrutura (8) e Observabilidade (10) referenciam documentos externos. Verificar e corrigir os URLs específicos para cada tópico (Gateway, Messaging, Secrets, Identity) — os links atuais parecem ser placeholders repetidos.
+
+# 3. Regras de Utilização
+
+Cada tipologia terá abordados aspetos específicos, incluindo, sempre que aplicável, referências a diretrizes, padrões gerais e boas práticas.
+
+Este documento não é um conjunto de regras inflexíveis, mas sim um guia de **fortes recomendações**. Desvios são permitidos, mas devem ser justificados e validados com Arquitetura e Developer Platform, e devidamente registados (ADR / exceção arquitetural).
+
+# 4. Arquitetura da Tipologia
+
+## 4.1. Camadas
+
+A arquitetura do Middleware para integração é dividida em quatro camadas:
+
+1. **Camada de Interface/Entrada (Inbound Layer)**
+   1. Recebe chamadas via APIs, filas, eventos.
+   2. Implementa autenticação, rate-limit e validação inicial.
+
+2. **Camada de Processamento e Transformação (Core Adapter Layer)**
+   1. Garantia de idempotência no consumo de mensagens.
+   2. Aplicação de lógica de transformação.
+   3. Enriquecimento de dados.
+   4. Aplicação de contratos padrão (schemas, versionamento).
+
+3. **Camada de Interface/Saída (Outbound Layer)**
+   1. Comunicação com sistemas externos ou entrega de eventos.
+   2. Cuidado com paginação em múltiplos consumidores.
+   3. Tratamento de dados antes da persistência ou entrega.
+
+4. **Observabilidade e Resiliência (Cross-cutting Concerns)**
+   1. Logging estruturado.
+   2. Tracing distribuído.
+   3. Retry e tolerância a falhas.
+
+> **Nota:** A Observabilidade e Resiliência são **preocupações transversais** (cross-cutting concerns) — não constituem uma camada física no fluxo de processamento, mas aplicam-se a todas as camadas acima.
+
+## 4.2. Diagrama de Sequência
+
+*(Diagrama de sequência disponível no Confluence — consultar o documento original para o diagrama do fluxo de comunicação entre camadas.)*
+
+## 4.3. Princípios Arquiteturais
+
+- **Event-driven first**: priorizar fluxo assíncrono.
+- **API-first design** com documentação via OpenAPI/Swagger.
+- **Desacoplamento** por mensageria e adaptadores intermediários.
+- **Padronização** (quando aplicável a APIs síncronas): paginação (limit/offset ou cursor), `totalCount` apenas quando fizer sentido e tiver custo aceitável.
+- **Resiliência**: circuit breaker, retry, timeout.
+- **Segurança by design**: rate-limit, payload limit, autenticação forte e autorização granular.
+- **Observabilidade** desde o desenvolvimento: Correlation ID, logs estruturados contextualizados.
+
+## 4.4. Casos de Uso
+
+- Integração de ERP com múltiplos CRMs via event-driven
+- Transformação de dados XML para JSON para API unificada
+- Sincronização de dados entre sistemas distribuídos
+- API adaptadora para consumidores internos com paginação e caching
+- Publicação de eventos de atualização para vários microserviços
+
+## 4.5. Estratégia de Testes
+
+- **Unit Tests** para mapeamento e regras de negócio
+- **Contract Testing** para APIs e eventos
+- **Integration Testing** com sistemas reais/stubs
+- **Performance Testing** com grandes volumes e consumidores múltiplos
+- **Resilience Testing** simulando falhas de sistemas externos
+- **Security Testing** (SQLi, XSS, análise de payloads maliciosos)
+
+# 5. Estrutura do Projeto
+
+Já contemplado no [DAS Backend API](https://ecom4isi.atlassian.net/wiki/x/AQDeKgE).
+
+# 6. Tecnologias Utilizadas
+
+- **Broker/Event-driven**: Solace
+- **APIs**: REST (ASP.NET Core em .NET LTS, ex.: .NET 8) / gRPC
+- **Orquestração de containers**: Kubernetes
+- **Agendamento de jobs**: Hangfire, CronJobs
+- **Orquestração de workflows** (quando aplicável): Airflow
+- **Monitoramento**: Prometheus, Grafana
+- **Segurança**: mTLS, OAuth 2.0, JWT
+- **Documentação**: OpenAPI, AsyncAPI
+
+# 7. Segurança
+
+Definições globais: *(verificar URL específico do documento de segurança corporativo)*
+
+## 7.1. Requisitos Mínimos Obrigatórios
+
+Independentemente dos detalhes no documento de segurança corporativo, todos os Integration Services/Adapters devem garantir:
+
+- **Autenticação de todas as chamadas de entrada**: utilizar tokens JWT validados via IAM corporativo ou mTLS para comunicações serviço-a-serviço.
+- **Encriptação em trânsito**: TLS obrigatório em todas as comunicações, tanto inbound como outbound.
+- **Autorização granular**: aplicar princípio do menor privilégio; cada adapter deve ter apenas as permissões necessárias para os sistemas com que interage.
+- **Segredos em vault**: credenciais, tokens e connection strings nunca em repositório de código ou configuração estática. Utilizar o Secret Manager corporativo com suporte a rotação automática.
+- **Auditoria**: todas as chamadas de entrada e saída devem ser registadas com contexto suficiente para rastreabilidade (quem chamou, quando, o quê).
+
+> Para rotação de credenciais, caching de segredos em runtime e procedimentos de fallback em caso de indisponibilidade do vault, consultar o documento de Secrets Management: *(verificar URL específico)*.
+
+# 8. Infraestrutura
+
+## 8.1. CI/CD e DevOps
+
+Ver definições globais em: *(verificar URL específico)*
+
+# 9. Padrões e Princípios Arquiteturais
+
+## 9.1. Paginação Padronizada
+
+- Query params:
+  - `limit` (int): número de registros por página (default: 50, máximo: 200)
+  - `offset` (int): posição inicial para busca
+  - `totalCount` no payload para clientes saberem o total
+
+> **Nota:** `totalCount` deve ser incluído apenas quando o custo da query for aceitável. Evitar queries `COUNT(*)` pesadas em tabelas com grande volume de dados — nesses casos, omitir ou disponibilizar `totalCount` de forma assíncrona/aproximada.
+
+```json
 {
-    [Fact]
-    public void Should_Create_Order_With_Valid_Data()
-    {
-        var customerId = Guid.NewGuid();
-        decimal total = 150.75m;
-
-        var order = new Order(customerId, total);
-
-        order.Id.Should().NotBeEmpty();
-        order.CustomerId.Should().Be(customerId);
-        order.TotalAmount.Should().Be(total);
-        order.CreatedAtUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
-    }
+  "data": [/* registros */],
+  "pagination": {
+    "limit": 50,
+    "offset": 0,
+    "totalCount": 15437
+  }
 }
 ```
 
-#### 4.3.5.2. Teste de Caso de Uso (Application)
+## 9.2. Padrões de Códigos de Erro
 
-```csharp
-using FluentAssertions;
-using Wolverine;
-using Modelo.Application.Commands.Orders;
-using Modelo.Application.Handlers.Orders;
-using Modelo.Application.Interfaces;
-using Modelo.Domain.Entities;
-using Modelo.Domain.Interfaces;
-using Moq;
-using Xunit;
+**HTTP:**
 
-public class CreateOrderCommandHandlerTests
+```
+200: sucesso
+400: requisição inválida
+401: não autenticado
+403: sem autorização
+404: recurso não encontrado
+409: conflito (idempotência, estado inválido, versão/concorrência)
+413: payload demasiado grande
+429: rate limit excedido
+500: erro interno
+503: serviço indisponível
+```
+
+**Payload de erro padronizado:**
+
+```json
 {
-    [Fact]
-    public async Task Should_Create_Order_And_Publish_Event()
-    {
-        var repository = new Mock<IOrderRepository>();
-        var unitOfWork = new Mock<IUnitOfWork>();
-        var publisher = new Mock<IEventPublisher>();
-
-        var handler = new CreateOrderCommandHandler(
-            repository.Object,
-            unitOfWork.Object,
-            publisher.Object
-        );
-
-        var command = new CreateOrderCommand(Guid.NewGuid(), 250);
-
-        var orderId = await handler.Handle(command, CancellationToken.None);
-
-        repository.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Once);
-        unitOfWork.Verify(u => u.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-        publisher.Verify(p => p.PublishAsync(
-            "modelo.orders.order-created.v1",
-            It.IsAny<OrderCreatedEvent>(),
-            It.IsAny<CancellationToken>()),
-            Times.Once
-        );
-
-        orderId.Should().NotBeEmpty();
-    }
+  "errorCode": "INTEGRATION_TIMEOUT",
+  "message": "O serviço de destino não respondeu a tempo",
+  "details": {
+    "destination": "CRMService",
+    "timeoutMs": 3000
+  }
 }
 ```
 
-#### 4.3.5.3. Teste de Envio de Evento
+## 9.3. Padrões de Rate Limit
 
-```csharp
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Moq;
-using Xunit;
-using Modelo.Application.Interfaces;
+**Objetivo:** evitar sobrecarga, abuso e garantir disponibilidade para todos os consumidores.
 
-public class EventPublisherTests
+| Diretriz                   | Valor sugerido                              | Observações                                                               |
+|----------------------------|---------------------------------------------|---------------------------------------------------------------------------|
+| Limite por IP (público)    | 100 req/minuto                              | Ideal para APIs públicas com múltiplos clientes.                          |
+| Limite por token/aplicação | 1000 req/minuto                             | Para APIs autenticadas, considerando volume esperado.                     |
+| Burst Control              | Máx. 20 req/segundo                         | Evita picos súbitos que possam derrubar serviços.                         |
+| Janela de tempo            | 1 minuto (Fixed Window ou Sliding Window)   | Usar algoritmos token-bucket ou leaky-bucket para maior precisão.         |
+| Resposta de excesso        | HTTP `429 Too Many Requests`                | Payload JSON padronizado com campos `errorCode`, `message`, `retryAfter`. |
+
+**Payload de erro padronizado:**
+
+```json
 {
-    [Fact]
-    public async Task Should_Publish_Event_To_Topic()
-    {
-        // Arrange
-        var publisher = new Mock<IEventPublisher>(MockBehavior.Strict);
-
-        var topic = "modelo.orders.order-created.v1";
-        var evt = new
-        {
-            EventId = Guid.NewGuid(),
-            OrderId = Guid.NewGuid(),
-            OccurredAtUtc = DateTime.UtcNow
-        };
-
-        publisher
-            .Setup(p => p.PublishAsync(topic, It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        // Act
-        Func<Task> act = async () =>
-            await publisher.Object.PublishAsync(topic, evt, CancellationToken.None);
-
-        // Assert
-        await act.Should().NotThrowAsync();
-
-        publisher.Verify(p =>
-            p.PublishAsync(
-                topic,
-                It.Is<object>(x => x != null),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-
-        publisher.VerifyNoOtherCalls();
-    }
+  "errorCode": "RATE_LIMIT_EXCEEDED",
+  "message": "Número máximo de requisições atingido. Tente novamente mais tarde.",
+  "details": {
+    "limitPerMinute": 100,
+    "retryAfterSeconds": 60
+  }
 }
 ```
 
-### 4.3.6. Testcontainers — Exemplos Práticos
+## 9.4. Sugestões para Tamanho de Payload
 
-A seguir, exemplos prontos para uso no padrão da arquitetura.
+**Objetivo:** evitar tráfego e processamento excessivo, garantindo tempo de resposta e custo de rede reduzido.
 
-#### 4.3.6.1. Exemplo de Teste de Repositório com PostgreSQL Real
+| Diretriz                     | Valor sugerido                                                          | Observações                                                                       |
+|------------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| Payload máximo para requisição | 1 MB para JSON                                                        | Adequado para trocas de dados comuns.                                             |
+| Payload máximo para upload   | 10 MB para upload de ficheiros via streaming (exclui soluções dedicadas de MFT) | Usar endpoints específicos para upload e validação no server-side.        |
+| Payload máximo para resposta | 2 MB para dados paginados                                               | Dividir resultados grandes usando paginação (default 50 registros, máx. 200).     |
+| Negociação de conteúdo       | Suportar compressão (`gzip`)                                            | Reduz tráfego em conexões lentas.                                                 |
 
-```csharp
-using Xunit;
-using Testcontainers.PostgreSql;
-using Microsoft.EntityFrameworkCore;
-using Modelo.Infrastructure.Context;
-using Modelo.Infrastructure.Repositories;
-using Modelo.Domain.Entities;
+> **Nota:** Os valores acima são um baseline sugerido. Integrações com requisitos específicos (ex.: transferência de ficheiros médicos, documentos legais) podem necessitar de limites distintos. Ajustes devem ser validados com Arquitetura e registados em ADR quando justificados por requisitos de negócio.
 
-public class OrderRepositoryTests : IAsyncLifetime
+**Boas práticas:**
+
+- Validar tamanho *antes* de processar conteúdo.
+- Responder com HTTP `413 Payload Too Large` em caso de excesso.
+- Incluir no contrato (`OpenAPI`) a especificação de tamanho máximo permitido.
+
+## 9.5. Padrões de Timeout
+
+**Objetivo:** prevenir bloqueios e liberar recursos rapidamente.
+
+| Tipo de Timeout                | Valor sugerido                                                        | Observações                                             |
+|--------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------|
+| Timeout de requisição HTTP     | 30 segundos                                                           | Para operações que envolvem integrações externas.       |
+| Timeout de leitura (read)      | 10 segundos                                                           | Tempo máximo para receber dados após a conexão inicial. |
+| Timeout de escrita (write)     | 10 segundos                                                           | Tempo máximo para enviar dados ao servidor.             |
+| Timeout de operações internas  | Configurar conforme SLA; idealmente ≤ 5 segundos para APIs síncronas | Evita encadeamento de atrasos.                          |
+| Retry Policy                   | Máx. 3 tentativas com backoff exponencial                             | Implementar circuit breaker para evitar loops de falha. |
+
+**Boas práticas:**
+
+- Sempre propagar `timeoutMs` no log/erro, inclusive para chamadas downstream.
+- Usar tracing distribuído para identificar gargalos de tempo.
+- Tratar timeouts como erros recuperáveis ou integrar fallback quando aplicável.
+
+## 9.6. Controlo de Backpressure
+
+**Objetivo:** proteger o adapter e os sistemas de destino em cenários onde os consumidores estão lentos ou indisponíveis.
+
+Quando um sistema de destino apresenta degradação, o adapter não deve acumular mensagens ou requisições indefinidamente — risco de esgotamento de memória e conexões.
+
+**Diretrizes:**
+
+- **Limite de fila interna**: definir um limite máximo de mensagens em processamento simultâneo por adapter (ex.: semáforo, channel com capacidade limitada).
+- **Política de rejeição**: ao atingir o limite, responder com `HTTP 429` (para chamadas síncronas) ou `HTTP 503` com `Retry-After` (para indisponibilidade temporária).
+- **Pause/resume em consumidores de mensageria**: implementar mecanismo de pausa no consumo de tópicos quando o processamento acumula além de um threshold configurável; retomar quando a carga normalizar.
+- **Sinalização de backpressure em métricas**: expor o tamanho da fila e o estado do consumer (ativo/pausado) como métricas observáveis.
+
+## 9.7. Versionamento e Depreciação de APIs
+
+**Objetivo:** garantir evolução de contratos sem introduzir breaking changes para consumidores existentes.
+
+**Política:**
+
+- Versionar via path (ex.: `/v1/customers`, `/v2/customers`) ou header (`Accept: application/vnd.api+json;version=2`).
+- Manter a versão anterior ativa por um **mínimo de 6 meses** após a publicação de uma nova versão, salvo acordo explícito com todos os consumidores.
+- **Comunicação obrigatória**: notificar todos os consumidores registados antes de iniciar a depreciação de uma versão, com data de fim de suporte definida.
+- Breaking changes (remoção de campos, alteração de tipos, renomeação de endpoints) requerem sempre uma nova versão principal.
+- Alterações aditivas (novos campos opcionais, novos endpoints) podem ser feitas na versão corrente, desde que retrocompatíveis.
+
+## 9.8. Resumo em JSON para Contratos Internos
+
+Este formato pode ser incluído como parte de metadados da API:
+
+```json
 {
-    private readonly PostgreSqlContainer _pgContainer;
-    private AppDbContext _context = default!;
-
-    public OrderRepositoryTests()
-    {
-        _pgContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:16")
-            .WithDatabase("testdb")
-            .WithUsername("test")
-            .WithPassword("test")
-            .Build();
-    }
-
-    public async Task InitializeAsync()
-    {
-        await _pgContainer.StartAsync();
-
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql(_pgContainer.GetConnectionString())
-            .Options;
-
-        _context = new AppDbContext(options);
-        await _context.Database.EnsureCreatedAsync();
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _pgContainer.DisposeAsync();
-    }
-
-    [Fact]
-    public async Task Should_Insert_And_Read_Order()
-    {
-        // Arrange — dados criados por este teste, limpos no DisposeAsync
-        var repo = new OrderRepository(_context);
-        var order = new Order(Guid.NewGuid(), 300);
-
-        // Act
-        await repo.AddAsync(order);
-        await _context.SaveChangesAsync();
-        var saved = await repo.GetByIdAsync(order.Id);
-
-        // Assert
-        Assert.NotNull(saved);
-        Assert.Equal(order.TotalAmount, saved!.TotalAmount);
-    }
+  "limits": {
+    "rateLimitPerMinute": 100,
+    "burstLimitPerSecond": 20,
+    "maxPayloadRequestBytes": 1048576,
+    "maxPayloadResponseBytes": 2097152,
+    "httpTimeoutSeconds": 30,
+    "readTimeoutSeconds": 10,
+    "writeTimeoutSeconds": 10
+  }
 }
 ```
 
-> **Nota sobre segredos em CI/CD:** Em pipelines CI/CD, as credenciais dos containers de teste (ex.: `WithUsername`, `WithPassword`) devem ser injetadas via variáveis de ambiente ou secrets do pipeline — nunca hard-coded em repositórios. As credenciais acima são apenas para uso local/ilustrativo.
+## 9.9. Contrato API-first (OpenAPI exemplo YAML)
 
-#### 4.3.6.2. Exemplo de Teste de Integração com Wolverine Tracking
-
-```csharp
-using Xunit;
-using Wolverine;
-using Wolverine.Tracking;
-using Microsoft.Extensions.DependencyInjection;
-
-public class WolverineTrackingTests : IAsyncLifetime
-{
-    private IServiceProvider _provider = default!;
-
-    public async Task InitializeAsync()
-    {
-        var services = new ServiceCollection();
-
-        services.AddWolverine(opts =>
-        {
-            // Exemplo: desabilitar roteamento convencional se quiser algo mais explícito
-            opts.DisableConventionalLocalRouting();
-        });
-
-        _provider = services.BuildServiceProvider();
-
-        await Task.CompletedTask;
-    }
-
-    public async Task DisposeAsync()
-    {
-        if (_provider is IDisposable d)
-            d.Dispose();
-
-        await Task.CompletedTask;
-    }
-
-    [Fact]
-    public async Task OrderCreatedEvent_Should_Execute_Handler()
-    {
-        var bus = _provider.GetRequiredService<IMessageBus>();
-
-        var evt = new OrderCreatedEvent
-        {
-            OrderId = Guid.NewGuid(),
-            CustomerId = Guid.NewGuid(),
-            TotalAmount = 150
-        };
-
-        var report = await bus.TrackAsync(async session =>
-        {
-            await session.Send(evt);
-        });
-
-        Assert.True(report.Executed.Any());
-    }
-}
+```yaml
+openapi: 3.0.3
+info:
+  title: Integration Adapter - ERP to CRM
+  version: 1.0.0
+paths:
+  /customers:
+    get:
+      summary: Lista clientes com paginação
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+      responses:
+        '200':
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerList'
+components:
+  schemas:
+    CustomerList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+        pagination:
+          type: object
+          properties:
+            limit: { type: integer }
+            offset: { type: integer }
+            totalCount: { type: integer }
+    Customer:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
 ```
 
-#### 4.3.6.3. Exemplo de Teste End-to-End
+## 9.10. Exemplo de Código – .NET 8 (Minimal API)
 
-> **Nota:** O exemplo abaixo é uma estrutura base para testes end-to-end com Testcontainers. O `Assert.True(true)` é apenas um placeholder — deve ser substituído pela validação real do fluxo completo (ex.: verificar que um pedido criado via API é persistido na base de dados e que o evento correspondente é publicado). Testes end-to-end superficiais criam falsa perceção de cobertura.
+Podem validar um exemplo de código no documento de apoio: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5410422839
 
-```csharp
-public class FullIntegrationTests : IAsyncLifetime
-{
-    private readonly PostgreSqlContainer _pg =
-        new PostgreSqlBuilder().WithDatabase("integration").Build();
+## 9.11. Integração para Data Analytics / Data Lake
 
-    public async Task InitializeAsync()
-    {
-        await _pg.StartAsync();
-        // Aqui deve ser configurado o host completo da aplicação (ex.: WebApplicationFactory)
-        // e, quando aplicável, stubs ou test harness do broker Solace
-    }
+Para integrações cujo destino final seja um Data Lake ou plataforma analítica, o serviço deve priorizar a preservação da fidelidade aos dados de origem. A camada inicial de ingestão deve manter os dados o mais próximos possível da fonte, limitando-se a transformações técnicas e não funcionais (ex.: normalização de formato, enriquecimento com metadata operacional, padronização de envelope). Regras de negócio, agregações e enriquecimentos semânticos devem ser aplicados apenas em camadas analíticas posteriores.
 
-    public async Task DisposeAsync()
-    {
-        await _pg.DisposeAsync();
-    }
+Sempre que suportado pelo sistema de origem, o adapter deve publicar eventos incrementais (delta) em vez de snapshots completos, contendo apenas os campos alterados e os identificadores necessários para reconstrução do estado. Isso reduz volume de tráfego, custo de processamento e latência, além de melhorar a escalabilidade da plataforma de dados. É responsabilidade do consumidor analítico (camadas Silver/Gold) recompor o estado completo quando necessário.
 
-    [Fact]
-    public async Task Full_Flow_Should_Work()
-    {
-        // TODO: implementar validação real do fluxo API → Application → Repository
-        // Exemplo mínimo esperado:
-        // 1. POST /api/orders com payload válido
-        // 2. Verificar resposta 201 com ID gerado
-        // 3. Verificar registo na base de dados via repositório
-        // 4. Verificar publicação do evento (via test harness ou mock de IEventPublisher)
-        Assert.Fail("Substituir por implementação real do teste end-to-end.");
-    }
-}
+# 10. Observabilidade
+
+Observar o padrão corporativo em: *(verificar URL específico)*
+
+## 10.1. Requisitos Mínimos Obrigatórios
+
+Todos os Integration Services/Adapters devem, no mínimo:
+
+- Expor métricas de **latência p95/p99**, **taxa de erro** e **throughput** por integração.
+- Propagar **Correlation ID** em toda a cadeia de chamadas (inbound → processamento → outbound).
+- Emitir **logs estruturados** com contexto mínimo obrigatório (ver Secção 10.4).
+- Configurar **alertas automáticos** para falhas acima do threshold definido no SLA da integração.
+- Expor estado do **circuit breaker** como métrica observável.
+
+## 10.2. O que Deve Ser Coletado
+
+**Tráfego (Volume)**
+
+```
+- Total de requisições recebidas (APIs)
+- Total de eventos/mensagens consumidas
+- Total de eventos/mensagens publicados
+```
+
+**Latência**
+
+```
+- Tempo total de processamento da integração
+- Tempo de chamadas a sistemas externos (downstream)
+- Percentis de latência (P95 / P99)
+```
+
+**Erros**
+
+```
+- Erros de validação/contrato (4xx)
+- Erros técnicos (5xx)
+- Timeouts
+- Falhas de consumo/processamento de eventos
+```
+
+**Resiliência**
+
+```
+- Número de retries executados
+- Falhas definitivas após retry máximo
+- Estado do circuit breaker (aberto / fechado)
+```
+
+**Mensageria**
+
+```
+- Mensagens pendentes na fila
+- Taxa de consumo por consumer
+- Tempo médio de espera/processamento da mensagem
+```
+
+**SLA / Saúde da Integração**
+
+```
+- Taxa de sucesso por integração
+- Disponibilidade do adapter
+- Latência dentro vs. fora do SLA
+```
+
+## 10.3. Monitorização de SLA por Integração
+
+Cada integração deve ter o seu SLA definido e monitorizado de forma individualizada. Para cada integração, deve ser especificado:
+
+- **Disponibilidade alvo** (ex.: 99,5% em horário comercial).
+- **Latência máxima aceitável** (ex.: p95 < 500 ms para chamadas síncronas).
+- **Taxa de erro máxima** (ex.: < 0,1% de falhas definitivas).
+- **Alertas configurados** no dashboard de observabilidade para notificar quando qualquer SLA for violado.
+
+## 10.4. Contexto Mínimo Obrigatório (labels)
+
+```
+- Nome da integração / adapter
+- Operação
+- Sistema de destino
+- Tipo de protocolo (HTTP, evento, batch)
 ```
 
 ---
 
-### 4.5.3. Circuit Breaker
-
-Exemplo de Circuit Breaker com retry e timeout utilizando **Polly**.
-
-> **Nota:** Polly é utilizado aqui como exemplo ilustrativo do padrão Circuit Breaker. A implementação pode utilizar qualquer mecanismo que garanta os mesmos comportamentos de resiliência (estados Closed/Open/Half-Open, fail fast, métricas expostas).
-
-```csharp
-using Polly;
-using Polly.CircuitBreaker;
-using Polly.Timeout;
-using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-
-public class ExternalApiClient
-{
-    private readonly HttpClient _httpClient;
-    private readonly AsyncPolicy<HttpResponseMessage> _policy;
-
-    public ExternalApiClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-
-        var timeoutPolicy =
-            Policy.TimeoutAsync<HttpResponseMessage>(
-                TimeSpan.FromSeconds(2)
-            );
-
-        var retryPolicy =
-            Policy<HttpResponseMessage>
-                .Handle<HttpRequestException>()
-                .OrResult(r => !r.IsSuccessStatusCode)
-                .WaitAndRetryAsync(
-                    retryCount: 3,
-                    sleepDurationProvider: attempt =>
-                        TimeSpan.FromMilliseconds(200 * Math.Pow(2, attempt))
-                );
-
-        var circuitBreakerPolicy =
-            Policy<HttpResponseMessage>
-                .Handle<HttpRequestException>()
-                .OrResult(r => !r.IsSuccessStatusCode)
-                .CircuitBreakerAsync(
-                    handledEventsAllowedBeforeBreaking: 5,
-                    durationOfBreak: TimeSpan.FromSeconds(30),
-                    onBreak: (outcome, breakDelay) =>
-                    {
-                        Console.WriteLine($"Circuit OPEN for {breakDelay.TotalSeconds}s");
-                    },
-                    onReset: () =>
-                    {
-                        Console.WriteLine("Circuit CLOSED again");
-                    },
-                    onHalfOpen: () =>
-                    {
-                        Console.WriteLine("Circuit HALF-OPEN");
-                    });
-
-        _policy = Policy.WrapAsync(
-            retryPolicy,
-            circuitBreakerPolicy,
-            timeoutPolicy
-        );
-    }
-
-    public async Task<string> GetDataAsync(CancellationToken ct)
-    {
-        var response = await _policy.ExecuteAsync(
-            async token =>
-            {
-                return await _httpClient.GetAsync(
-                    "https://api.externa.com/data",
-                    token
-                );
-            },
-            ct
-        );
-
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsStringAsync();
-    }
-}
-```
-
-Uso em consumidor de mensageria com fallback para DLQ:
-
-```csharp
-public async Task HandleMessageAsync(string message)
-{
-    try
-    {
-        await _policy.ExecuteAsync(async () =>
-        {
-            await CallExternalServiceAsync(message);
-        });
-    }
-    catch (BrokenCircuitException)
-    {
-        // Fail fast → enviar para retry topic ou DLQ
-        await SendToDlqAsync(message);
-    }
-}
-```
-
-### 4.5.4. Outbox Pattern
-
-Exemplo ilustrativo do Outbox Pattern.
-
-> **Nota sobre concorrência no dispatcher:** Em ambientes com múltiplas instâncias do worker a correr em paralelo, a mesma mensagem pode ser lida e enviada duplicadamente se não houver coordenação. Para evitar este cenário, utilizar `SELECT ... FOR UPDATE SKIP LOCKED` no PostgreSQL (ou equivalente no SGBD escolhido) ao consultar os registos pendentes. Alternativamente, usar uma fila distribuída para coordenar o dispatch. O exemplo abaixo omite este mecanismo por simplicidade — adaptar para produção.
-
-```csharp
-// Modelo da tabela outbox
-class OutboxMessage
-{
-    public Guid Id { get; init; } = Guid.NewGuid();
-    public string Topic { get; init; } = default!;
-    public string Payload { get; init; } = default!;  // JSON do evento
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
-    public DateTime? SentAt { get; set; }
-}
-
-// 1) Escrita atómica: grava domínio + outbox na mesma transação
-async Task CreateOrderAsync(Order order, DbContext db)
-{
-    using var tx = await db.Database.BeginTransactionAsync();
-
-    db.Add(order); // grava o agregado
-    db.Add(new OutboxMessage
-    {
-        Topic = "orders.created",
-        Payload = JsonSerializer.Serialize(new { order.Id, order.Total })
-    });
-
-    await db.SaveChangesAsync();
-    await tx.CommitAsync(); // ou rollback em caso de erro
-}
-
-// 2) Dispatcher assíncrono: lê outbox e envia para o broker
-// ATENÇÃO: em múltiplas instâncias, usar SELECT FOR UPDATE SKIP LOCKED
-// para evitar processamento duplicado do mesmo registo.
-async Task DispatchOutboxAsync(DbContext db, IMessageBus bus, CancellationToken ct)
-{
-    var pending = await db.Set<OutboxMessage>()
-        .Where(m => m.SentAt == null)
-        .OrderBy(m => m.CreatedAt)
-        .Take(100)
-        .ToListAsync(ct);
-
-    foreach (var msg in pending)
-    {
-        try
-        {
-            await bus.PublishAsync(msg.Topic, msg.Payload, ct);
-            msg.SentAt = DateTime.UtcNow;
-        }
-        catch
-        {
-            // Falhou → será reprocessado na próxima iteração (retry/backoff/log)
-            // Nota: se o publish tiver sucesso mas o SaveChanges falhar,
-            // a mensagem será reenviada. Os consumidores devem ser idempotentes.
-        }
-    }
-
-    await db.SaveChangesAsync(ct);
-}
-
-// 3) Worker simples (loop periódico via BackgroundService na mesma aplicação)
-async Task RunWorkerAsync(CancellationToken ct)
-{
-    while (!ct.IsCancellationRequested)
-    {
-        await DispatchOutboxAsync(db, bus, ct);
-        await Task.Delay(TimeSpan.FromSeconds(5), ct); // intervalo de polling
-    }
-}
-```
-
-## 5. Estrutura do Projeto — Exemplos de Implementação de Camadas
-
-### 5.1. Camada Domain — Núcleo do Sistema
-
-Ficheiro: `Modelo.Domain/Entities/Order.cs`
-
-```csharp
-namespace Modelo.Domain.Entities;
-
-public sealed class Order
-{
-    public Guid Id { get; private set; }
-    public Guid CustomerId { get; private set; }
-    public decimal TotalAmount { get; private set; }
-    public DateTime CreatedAtUtc { get; private set; }
-
-    private Order() { }
-
-    public Order(Guid customerId, decimal totalAmount)
-    {
-        Id = Guid.NewGuid();
-        CustomerId = customerId;
-        TotalAmount = totalAmount;
-        CreatedAtUtc = DateTime.UtcNow;
-    }
-}
-```
-
-**Contratos de repositório e unit of work**
-
-Ficheiro: `Modelo.Domain/Interfaces/IRepository.cs`
-
-```csharp
-namespace Modelo.Domain.Interfaces;
-
-public interface IRepository<T> where T : class
-{
-    Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default);
-    Task AddAsync(T entity, CancellationToken ct = default);
-    void Update(T entity);
-    void Remove(T entity);
-}
-```
-
-Ficheiro: `Modelo.Domain/Interfaces/IUnitOfWork.cs`
-
-```csharp
-namespace Modelo.Domain.Interfaces;
-
-public interface IUnitOfWork : IAsyncDisposable
-{
-    Task<int> SaveChangesAsync(CancellationToken ct = default);
-}
-```
-
-**Evento de domínio**
-
-Ficheiro: `Modelo.Domain/Events/OrderCreatedEvent.cs`
-
-```csharp
-namespace Modelo.Domain.Events;
-
-public sealed class OrderCreatedEvent
-{
-    public Guid EventId { get; init; } = Guid.NewGuid();
-    public DateTime OccurredAtUtc { get; init; } = DateTime.UtcNow;
-    public string SchemaVersion { get; init; } = "v1";
-    public string Source { get; init; } = "modelo.api";
-
-    public Guid OrderId { get; init; }
-    public Guid CustomerId { get; init; }
-    public decimal TotalAmount { get; init; }
-    public string Currency { get; init; } = "BRL";
-}
-```
-
-### 5.2. Camada Application — Casos de Uso
-
-**Command de criação de pedido**
-
-Ficheiro: `Modelo.Application/Commands/Orders/CreateOrderCommand.cs`
-
-```csharp
-using Wolverine;
-
-namespace Modelo.Application.Commands.Orders;
-
-/// <summary>
-/// Comando de criação de pedido.
-/// </summary>
-public sealed record CreateOrderCommand(Guid CustomerId, decimal TotalAmount);
-```
-
-**Handler do caso de uso**
-
-Ficheiro: `Modelo.Application/Handlers/Orders/CreateOrderCommandHandler.cs`
-
-```csharp
-using Wolverine;
-using Modelo.Application.Commands.Orders;
-using Modelo.Application.Interfaces;
-using Modelo.Domain.Entities;
-using Modelo.Domain.Events;
-using Modelo.Domain.Interfaces;
-
-namespace Modelo.Application.Handlers.Orders;
-
-/// <summary>
-/// Handler de aplicação para criação de pedidos.
-/// Descoberto automaticamente pelo Wolverine através do método Handle.
-/// </summary>
-public sealed class CreateOrderCommandHandler
-{
-    private readonly IOrderRepository _orders;
-    private readonly IUnitOfWork _uow;
-    private readonly IEventPublisher _publisher;
-
-    public CreateOrderCommandHandler(
-        IOrderRepository orders,
-        IUnitOfWork uow,
-        IEventPublisher publisher)
-    {
-        _orders = orders;
-        _uow = uow;
-        _publisher = publisher;
-    }
-
-    /// <summary>
-    /// Executa a criação do pedido e publica o evento de integração
-    /// OrderCreatedEvent após o commit da UoW.
-    /// </summary>
-    public async Task<Guid> Handle(CreateOrderCommand request, CancellationToken ct)
-    {
-        var order = new Order(request.CustomerId, request.TotalAmount);
-
-        await _orders.AddAsync(order, ct);
-        await _uow.CommitAsync(ct);
-
-        var evt = new OrderCreatedEvent
-        {
-            OrderId = order.Id,
-            CustomerId = order.CustomerId,
-            TotalAmount = order.TotalAmount
-        };
-
-        await _publisher.PublishAsync(
-            "modelo.orders.order-created.v1",
-            evt,
-            ct);
-
-        return order.Id;
-    }
-}
-```
-
-**Abstração de mensageria usada pela Application**
-
-Ficheiro: `Modelo.Application/Interfaces/IEventPublisher.cs`
-
-```csharp
-namespace Modelo.Application.Interfaces;
-
-public interface IEventPublisher
-{
-    Task PublishAsync<TEvent>(string topic, TEvent @event, CancellationToken ct = default);
-}
-```
-
-### 5.3. Camada Infrastructure — Implementações Técnicas
-
-**DbContext + UoW**
-
-Ficheiro: `Modelo.Infrastructure/Context/AppDbContext.cs`
-
-```csharp
-using Microsoft.EntityFrameworkCore;
-using Modelo.Domain.Entities;
-using Modelo.Domain.Interfaces;
-
-namespace Modelo.Infrastructure.Context;
-
-public class AppDbContext : DbContext, IUnitOfWork
-{
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-    public DbSet<Order> Orders => Set<Order>();
-
-    public async Task<int> SaveChangesAsync(CancellationToken ct = default)
-        => await base.SaveChangesAsync(ct);
-}
-```
-
-**Repositório de Order**
-
-Ficheiro: `Modelo.Infrastructure/Repositories/OrderRepository.cs`
-
-```csharp
-using Microsoft.EntityFrameworkCore;
-using Modelo.Domain.Entities;
-using Modelo.Domain.Interfaces;
-using Modelo.Infrastructure.Context;
-
-namespace Modelo.Infrastructure.Repositories;
-
-public class OrderRepository : IOrderRepository
-{
-    private readonly AppDbContext _context;
-
-    public OrderRepository(AppDbContext context)
-    {
-        _context = context;
-    }
-
-    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _context.Orders.FirstOrDefaultAsync(o => o.Id == id, ct);
-
-    public async Task AddAsync(Order entity, CancellationToken ct = default)
-        => await _context.Orders.AddAsync(entity, ct);
-
-    public void Update(Order entity) => _context.Orders.Update(entity);
-    public void Remove(Order entity) => _context.Orders.Remove(entity);
-}
-```
-
-**Registo de infraestrutura e mensageria**
-
-Ficheiro: `Modelo.Infrastructure/IoC/DependencyInjection.cs`
-
-```csharp
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Modelo.Application.Interfaces;
-using Modelo.Domain.Interfaces;
-using Modelo.Infrastructure.Context;
-using Modelo.Infrastructure.Messaging.Solace;
-using Modelo.Infrastructure.Repositories;
-
-namespace Modelo.Infrastructure.IoC;
-
-public static class DependencyInjection
-{
-    public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-
-        services.AddScoped<IOrderRepository, OrderRepository>();
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AppDbContext>());
-
-        // Publicadores (pode alternar via configuração, se necessário)
-        // services.AddSingleton<IEventPublisher, SolaceEventPublisher>();
-
-        // Consumers (Hosted Services)
-        services.AddHostedService<SolaceOrderCreatedConsumer>();
-
-        return services;
-    }
-}
-```
-
-### 5.4. Camada API — Apresentação
-
-**Program.cs**
-
-Ficheiro: `Modelo.Api/Program.cs`
-
-```csharp
-using Wolverine;
-using Modelo.Application.Commands.Orders;
-using Modelo.Infrastructure.IoC;
-using Microsoft.Extensions.Logging;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Logging nativo (Microsoft.Extensions.Logging)
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddWolverine(typeof(CreateOrderCommand).Assembly);
-builder.Services.AddInfrastructure(builder.Configuration);
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.MapControllers();
-
-app.Run();
-```
-
-**Controller**
-
-Ficheiro: `Modelo.Api/Controllers/OrdersController.cs`
-
-```csharp
-using Wolverine;
-using Microsoft.AspNetCore.Mvc;
-using Modelo.Application.Commands.Orders;
-using Modelo.Application.Queries.Orders;
-
-namespace Modelo.Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class OrdersController : ControllerBase
-{
-    private readonly IMessageBus _bus;
-
-    public OrdersController(IMessageBus bus)
-    {
-        _bus = bus;
-    }
-
-    /// <summary>
-    /// Cria um novo pedido.
-    /// </summary>
-    /// <param name="command">Dados do pedido a ser criado.</param>
-    /// <param name="ct">Token de cancelamento da requisição.</param>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateOrderCommand command,
-        CancellationToken ct)
-    {
-        if (!ModelState.IsValid)
-            return ValidationProblem(ModelState);
-
-        var id = await _bus.InvokeAsync<Guid>(command, ct);
-
-        return CreatedAtAction(nameof(GetById), new { id }, new { id });
-    }
-
-    /// <summary>
-    /// Obtém uma lista paginada de pedidos.
-    /// </summary>
-    [HttpGet]
-    [ProducesResponseType(typeof(GetOrdersPagedResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetPaged(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20,
-        CancellationToken ct = default)
-    {
-        if (page < 1 || pageSize < 1 || pageSize > 200)
-            return BadRequest(new { error = "Parâmetros de paginação inválidos." });
-
-        var query = new GetOrdersQuery(page, pageSize);
-        var result = await _bus.InvokeAsync<GetOrdersPagedResult>(query, ct);
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// Obtém os detalhes de um pedido por identificador.
-    /// </summary>
-    /// <param name="id">Identificador do pedido.</param>
-    [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult GetById(Guid id)
-    {
-        // TODO: consultar Application/Domain (ex.: via Query enviada ao Wolverine)
-        return Ok(new { id });
-    }
-}
-```
+> **Aplicação de Exemplo:** [sample-swrefarch-backend-api-messaging](https://github.com/mcdigital-devplatforms/sample-swrefarch-backend-api-messaging)
