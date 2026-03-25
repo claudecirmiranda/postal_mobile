@@ -1,6 +1,35 @@
 # Guia de Melhores Práticas – React Native
 
----
+Índice
+------
+
+- [Componentização e UI Nativa](#componentização-e-ui-nativa)
+	- [Primitivos e Abstração](#primitivos-e-abstração)
+	- [Performance em Listas (FlashList)](#performance-em-listas-flashlist)
+	- [Gestão de Erros Globais (Error Boundaries)](#gestão-de-erros-globais-error-boundaries)
+- [Notificações e Comunicação](#notificações-e-comunicação)
+	- [Integração com Push Notifications](#integração-com-push-notifications)
+- [Formulários, Input Handling e UX](#formulários-input-handling-e-ux)
+	- [Tratamento de Teclado](#tratamento-de-teclado)
+	- [Controller Pattern](#controller-pattern)
+	- [Indicadores de Estado de Sincronização](#indicadores-de-estado-de-sincronização)
+- [Performance e Bridge](#performance-e-bridge)
+	- [Diretrizes de Otimização](#diretrizes-de-otimização)
+		- [Minimizar Passagens na Bridge](#minimizar-passagens-na-bridge)
+		- [Animações na UI Thread](#animações-na-ui-thread)
+		- [Memoização Agressiva](#memoização-agressiva)
+		- [Imagens](#imagens)
+- [Navegação e Conteúdos](#navegação-e-conteúdos)
+	- [Abertura de URLs (In-App Browser)](#abertura-de-urls-in-app-browser)
+	- [Visualização de Documentos (PDF)](#visualização-de-documentos-pdf)
+	- [Partilha Nativa](#partilha-nativa)
+- [Funcionalidades Interativas](#funcionalidades-interativas)
+	- [Leitura de QR Codes](#leitura-de-qr-codes)
+	- [Feedback Háptico](#feedback-háptico)
+- [Testes e Qualidade Mobile](#testes-e-qualidade-mobile)
+	- [Estratégia de Testes](#estratégia-de-testes)
+	- [Observabilidade de Interações UI](#observabilidade-de-interações-ui)
+	- [Gestão de Dependências](#gestão-de-dependências)
 
 ## Componentização e UI Nativa
 
