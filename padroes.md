@@ -1,6 +1,6 @@
-# DAS Mobile Apps – Uso Público (B2C, B2B)
+# DAS Mobile Apps – Uso Interno (B2E)
 
-> **Detalhe:** React Native preferencialmente para iOS e Android. Hybrid MAUI quando houver necessidade de suportar Windows/Mac.
+> **Detalhe:** React Native preferencialmente para iOS e Android. Hybrid MAUI como opção secundária.
 
 ---
 
@@ -8,11 +8,14 @@
 
 | Versão | Data       | Autor(es)       | Resumo das Mudanças                                        |
 |--------|------------|-----------------|------------------------------------------------------------|
-| 1.0    | 28/11/2025 | Matheus Fraga   | Criação inicial do documento de arquitetura de referência. |
-| 2.0    | 16/12/2025 | Matheus Fraga   | Ajustes de formatação para uniformizar todos os DAS.       |
-| 3.0    | 17/12/2025 | Matheus Fraga   | Implementação dos requisitos do app Cartão Continente.     |
-| 4.0    | 05/01/2026 | Matheus Fraga   | Ajustes conforme comentários deixados no Confluence.       |
-| 4.1    | 05/06/2026 | Felipe Klussmann | Pequenos ajustes.                                         |
+| 1.0    | 28/11/2025 | William Alves   | Criação inicial do documento de arquitetura de referência. |
+| 2.0    | 10/12/2025 | William Alves   | Ajustes conforme comentários deixados no Confluence.       |
+| 3.0    | 16/12/2025 | William Alves   | Ajustes de formatação para uniformizar todos os DAS.       |
+| 4.0    | 17/12/2025 | William Alves   | Ajustes pós-apresentação.                                  |
+| 4.1    | 26/12/2025 | William Alves   | Ajustes conforme novos comentários.                        |
+| 4.2    | 05/01/2026 | William Alves   | Ajustes conforme novos comentários.                        |
+| 4.3    | 06/01/2026 | William Alves   | Ajustes conforme novos comentários.                        |
+| 4.4    | 05/06/2026 | Felipe Klussmann | Pequenos ajustes.                                         |
 
 ---
 
@@ -35,9 +38,9 @@
 
 ### 1.1. Propósito e Objetivos
 
-Este documento descreve a arquitetura de referência para o desenvolvimento, implantação e gestão de aplicativos mobile performáticos, escaláveis e consistentes usando React Native como primeira opção. O foco reside na maximização da reutilização de código com a web (quando aplicável), manutenção da performance nativa (60fps, P95 frame drops) e segurança do dispositivo.
+Este documento descreve a arquitetura de referência para o desenvolvimento, deployment e gestão de aplicações mobile performáticas, escaláveis e consistentes usando React Native como primeira opção e Hybrid MAUI como opção secundária.
 
-Esta arquitetura é o padrão a ser seguido para todos os novos frontends mobile para aplicações com acesso exclusivamente externo à Organização (público). Ela abrange desde a estrutura do código-fonte até a implantação e monitorização em um ambiente de produção.
+Esta arquitetura é o padrão a ser seguido para todos os novos frontends mobile para aplicações com acesso exclusivamente interno à Organização. Abrange desde a estrutura do código-fonte até o deployment e monitorização em ambiente produtivo.
 
 ### 1.2. Público-Alvo
 
@@ -47,37 +50,62 @@ Esta arquitetura é o padrão a ser seguido para todos os novos frontends mobile
 
 ### 1.3. Âmbito
 
-Os seguintes objetivos visam endereçar os seguintes problemas relatados na etapa de Assessment.
+Os seguintes objetivos visam endereçar os problemas relatados na etapa de Assessment.
 
-| **Objetivo Arquitetural**                              | **Problema Endereçado**                                                                                                                                                                                    | **Solução**                                                                        |
-|--------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| Agregação de serviços                                  | Remoção de lógica de negócio e API stitching do Cliente, e redução de complexidade.                                                                                                                        | Backend For Frontend (BFF)                                                         |
-| Alta Performance e Estabilidade da App                 | Intermitência, instabilidade do sistema e dificuldade em realizar testes de performance.                                                                                                                   | MVVM (Model-View-ViewModel), e remoção do processamento da *thread* da UI.         |
-| Adaptabilidade de Serviços aos Dispositivos Móveis     | O *Backend* de API de propósito geral tende a falhar, pois a experiência móvel frequentemente exige chamadas diferentes, em menor número, e a exibição de menos dados do que as aplicações para *desktop*. | Backend For Frontend (BFF)                                                         |
-| Resiliência da App                                     | Falta de suporte a operação *Offline*. A instabilidade da rede em áreas com cobertura limitada exige que as aplicações móveis sejam projetadas para operar *offline*.                                      | Princípio Offline First                                                            |
-| Code Signing Automatizado                              | O processo de code signing e a publicação do SDK são complexos devido a problemas de infraestrutura e falta de mecanismos automatizados.                                                                   | Plataforma Expo.dev (biblioteca expo-updates)                                      |
+| **Objetivo Arquitetural**                          | **Problema Endereçado**                                                                                                                                                                                    | **Solução**                                                                                                                      |
+|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| Agregação de serviços                              | Remoção de lógica de negócio e API stitching do cliente, e redução de complexidade.                                                                                                                        | Quando for necessária lógica que envolva múltiplos domínios, adotar o padrão Backend for Frontend (BFF).                        |
+| Alta Performance e Estabilidade da aplicação       | Intermitência, instabilidade do sistema e dificuldade em realizar testes de performance.                                                                                                                   | MVVM, com processamento pesado executado fora da thread principal de UI.                                                         |
+| Adaptabilidade de Serviços aos Dispositivos Móveis | O *Backend* de API de propósito geral tende a falhar, pois a experiência móvel frequentemente exige chamadas diferentes, em menor número, e a exibição de menos dados do que as aplicações para *desktop*. | Backend For Frontend (BFF).                                                                                                      |
+| Resiliência da aplicação                           | Falta de suporte a operação *Offline*. A instabilidade da rede em áreas com cobertura limitada exige que as aplicações móveis sejam projetadas para operar *offline*.                                      | Princípio Offline First.                                                                                                         |
+| Redução do volume de dados trafegados              | A gestão de grandes volumes de dados (ex: 6.000 artigos por loja) traz desafios para uso em dispositivos móveis (PDAs¹). Há preocupações sobre se a quantidade de dados (10 ou 50 GB) cabe no dispositivo. | Endpoints GraphQL (sugerido para casos com maturidade na equipa); remoção de dados analíticos do dispositivo; sincronização com filtros de afinidade à loja; avaliação de filtro de gama ativa. |
+| Code Signing Automatizado                          | O processo de code signing e a publicação do SDK são complexos devido a problemas de infraestrutura e falta de mecanismos automatizados.                                                                   | Para React Native: Plataforma Expo.dev (biblioteca `expo-updates`).                                                              |
+
+> ¹ **PDA:** Personal Digital Assistant — dispositivo móvel de campo utilizado em operações de retalho e logística.
 
 - **Agregação de Serviços:** Uso do padrão Backend For Frontend (BFF) para desacoplar o *frontend* das APIs de negócio, reduzir a complexidade das integrações (autenticação), e evitar que o *frontend* tenha de implementar a lógica de agregação (*stitching*).
-- **Alta Performance e Estabilidade da App:** A arquitetura é proposta com a aplicação correta do MVVM (UI/State/Data) e a remoção do processamento na *thread* da UI, um fator chave para mitigar o elevado número de ANR's (*Application Not Responding*).
-- **Adaptabilidade de Serviços aos Dispositivos Móveis:** Com a aplicação do padrão BFF, os endpoints são adaptados às necessidades dos dispositivos móveis, como: agregação dos resultados das chamadas a outras APIs, causando assim a redução das chamadas ao backend realizadas pelo app; além disso, itens como paginação e classificação (*sorting*) dos dados podem ser realizados no BFF.
-- **Resiliência da App:** A aplicação deve ser concebida para funcionar offline por defeito, sendo a conectividade online uma consideração secundária. O objetivo é garantir que os utilizadores tenham acesso a funcionalidades críticas (como contagens e inventários) mesmo quando a rede está instável ou inexistente. É necessário um mecanismo de sincronização regular com o backend.
-- **Code Signing Automatizado:** A biblioteca expo-updates suporta assinatura de código end-to-end usando criptografia de chave pública. A assinatura de código permite aos programadores assinar criptograficamente as suas atualizações com as suas próprias chaves. As assinaturas são então verificadas no cliente antes da atualização ser aplicada, o que garante que ISPs, CDNs, fornecedores de cloud e até o próprio EAS não podem interferir com as atualizações executadas pelas aplicações.
+- **Alta Performance e Estabilidade da aplicação:** A arquitetura é proposta com a aplicação correta do MVVM e a remoção do processamento na *thread* da UI, um fator chave para mitigar o elevado número de ANR's (*Application Not Responding*).
+- **Adaptabilidade de Serviços aos Dispositivos Móveis:** Com a aplicação do padrão BFF, os endpoints são adaptados às necessidades dos dispositivos móveis, como: agregação dos resultados das chamadas a outras APIs, redução das chamadas ao backend realizadas pela aplicação; além disso, itens como paginação e classificação (*sorting*) dos dados podem ser realizados no BFF.
+- **Resiliência da aplicação:** A aplicação deve ser concebida para funcionar *offline* por defeito, sendo a conectividade *online* uma consideração secundária. O objetivo é garantir que os utilizadores tenham acesso a funcionalidades críticas (como contagens e inventários) mesmo quando a rede está instável ou inexistente. É necessário um mecanismo de sincronização regular com o backend.
+- **Redução do volume de dados trafegados:** Uso de GraphQL para tornar os payloads mais eficientes, com apenas os dados necessários para atender a requisição. Dessa forma, haverá menos chamadas à API do BFF e, consequentemente, menos dados trafegados pela rede, contribuindo para maior performance. Além disso, deve-se garantir que os sistemas transacionais não sejam a fonte analítica. Os dados de grande volume para análises devem ser segregados e direcionados para um *back office* analítico ou *Data Lake*, removendo o ónus do dispositivo.
+
+> **Atenção:** Quando se trata de gama de produtos por loja, é imperativo que haja filtros dos dados por afinidade à loja e gama ativa. A aplicação deste filtro reduz o volume de dados a ser trabalhado num dispositivo móvel de campo, por exemplo.
+
+- **Code Signing Automatizado:** A biblioteca `expo-updates` suporta assinatura de código *end-to-end* usando criptografia de chave pública. A assinatura de código permite aos programadores assinar criptograficamente as suas atualizações com as suas próprias chaves. As assinaturas são verificadas no cliente antes da atualização ser aplicada, o que garante que ISPs, CDNs, fornecedores de cloud e até o próprio EAS não podem interferir com as atualizações executadas pelas aplicações.
 
 ---
 
 ## 2. Dependências e Referências
 
-- **Expo Application Services (EAS):** Conjunto de serviços hospedados para projetos React Native para automatizar CI/CD (pode ser executado localmente). O Expo é um projeto open-source que oferece ferramentas para construir e manter aplicações React Native em qualquer escala. O EAS é um conjunto de *hosted services* que permite:
-  - Construir, submeter e atualizar a aplicação.
-  - Automatizar todos esses processos.
-  - Colaborar com a equipa.
-  - Resolver problemas que requerem recursos físicos, como servidores de aplicações e CDNs para fornecer atualizações *over-the-air*.
+- **Expo Application Services (EAS):** Conjunto de serviços hospedados para projetos React Native:
+  - Automatizar CI/CD para construir, submeter e atualizar a aplicação.
+  - O EAS resolve problemas que requerem recursos físicos, como servidores de aplicações e CDNs para fornecer atualizações *over-the-air* e servidores físicos para execução de builds.
 
-- **React Native Framework:** Configuração mínima utilizando `react-native-elements` para UI e `@react-navigation` para navegação.
+- **Framework React Native (configuração mínima):**
+  - Biblioteca para UI: React Native Core.
+  - Bibliotecas para navegação entre ecrãs: `@react-navigation/native`, `@react-navigation/stack`.
+  - Uso principal: construção de UI e navegação entre ecrãs.
 
-- **Offline-First Libs:** `react-native-sqlite-storage` para persistência robusta e `@react-native-community/netinfo` para monitorização de rede.
+- **BFF Backend:**
+  - Projeto na pasta `Bff/`.
+  - Uso principal: intermediar a comunicação entre o frontend e o backend de forma a otimizá-la e simplificá-la.
 
-- **Comunicação e Notificações:** SDKs do MarketingCloud para Push Notifications e bibliotecas de Event Source para SSE.
+- **Linguagem GraphQL:**
+  - Biblioteca cliente: `@apollo/client graphql`.
+  - Biblioteca servidor (.NET 8): `HotChocolate.AspNetCore`.
+  - Uso principal: implementar GraphQL na comunicação entre frontend e backend quando fizer sentido (ecrãs com composição pesada, alta variação por contexto, múltiplas versões/clients, otimização de banda/latência).
+
+- **Offline-First:**
+  - Biblioteca para armazenamento local (dados de domínio): `react-native-sqlite-storage`.
+  - Biblioteca para armazenamento auxiliar (cache, flags, dados leves): `@react-native-async-storage/async-storage`.
+  - Biblioteca para monitorar o estado de rede: `@react-native-community/netinfo`.
+  - Biblioteca para gerir estado global (preferências, flags, cache leve, sessão): `redux` + `@reduxjs/toolkit` + `redux-persist`.
+  - **Funcionamento:**
+    1. Os dados são obtidos do servidor (via GraphQL), mas ao serem recebidos, são guardados no armazenamento local do dispositivo (cache / base de dados).
+    2. A aplicação lê dados preferencialmente do armazenamento local — não depende de rede para mostrar conteúdo já existente.
+    3. Quando o utilizador cria/edita dados (ex: cria um novo registo), a operação é enfileirada localmente (flag "pendente de sync"), e refletida na UI imediatamente.
+    4. A aplicação monitoriza o estado da rede; quando deteta reconexão, envia para o servidor todas as operações pendentes — e ao confirmar sucesso, marca como "sincronizado".
+    5. Em caso de dados atualizados no servidor, ao sincronizar, o armazenamento local pode ser atualizado (pull + merge) para refletir a versão mais recente.
 
 ---
 
@@ -85,310 +113,329 @@ Os seguintes objetivos visam endereçar os seguintes problemas relatados na etap
 
 Cada tipologia terá abordados aspetos específicos da tipologia, incluindo, sempre que aplicável, referências a diretrizes, padrões gerais e boas práticas.
 
-Este documento não é um conjunto de regras inflexíveis, mas sim um guia de fortes recomendações. Desvios são permitidos, mas devem ser justificados, documentados em uma ADR (Architecture Decision Record) e aprovados pelo Comité de Arquitetura.
+Este documento não é um conjunto de regras inflexíveis, mas sim um guia de "fortes recomendações". Desvios são permitidos, mas devem ser justificados, documentados em uma ADR (Architecture Decision Record) e aprovados pelo Comité de Arquitetura.
 
 ---
 
 ## 4. Arquitetura da Tipologia
 
-> **Diagrama:** Consultar o diagrama de arquitetura no Confluence (draw.io: *Untitled Diagram-1770304017322.drawio*).
+> **Diagrama:** Consultar o diagrama de arquitetura no Confluence (`internal_external mobile.jpg`).
 
 ### 4.1. Camadas
 
-- **UI Components e Screens**
-  - Camada visível para o utilizador: tudo que aparece no ecrã — botões, formulários, listas, textos, navegação entre ecrãs, estilo visual, etc.
-  - Responsabilidades:
-    - Renderizar a interface.
-    - Capturar interações do utilizador.
-    - Mostrar estados de carga, erro e feedback.
-    - Integrar com a lógica de negócio — usando hooks, contexto, estado global ou store.
+#### UI Components e Screens
 
-- **Local Database**
-  - Base de dados ou armazenamento persistente no dispositivo.
-  - Responsabilidades:
-    - Permitir que a app funcione *offline*: o utilizador pode ver dados previamente sincronizados, criar e editar dados sem dependência de conexão.
-    - Agir como fonte de verdade no cliente — a UI e lógica consultam diretamente a base local, não a rede, garantindo consistência e velocidade.
-    - Persistir informações entre sessões, reinícios da app ou do dispositivo.
+- Camada visível para o utilizador: tudo que aparece no ecrã — botões, formulários, listas, textos, navegação entre ecrãs, estilo visual, etc.
+- Responsabilidades:
+  - Renderizar a interface.
+  - Capturar interações do utilizador.
+  - Mostrar estados de carga, erro e feedback.
+  - Integrar com a lógica de negócio — usando hooks, contexto, estado global ou store.
 
-- **Queue de Operações Pendentes (sync pendente)**
-  - Fila ou lista de operações realizadas pelo utilizador enquanto a app está offline — por exemplo, criação de ordens, edições, deleções, etc. Cada operação é registada localmente com marcação de "pendente de sincronização". Esta fila pode estar como parte da *local database* ou em estrutura separada (ex: tabela de *pending changes*).
-  - Responsabilidades:
-    - Garantir que ações do utilizador não se percam — mesmo que ele esteja offline ou encerre a app.
-    - Permitir *optimistic UI*: quando o utilizador cria ou edita algo, a app já reflete na interface local, sem precisar aguardar resposta do servidor.
-    - Servir de buffer de sincronização: quando a rede voltar, a app envia todas as operações pendentes de forma organizada para o servidor.
+#### Armazenamento Local (Local Database)
 
-- **Lógica de Sync + Detecção de Rede (Sync Engine / Network Manager)**
-  - Módulo responsável por monitorar o estado de conectividade de rede (online/offline), detetar quando a rede ficar disponível e disparar a sincronização das pendências.
-  - Responsabilidades:
-    - Orquestrar a comunicação entre local e remoto: ao detetar que a rede está disponível, processar a queue de pendências, sincronizar dados e garantir que a base local e o servidor convirjam.
-    - Garantir que a experiência do utilizador seja transparente — ele pode usar a app offline e a sincronização acontece em background ao reconectar.
-    - Lidar com casos típicos de conectividade móvel: reconexão intermitente, redes instáveis, reconciliação de dados, conflitos, retry, etc.
+- Armazenamento persistente no dispositivo.
+- Responsabilidades:
+  - Permitir que a aplicação funcione *offline*: o utilizador pode ver dados previamente sincronizados, criar novos dados e editar dados, sem dependência de conexão.
+  - Agir como fonte de verdade no cliente — a UI e a lógica consultam diretamente o armazenamento local, não a rede, garantindo consistência e velocidade.
+  - Persistir informações entre sessões, reinícios da aplicação ou do dispositivo — garantindo que dados não se perdem e que o utilizador sempre tem acesso ao que já transferiu ou criou.
 
-- **HTTP Client (REST/GraphQL), sempre apontando para o BFF**
-  - Cliente que a app usa para fazer requisições ao backend (quando online) — por exemplo, usando GraphQL (via Apollo Client) para consultar dados, enviar mutations e sincronizar dados com o servidor.
-  - Responsabilidades:
-    - Permitir comunicação com o servidor backend: buscar dados globais, enviar novos dados criados localmente, receber dados de outros utilizadores, obter atualizações, etc.
-    - Quando combinado com a lógica de sync, serve para "materializar" as operações pendentes: as ações registadas na queue acabam tornando-se requisições ao servidor.
+#### Queue de Operações Pendentes (sync pendente)
+
+- Uma queue de operações realizadas pelo utilizador enquanto a aplicação está *offline* ou sem conexão — por exemplo, criação de ordens, edições, deleções, etc. Cada operação é registada localmente com marcação de "pendente de sincronização". Esta queue pode fazer parte do armazenamento local ou estar em estrutura separada (ex: tabela de *pending changes*). Essencialmente, armazena "intenção de modificação" para executar futuramente quando houver rede.
+- Responsabilidades:
+  - Garantir que ações do utilizador não se percam — mesmo que ele esteja *offline* ou encerre a aplicação — a intenção de mudança é persistida e será sincronizada depois.
+  - Permitir *optimistic UI*: quando o utilizador cria ou edita algo, a aplicação já reflete na interface local, sem precisar aguardar resposta do servidor.
+  - Servir de buffer de sincronização: quando a rede voltar, a aplicação envia todas as operações pendentes de forma organizada para o servidor.
+- **Regras de Sincronização:**
+  - Garantir idempotência (`operationId`).
+  - Ordenação por entidade (*ordering*).
+  - Estratégia de conflito (*conflict strategy*): ver Secção 9.4 para critérios de seleção.
+  - Backoff/retry e limites de armazenamento.
+  - Definição clara de "fonte de verdade" no cliente (quando e como diverge do servidor).
+
+#### Lógica de Sync + Detecção de Rede (Sync Engine / Network Manager)
+
+- Módulo responsável por monitorizar o estado de conectividade de rede (online/offline), detetar quando a rede ficar disponível e disparar a sincronização das pendências.
+- Também responsável por executar o processo de sincronização: enviar operações pendentes ao servidor, tratar respostas, resolver conflitos, atualizar o armazenamento local, remover pendências marcadas, e possivelmente fazer *pull* de dados novos do servidor.
+- Responsabilidades:
+  - Orquestrar a comunicação entre local e remoto: ao detetar que a rede está disponível, processar a queue de pendências, sincronizar dados e garantir que o armazenamento local e o servidor convirjam.
+  - Garantir que a experiência do utilizador seja transparente: ele pode usar a aplicação *offline* e a sincronização acontece em background ao reconectar.
+  - Lidar com casos típicos de conectividade móvel: reconexão intermitente, redes instáveis, reconciliação de dados, conflitos, retry, etc.
+
+#### GraphQL Client
+
+- Cliente que a aplicação usa para fazer requisições ao backend (quando *online*) — por exemplo, usando GraphQL (via Apollo Client) para consultar dados, enviar mutations e sincronizar dados com o servidor.
+- Responsabilidades:
+  - Permitir comunicação com o servidor backend: buscar dados globais, enviar novos dados criados localmente, receber dados de outros utilizadores, obter atualizações, etc.
+  - Quando combinado com a lógica de sync, serve para "materializar" as operações pendentes: as ações registadas na queue acabam tornando-se requisições GraphQL ao servidor.
 
 ### 4.2. Melhores Práticas em React Native
 
-Consultar: [https://ecom4isi.atlassian.net/wiki/x/E4CSNwE](https://ecom4isi.atlassian.net/wiki/x/E4CSNwE)
+Consultar: [https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5227315219](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5227315219)
 
 ---
 
 ## 5. Estrutura do Projeto
 
-A estrutura segue o padrão *Feature-Based* definido para Web, com adaptações para navegação e assets nativos.
+Para o cenário onde existe mais de uma equipa a trabalhar no mesmo domínio/módulo, sugere-se a seguinte arquitetura.
+
+> **Diagrama:** Consultar o diagrama de estrutura no Confluence (`Mermaid Chart - 2026-02-05.png`).
+
+Princípios:
+
+- **Domain Ownership explícito por subdomínio.** Cada equipa é dona de uma fatia funcional, não do domínio inteiro.
+- **Client-Side Composition (obrigatório).** UI final é composta no runtime.
+- **Isolamento por Boundary Técnica.** Sem imports cruzados entre equipas.
+- **Contratos estáveis públicos:** Tipos, Schemas, Eventos, APIs.
+
+**public-api/routes.ts**
+
+```ts
+import type { RouteObject } from 'react-router';
+
+export const ordersBillingRoutes: RouteObject[] = [
+  {
+    path: '/orders/:id/billing',
+    element: <BillingScreen />,
+  },
+];
+```
+
+**public-api/events.ts**
+
+```ts
+export const OrdersEvents = {
+  ORDER_CREATED: 'orders.created',
+  PAYMENT_CONFIRMED: 'orders.payment.confirmed',
+} as const;
+```
+
+Comunicação via eventos, não imports diretos.
+
+- **Deploy independente.** Cada equipa pode versionar, buildar e publicar sem bloquear outras.
 
 ```
-mobile-app/
-├── src/
-│   ├── App.tsx                               # Entry Point (Configura Providers)
-│   ├── navigation/                           # Núcleo de Navegação
-│   │   ├── routes.ts                         # Definição de Rotas (Enums/Consts)
-│   │   ├── types.ts                          # Tipagem de Parâmetros (NavigationProp)
-│   │   ├── MainStack.tsx                     # Stack Navigator Principal
-│   │   └── AuthStack.tsx                     # Stack de Autenticação
-│   ├── features/                             # Módulos de Negócio
-│   │   └── orders/
-│   │       ├── components/                   # Componentes Visuais (Nativos)
-│   │       │   └── OrderCard.tsx
-│   │       ├── screens/                      # Ecrãs registadas no Navigator
-│   │       │   ├── OrdersListScreen.tsx
-│   │       │   └── OrderDetailScreen.tsx
-│   │       ├── hooks/                        # Lógica de Negócio
-│   │       └── data-access/                  # Camada de Dados
-│   ├── shared/
-│   │   ├── components/                       # UI Kit Nativo
-│   │   │   ├── ui/
-│   │   │   │   ├── Box.tsx
-│   │   │   │   ├── Typography.tsx
-│   │   │   │   └── Touchable.tsx
-│   │   ├── utils/
-│   │   │   └── storage/
-│   │   │       ├── mmkv.adapter.ts
-│   │   │       └── secure.adapter.ts
-├── assets/                                   # Recursos Nativos (Fonts, Splash)
-├── babel.config.js
-└── package.json
+/src
+├── app-shell/                          # Equipa Plataforma
+│   ├── App.tsx
+│   ├── bootstrap.tsx
+│   ├── router/
+│   ├── providers/
+│   ├── composition/
+│   ├── observability/
+│   ├── auth/
+│   └── __tests__/
+│       ├── AppShell.test.tsx
+│       ├── routing.test.tsx
+│       └── composition.test.ts
+│
+├── domains/
+│   └── orders/
+│
+│       ├── orders-core/                # Equipa A
+│       │   ├── public-api/
+│       │   │   ├── routes.ts
+│       │   │   ├── events.ts
+│       │   │   ├── permissions.ts
+│       │   │   └── __tests__/
+│       │   │       ├── routes.contract.test.ts
+│       │   │       └── events.contract.test.ts
+│       │   │
+│       │   ├── screens/
+│       │   ├── hooks/
+│       │   ├── state/
+│       │   ├── __tests__/
+│       │   │   ├── OrdersListScreen.test.tsx
+│       │   │   └── useOrdersViewModel.test.ts
+│       │   └── index.ts
+│       │
+│       ├── orders-billing/             # Equipa B
+│       │   ├── public-api/
+│       │   ├── screens/
+│       │   ├── hooks/
+│       │   ├── __tests__/
+│       │   │   ├── BillingScreen.test.tsx
+│       │   │   └── useBillingViewModel.test.ts
+│       │   └── index.ts
+│       │
+│       └── orders-fulfillment/         # Equipa C
+│           ├── public-api/
+│           ├── screens/
+│           ├── hooks/
+│           ├── __tests__/
+│           └── index.ts
+│
+├── shared-contracts/                   # Governança (testável)
+│   ├── orders/
+│   │   ├── schemas/
+│   │   │   ├── order.schema.ts
+│   │   │   └── __tests__/
+│   │   │       └── order.schema.test.ts
+│   │   ├── events/
+│   │   │   └── __tests__/
+│   │   └── permissions.ts
+│   └── auth/
+│
+├── shared-ui/
+│   ├── atoms/
+│   ├── molecules/
+│   └── __tests__/
+│       └── Button.test.tsx
+│
+├── infra/
+│   ├── observability/
+│   │   └── __tests__/
+│   │       └── otel.test.ts
+│   ├── storage/
+│   └── i18n/
+│
+├── test-utils/                         # Helpers globais
+│   ├── renderWithProviders.tsx
+│   ├── mockNavigation.ts
+│   └── setup.ts
+│
+└── jest.config.js
 ```
 
 ---
 
 ## 6. Tecnologias Utilizadas
 
-### 6.1. Stack Tecnológico Mobile
+### Stack principal
 
-Diferenças e adições em relação ao Stack Web.
+| **Categoria**               | **Tecnologia / Biblioteca**                                  | **Observações**                                      |
+|-----------------------------|--------------------------------------------------------------|------------------------------------------------------|
+| Linguagem                   | JavaScript (padrão ES* última versão)                        | Linguagem principal da aplicação mobile.             |
+| Linguagem                   | C# (.NET LTS)                                                | Linguagem usada no backend (BFF + APIs).             |
+| Mobile Framework            | React Native                                                 | Framework principal para desenvolvimento mobile nativo. |
+| Gestão de Pacotes           | npm                                                          | Gestão de dependências JavaScript.                   |
+| UI / Componentes            | React Native Core Components                                 | `<View>`, `<Text>`, `<Image>`, etc.                 |
+| Navegação                   | React Navigation                                             | Navegação entre ecrãs (stack/tabs).                  |
+|                             | `@react-navigation/native`                                   | Core da navegação.                                   |
+|                             | `@react-navigation/stack`                                    | Navegação baseada em stack.                          |
+|                             | `react-native-screens`                                       | Otimizações de navegação nativa.                     |
+|                             | `react-native-safe-area-context`                             | Gestão de áreas seguras.                             |
+| Comunicação com Backend     | Apollo Client (`@apollo/client`)                             | Cliente GraphQL usado para consultar o backend.      |
+| Armazenamento local / Offline-First | SQLite (`react-native-sqlite-storage`)               | Armazenamento local nativo.                          |
+|                             | Camada JS do SQLite (`productDb.js`, `cartDb.js`)            | Acesso via JS ao armazenamento SQLite real.          |
+|                             | Async Storage (`@react-native-async-storage/async-storage`)  | Armazenamento leve de chaves/valores.                |
+| Sync / Rede                 | `@react-native-community/netinfo`                            | Deteta conectividade online/offline.                 |
+|                             | Serviço de Sync Customizado                                  | Envia pendências para o servidor quando online.      |
+| Estado / Store              | Redux Toolkit                                                | Estado global da aplicação (cart, products, orders). |
+|                             | `react-redux`                                                | Integração React + Redux.                            |
+|                             | `redux-persist`                                              | Persistência do store no dispositivo.                |
+| Utilidades                  | `debounce.js`                                                | Funções auxiliares de debounce.                      |
+|                             | `formatPrice.js`                                             | Formatação de preços (e-commerce).                   |
+|                             | `logger.js`                                                  | Log interno de debug.                                |
+| Constantes / Configurações  | `routes.js`                                                  | Nomes de rotas centralizados.                        |
+|                             | `apiConfig.js`                                               | URLs e configurações do backend.                     |
+|                             | `storageKeys.js`                                             | Chaves de armazenamento local.                       |
+| Backend / BFF (.NET)        | ASP.NET Core                                                 | Framework usado no backend.                          |
 
-| **Categoria**  | **Tecnologia**            | **Observações**                                                                                                          |
-|----------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| Runtime        | Hermes Engine             | Motor JavaScript otimizado para React Native. Recomendado para redução de TTI (*Time to Interaction*) e uso de memória. |
-| Navegação      | React Navigation 6+       | Expo Router (opcional).                                                                                                  |
-| Estilização    | StyleSheet                | Styled Components.                                                                                                       |
-| Listas         | FlashList (Shopify)       | Substituto do `FlatList` para listas com mais de 50 itens ou layout complexo.                                           |
-| Storage        | MMKV                      | Expo SecureStore.                                                                                                        |
-| Forms          | React Hook Form + Zod     | Mesma stack da web. Uso obrigatório de `Controller` para inputs controlados.                                             |
-| Animação       | Reanimated 3              | Animações declarativas que rodam na *UI Thread*, evitando gargalos na *JS Thread*.                                       |
-| Notificações   | MarketingCloud SDK        | Integração oficial para Push Notifications e Badging.                                                                    |
-| SSE            | EventSource               | Suporte a *Server Sent Events* para atualizações em tempo real unidirecionais.                                           |
+### Stack sem Expo (ferramentas de desenvolvimento)
 
-### 6.2. Matriz de Decisão de Inicialização (Expo vs CLI)
+| **Categoria**    | **Tecnologia / Biblioteca** | **Observações**                        |
+|------------------|-----------------------------|----------------------------------------|
+| Ferramentas / Dev | VSCode                     | IDE principal utilizado.               |
+|                  | Xcode                       | Build iOS.                             |
+|                  | Android Studio              | Build Android.                         |
+|                  | CocoaPods                   | Gerenciador de dependências iOS.       |
+| Build Mobile     | Gradle (Android)            | Sistema de build nativo.               |
+|                  | Xcode Build (iOS)           | Build para iOS.                        |
 
-A escolha da ferramenta de *build* e *runtime* deve seguir a seguinte matriz decisória:
+### Stack com Expo (recomendado)
 
-| **Critério**       | **Expo (Managed Workflow)**                                                                                            | **React Native CLI (Bare)**                                                                                              |
-|--------------------|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| **Cenário de Uso** | 95% das aplicações corporativas padrão; Integrações nativas comuns (Câmera, Push, Biometria).                          | Dependência de SDKs nativos proprietários legados; Necessidade de alteração profunda no *Build System* (Gradle/Podfile). |
-| **Vantagens**      | *Over-the-Air (OTA) Updates*; Configuração zero de ambiente nativo; *Prebuild* contínuo.                               | Controle absoluto sobre o código nativo (Java/Kotlin/Obj-C/Swift).                                                       |
-| **Restrições**     | Incompatibilidade com bibliotecas que exigem *linking* manual complexo ou *hooks* nativos de baixo nível não expostos. | Maior complexidade de CI/CD; Curva de aprendizado elevada para manutenção de ambiente.                                   |
+Em caso de utilizar uma plataforma de publicação automática em Loja de Apps como o Expo (recomendado), têm-se as seguintes dependências adicionais:
+
+| **Categoria** | **Tecnologia / Biblioteca** | **Descrição / Função**                          |
+|---------------|-----------------------------|-------------------------------------------------|
+| Build / Infra | EAS Build                   | Compilação para Android/iOS sem ambiente local. |
+| OTA Updates   | `expo-updates`              | Atualizações *over-the-air*.                    |
+|               | `expo-application`          | Info da aplicação.                              |
+|               | `expo-file-system`          | Acesso ao sistema de ficheiros do dispositivo.  |
+
+Com o Expo, não há necessidade de ferramentas para realizar o build manual para iOS/Android.
 
 ---
 
 ## 7. Segurança
 
-Observar Definições Globais em: [https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5217517761](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5217517761)
+Definições Globais: [https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5217517761](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5217517761)
 
-### 7.0. Requisitos Mínimos de Segurança para Mobile
+### 7.1. Requisitos Mínimos de Segurança para Mobile
 
-Todo app móvel desenvolvido sob esta arquitetura deve, obrigatoriamente, implementar os seguintes controlos de segurança de base. Os detalhes de implementação estão nas secções subsequentes e nos documentos especializados referenciados acima.
+Independentemente das definições globais, toda a aplicação mobile desenvolvida sob esta arquitetura deve implementar obrigatoriamente os seguintes controlos:
 
-1. **SSL Pinning:** Todos os apps devem implementar SSL Pinning para prevenir ataques Man-in-the-Middle (MITM). Nenhuma comunicação de rede deve ocorrer sem validação do certificado do servidor ou da chave pública.
-2. **Armazenamento Seguro de Segredos:** Tokens de autenticação, refresh tokens e quaisquer dados sensíveis devem ser armazenados exclusivamente em `expo-secure-store` ou `react-native-keychain` (Keystore/Keychain). É proibido o uso de `AsyncStorage` ou armazenamento em texto claro para dados sensíveis.
-3. **Detecção de Root/Jailbreak:** Apps que lidam com funcionalidades críticas (ex: pagamentos, dados pessoais sensíveis) devem implementar detecção de dispositivos comprometidos e bloquear ou restringir o acesso nessas situações.
-4. **Ofuscação de Build:** Builds de produção devem habilitar minificação e ofuscação de código para dificultar engenharia reversa.
-5. **Prevenção de Logging de PII:** É estritamente proibido registar em logs quaisquer dados de identificação pessoal (nomes, emails, tokens, payloads completos). Logs devem ser sanitizados antes de qualquer envio a sistemas de monitorização.
-6. **Gestão de Permissões Just-in-Time:** Permissões de hardware e dados sensíveis devem ser solicitadas apenas no momento do uso, seguindo o princípio do menor privilégio.
-
-### 7.1. Gestão de Estado e Persistência Segura
-
-Diferente da web (localStorage), o ambiente mobile exige segregação de dados.
-
-- **Dados Não-Sensíveis** (Cache, Configurações): Utilizar `react-native-mmkv` ou `AsyncStorage`.
-- **Dados Sensíveis** (Tokens, Refresh Tokens): Utilizar `expo-secure-store` ou `react-native-keychain`. Estes dados são criptografados e armazenados no Keystore (Android) ou Keychain (iOS).
-
-> **Gestão de Estado Global:** Para gestão de estado global, preferir Zustand com persistência via MMKV. Alternativas (Redux, MobX, Context API) devem ser validadas com Arquitetura e registadas em ADR quando justificadas por requisitos específicos.
-
-Exemplo de Adapter para Zustand (Persist Middleware):
-
-```tsx
-import { StateStorage } from "zustand/middleware";
-import { MMKV } from "react-native-mmkv";
-
-const storage = new MMKV();
-
-export const mmkvStorage: StateStorage = {
-  setItem: (name, value) => storage.set(name, value),
-  getItem: (name) => {
-    const value = storage.getString(name);
-    return value ?? null;
-  },
-  removeItem: (name) => storage.delete(name),
-};
-```
-
-### 7.2. Controles de Segurança e Permissões
-
-A implementação de controles de segurança deve respeitar o fluxo de trabalho escolhido (Expo ou CLI), garantindo a mesma eficácia de proteção.
-
-- Prevenção de logging de PII (Personally Identifiable Information).
-- Hardening de build (minify/obfuscation, jailbreak/root gating para features críticas).
-
-#### 7.2.1. Gestão de Permissões
-
-O acesso a hardware e dados sensíveis deve ser solicitado apenas no momento do uso ("Just-in-time").
-
-**Via Expo**
-- Utilizar as APIs nativas do SDK (ex: `expo-camera`, `expo-media-library`).
-- Configurar as chaves de uso no `app.json` (plugins) para garantir que as descrições de uso apareçam no `Info.plist` e `AndroidManifest.xml`.
-
-**Via React Native CLI**
-- Utilizar a biblioteca `react-native-permissions` para uma gestão unificada de status (Granted, Denied, Blocked) em ambas as plataformas.
-- Configuração manual obrigatória no `Podfile` e `AndroidManifest.xml` para incluir apenas as permissões necessárias, reduzindo a superfície de ataque.
-
-### 7.3. Geolocalização
-
-**Via Expo**
-- Utilizar `expo-location`. Configurar explicitamente as permissões de *Foreground* e *Background* no manifesto via Config Plugins.
-
-**Via React Native CLI**
-- Utilizar `react-native-geolocation-service` (que utiliza o Google Play Services no Android para maior precisão e performance) ou `@react-native-community/geolocation`.
-- Implementar verificação manual para garantir que o GPS está ativo antes de solicitar a localização.
-
-### 7.4. Integridade do Dispositivo (Root/Jailbreak)
-
-Detecção de ambientes comprometidos para bloquear funcionalidades críticas (ex: pagamentos).
-
-**Via Expo**
-- Utilizar `expo-device` para verificações básicas (`isRootedExperimental`). Para verificações robustas, injetar bibliotecas nativas como `jail-monkey` através de **Expo Config Plugins** (requer Prebuild/Dev Client).
-
-**Via React Native CLI**
-- Integração direta de bibliotecas como `jail-monkey` ou `react-native-jailbreak-detector`. Implementar verificação na inicialização do app (`App.tsx` ou `index.js`) para fechar a aplicação ou limitar acesso caso o dispositivo esteja comprometido.
-
-### 7.5. Criptografia e Armazenamento Seguro
-
-**Via Expo**
-- Armazenamento de chaves: `expo-secure-store`.
-- Operações criptográficas: `expo-crypto` (SHA, UUID).
-
-**Via React Native CLI**
-- Armazenamento de chaves: `react-native-keychain` ou `react-native-encrypted-storage` (wrapper do EncryptedSharedPreferences/Keychain).
-- Criptografia Pesada (AES/RSA): Utilizar `react-native-quick-crypto` (implementação de alta performance via JSI) ou `react-native-rsa-native`.
-
-### 7.6. Autenticação Biométrica
-
-Camada de conveniência vinculada a uma chave criptográfica segura.
-
-**Via Expo**
-- Utilizar `expo-local-authentication`. Abstrai FaceID e TouchID de forma simples.
-
-**Via React Native CLI**
-- Utilizar `react-native-biometrics`. Esta biblioteca permite não apenas validar a biometria, mas criar pares de chaves criptográficas (Private/Public keys) que só podem ser acedidas mediante sucesso biométrico, oferecendo segurança de nível bancário.
-
-### 7.7. Segurança de Rede (SSL Pinning)
-
-Prevenção contra ataques Man-in-the-Middle (MITM) fixando o certificado do servidor ou chave pública.
-
-**Via Expo**
-- Utilizar a biblioteca `react-native-ssl-public-key-pinning` configurada via **Config Plugin** para injetar os hashes dos certificados nos arquivos nativos durante o build do EAS.
-
-**Via React Native CLI**
-- **Android:** Configuração via Network Security Configuration (XML nativo).
-- **iOS:** Configuração via TrustKit ou injeção direta no `Info.plist`.
-- **Alternativa Cross-Platform:** Utilizar `react-native-ssl-pinning` que atua na camada do fetch/axios.
+1. **Armazenamento Seguro de Credenciais:** Tokens de autenticação e refresh tokens devem ser armazenados exclusivamente em *secure storage* nativa (`expo-secure-store` ou `react-native-keychain` / `react-native-encrypted-storage`). É proibido o uso de `AsyncStorage` para dados sensíveis.
+2. **Certificate Pinning (SSL Pinning):** Todas as comunicações com o backend devem implementar *certificate pinning* para prevenir ataques Man-in-the-Middle (MITM). Utilizar `react-native-ssl-public-key-pinning` (Expo) ou configuração via Network Security Configuration / TrustKit (CLI).
+3. **Ofuscação de Código:** Builds de produção devem habilitar minificação e ofuscação de código para dificultar engenharia reversa de lógica sensível.
+4. **Deteção de Root/Jailbreak:** Aplicações que acedam a dados corporativos sensíveis devem implementar deteção de ambientes comprometidos e restringir o acesso nesses cenários. Utilizar `expo-device` (Expo) ou `jail-monkey` / `react-native-jailbreak-detector` (CLI).
+5. **Prevenção de Logging de PII:** É proibido registar dados de identificação pessoal (nomes, credenciais, tokens, payloads completos) em logs. Todos os logs devem ser sanitizados antes de qualquer envio a sistemas de monitorização.
+6. **Proteção de Dados em Repouso:** Armazenamento local SQLite que contenha dados corporativos deve ser encriptado. Utilizar `react-native-sqlite-storage` com suporte a encriptação ou equivalente.
 
 ---
 
 ## 8. Infraestrutura
 
-Recomenda-se o serviço de Hosting da plataforma Expo para CI/CD com code signing e publicação em loja de apps automatizadas.
+Recomenda-se o serviço de Hosting da plataforma Expo para CI/CD com code signing e publicação em loja de aplicações automatizadas.
 
-### 8.1. Infraestrutura Gerenciada (Expo EAS) – Padrão
+### 8.1. Infraestrutura da Aplicação Mobile (Expo)
 
-Recomendado para 95% dos casos devido à redução de complexidade de DevOps.
+**Desenvolvimento:**
+- Expo CLI.
+- Expo Go em dispositivos físicos.
+- Conexão local (LAN ou tunnel).
 
-- **Build:** 100% em nuvem via EAS Build. Elimina a necessidade de Macs locais para compilar iOS.
-- **Distribuição:** EAS Submit para envio automatizado à Google Play e App Store.
-- **OTA Updates:** Expo Updates para correção de bugs críticos em produção sem passar pelo processo de revisão da loja, respeitando as regras da Apple/Google: OTA apenas para JS/Assets.
+### 8.2. Build
 
-> **Diretriz de OTA:** Atualizações OTA devem ser testadas em canal de staging com 5–10% de utilizadores antes de rollout completo. Implementar mecanismo de rollback automático em caso de aumento de crash rate acima do limiar definido para o projeto (ex: > 2%). Atualizações com impacto em código nativo requerem obrigatoriamente nova submissão às lojas.
+A infraestrutura de build é 100% gerenciada:
 
-### 8.2. Infraestrutura Standalone (React Native CLI) – *Exceção*
+**EAS Build (Expo Application Services):**
+- Builds remotos para Android/iOS.
+- Sem necessidade de Xcode ou Android Studio local.
+- Armazenamento seguro de secrets.
+- Workers distribuídos.
 
-Para projetos que optarem pelo *Bare Workflow* devido a requisitos nativos específicos.
+**Publicação:**
+- Google Play Console.
+- Apple App Store Connect.
+- Expo EAS Submit automatiza a submissão.
 
-- **Automação Local/CI:** Uso recomendado do Fastlane (`Fastfile`) para padronizar scripts de build, assinatura de código e deploy.
-- **CI/CD:** Pipelines configuradas no GitHub Actions ou Bitrise.
-- *Nota:* Requer *runners* macOS para compilação do iOS.
-- **Distribuição de Testes:** Firebase App Distribution ou TestFlight para envio de builds de QA/Homologação.
+**OTA Updates:**
+- Com `expo-updates`, a aplicação pode receber atualizações *over-the-air* sem reenviar para a loja.
 
-### 8.3. Gestão e Monitorização
+> **Política de OTA e Versionamento:** Atualizações OTA aplicam-se exclusivamente a alterações em JS/Assets — alterações em código nativo requerem submissão nova às lojas. Deve ser definida uma política de versionamento mínimo obrigatório: versões abaixo do mínimo devem receber notificação de *forced upgrade* via feature flag ou resposta do BFF. Atualizações OTA em produção devem ser validadas previamente em canal de staging.
 
-- **Feature Toggles:** Implementação de sistema de flags para ativar/desativar funcionalidades sem deploy.
-- **Observabilidade:** Integração obrigatória com plataforma de monitorização para rastreamento de performance e estabilidade.
-- **Logging:** Sistema estruturado de logs para captura de informações e erros aplicacionais, segregando níveis (Info, Warn, Error) e evitando registo de dados sensíveis.
-- **Crash Reporting** (ex: Sentry/Firebase Crashlytics).
-- **Release Health** (crash-free sessions, ANR, startup time).
+Requer:
+- Conta Expo.
+- Setup do projeto com `eas.json`.
+- Canal de release (production/staging/dev).
+
+### 8.3. Gestão de Erros
+
+Uma estratégia unificada de tratamento de erros deve ser implementada em toda a aplicação, cobrindo:
+
+- **Retry policies:** Definir número máximo de tentativas e intervalo de backoff exponencial para chamadas de rede e operações de sincronização.
+- **Fallback UI:** Em caso de falha de carregamento de dados (rede indisponível e cache vazio), apresentar estados de erro claros com opções de retry visíveis ao utilizador.
+- **Notificação ao utilizador:** Erros de sincronização prolongados ou falhas críticas devem ser comunicados de forma não intrusiva (ex: banner ou toast), sem bloquear a interface.
+- **Logging estruturado:** Todos os erros devem ser capturados e enviados à plataforma de observabilidade com contexto suficiente (`traceId`, tipo de erro, ecrã de origem), sem incluir dados sensíveis.
 
 ---
 
 ## 9. Padrões e Princípios Arquiteturais
 
-### 9.1. Princípio Offline-First
-
-A aplicação deve ser concebida para funcionar offline por padrão, tratando a conectividade como uma melhoria progressiva.
-
-- **Local Database:** Utilização de SQLite (`react-native-sqlite-storage`) como fonte de verdade no cliente. A UI consulta a base local, não a rede.
-- **Queue de Operações:** Ações do utilizador (ex: criar pedido) realizadas offline são armazenadas em uma fila local ("pendente de sync") para garantir que nenhuma intenção do utilizador seja perdida.
-- **Sync Engine:** Um módulo dedicado monitoriza a rede (`@react-native-community/netinfo`) e, ao detetar reconexão, processa a fila de pendências enviando-as ao servidor e reconciliando os dados.
-
-> **Testes de Integração Offline:** As estratégias de teste devem cobrir o fluxo completo de sincronização (offline → online) em testes automatizados. Recomenda-se o uso de mocks de conectividade para simular estados de rede nos testes de integração, garantindo a resiliência do Sync Engine.
-
-### 9.2. Atomic Design Adaptado
-
-A organização dos componentes visuais deve seguir uma adaptação do Atomic Design para promover reutilização e consistência visual entre as features.
-
-- **Átomos** (`shared/components/ui`): Componentes indivisíveis e agnósticos ao negócio.
-  - *Exemplos:* `Typography`, `Box`, `Button`, `Icon`.
-- **Moléculas** (`shared/components`): Agrupamento de átomos que formam uma unidade funcional simples.
-  - *Exemplos:* `InputGroup` (Label + Input + ErrorMessage), `UserAvatar` (Image + Name).
-- **Organismos** (`features/**/components`): Componentes complexos que formam seções distintas de uma interface, com contexto de negócio.
-  - *Exemplos:* `OrderCard`, `ProductList`, `LoginForm`.
-- **Templates/Screens** (`features/**/screens`): A estrutura da página onde os organismos são orquestrados.
-
-### 9.3. GraphQL
-
-GraphQL é opcional e, quando usado, deve ser implementado no BFF (BFF GraphQL), não diretamente contra múltiplos serviços.
+### 9.1. GraphQL
 
 Consultar: [https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5212340226#GraphQL](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5212340226#GraphQL)
 
-#### 9.3.1. Integração com o App Mobile (Apollo Client)
+#### 9.1.1. Integração com a Aplicação Mobile (Apollo Client)
 
 A comunicação entre o frontend (React Native / Expo) e o backend GraphQL ocorre via:
 
-```tsx
+```ts
 const client = new ApolloClient({
-  uri: "https://api.exemplo.com/bff/graphql",
+  uri: "https://api.exemplo.com/graphql",
   cache: new InMemoryCache(),
   headers: {
     Authorization: `Bearer ${token}`,
@@ -396,240 +443,98 @@ const client = new ApolloClient({
 });
 ```
 
-**Benefícios:**
-- Redução de roundtrips por ecrã.
-- Payload sob medida.
-- Caching consistente.
-- Compatível com evolução incremental.
+Benefícios:
+- Economia de banda no mobile.
+- Queries específicas por contexto.
+- Caching automático.
+- Mutations com suporte a re-tentativas e replay via mecanismo de sync.
+- Integração com sincronização local.
 
-**Guardrails:**
-- Persisted Queries / query allowlist.
-- Limites de complexidade/custo e depth.
-- Timeouts e caching no BFF.
+#### 9.1.2. Critérios de Seleção — GraphQL vs REST
 
-### 9.4. Offline-First
+A adoção de GraphQL deve ser avaliada com base nos seguintes critérios objetivos. Em caso de dúvida, registar a decisão numa ADR.
+
+| **Critério**                         | **Favorece GraphQL**                                   | **Favorece REST**                                  |
+|--------------------------------------|--------------------------------------------------------|----------------------------------------------------|
+| Composição de dados                  | Ecrãs com dados de múltiplas fontes                    | Endpoints com payload simples e fixo               |
+| Variabilidade de payload             | Alta variação de campos por contexto/cliente           | Payload uniforme entre clientes                    |
+| Volume de round-trips                | Necessidade de reduzir chamadas ao backend             | Número de chamadas já reduzido                     |
+| Real-time                            | Subscriptions necessárias                              | Polling suficiente                                 |
+| Maturidade da equipa com GraphQL     | Equipa com experiência prévia                          | Equipa sem experiência prévia em GraphQL           |
+| Infraestrutura de BFF                | BFF GraphQL já disponível                              | Apenas endpoints REST disponíveis                  |
+
+### 9.2. MVVM
+
+Consultar: [https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5212340226#MVVM](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5212340226#MVVM)
+
+### 9.3. Offline-First
 
 Consultar: [https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5212340226#Princípio-Offline-First](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/edit-v2/5212340226#Princ%C3%ADpio-Offline-First)
 
-### 9.5. Cache de Dados de Referência
+### 9.4. Estratégia de Resolução de Conflitos
 
-Dados frequentemente consultados mas raramente alterados (ex: catálogos de produtos, listas de configuração, feature flags) devem seguir uma estratégia de cache dedicada para otimizar performance e consumo de dados móveis:
+A escolha da estratégia de conflito deve ser definida por entidade ou cenário de negócio, e não de forma global. A tabela abaixo serve como ponto de partida — decisões específicas devem ser registadas em ADR ou num documento de governança de dados.
 
-- **TTL explícito:** Definir um tempo de vida (*Time to Live*) por tipo de dado. Dados de catálogo podem ter TTL de horas; configurações de feature flags podem exigir TTL mais curto.
-- **Invalidação ativa:** O Sync Engine deve ser capaz de invalidar e refrescar o cache de dados de referência ao receber sinalização do BFF (ex: via ETag, header de versão ou evento SSE).
-- **Stale-while-revalidate:** Servir dados do cache imediatamente enquanto a atualização ocorre em background, evitando bloqueio da UI.
+| **Tipo de Dado / Entidade**       | **Estratégia Recomendada** | **Justificação**                                                                 |
+|-----------------------------------|----------------------------|----------------------------------------------------------------------------------|
+| Inventário / Contagens            | *Server-wins*              | O servidor é a fonte de verdade para dados de stock.                             |
+| Rascunhos de formulário / Notas   | *Last-Write-Wins (LWW)*    | O utilizador tem controlo total; conflitos são improváveis e de baixo impacto.   |
+| Dados mestres (produtos, preços)  | *Server-wins*              | Dados de referência devem sempre refletir o estado do sistema central.           |
+| Ordens / Transações               | *Manual review*            | Alto impacto financeiro; conflitos devem ser sinalizados e resolvidos manualmente. |
+| Configurações de utilizador       | *LWW*                      | Preferências locais têm prioridade sobre o estado remoto.                        |
 
-### 9.6. Gestão de Versões de API e Compatibilidade Retroativa
+> **Nota:** Em cenários de *offline* prolongado (> 24h), considerar invalidar dados de inventário e forçar resincronização completa antes de permitir novas operações críticas.
 
-A app deve ser resiliente a evoluções do backend sem exigir atualizações forçadas nas lojas:
+### 9.5. Gestão do Armazenamento Local e Cache
 
-- **Campos novos:** Ignorar campos desconhecidos nas respostas (tolerância a adições).
-- **Campos obsoletos:** O BFF deve manter compatibilidade retroativa por, no mínimo, 2 versões de release do app.
-- **Versionamento do BFF:** Utilizar versionamento de API (ex: `/v1/`, `/v2/`) e comunicar depreciações com antecedência às equipas de frontend.
-- **Forced Update:** Implementar mecanismo de *forced update* (via feature flag ou resposta do BFF) para situações em que versões antigas do app não são mais compatíveis com o backend.
+Para evitar esgotamento de espaço em dispositivos com recursos limitados e garantir performance em queries sobre grandes volumes de dados:
 
-### 9.7. Privacidade de Dados (GDPR/LGPD)
+- **Estratégia de limpeza (TTL por entidade):** Definir tempo de vida máximo para cada tipo de dado local. Exemplo orientativo: dados de catálogo de produtos → 24h; configurações de sessão → até logout; dados analíticos → não persistir localmente.
+- **Limites de armazenamento:** Definir limites máximos de uso de armazenamento por utilizador/loja (ex: máximo de X MB para a base SQLite). Implementar alertas ou limpeza automática ao atingir o limiar.
+- **Requisitos de indexação:** Garantir que queries frequentes sobre a base SQLite local (ex: pesquisa de produtos por código ou nome) têm índices definidos explicitamente, evitando *full table scans* em tabelas de grande volume.
+- **Dados analíticos:** Não persistir dados de grande volume para análise no dispositivo. Estes devem ser removidos da sincronização e direcionados para o *back office* analítico ou *Data Lake*.
 
-Além das restrições de logging descritas em Segurança, a persistência local deve cumprir os seguintes requisitos de privacidade:
+### 9.6. Testabilidade da Estratégia Offline
 
-- **Encriptação de dados locais:** Bases de dados SQLite e ficheiros de cache devem ser encriptados em repouso, especialmente quando contiverem dados pessoais do utilizador.
-- **Retenção mínima:** Dados pessoais não devem ser persistidos localmente por mais tempo do que o necessário para a funcionalidade. Definir TTL de purga para dados de utilizador no armazenamento local.
-- **Exclusão ao desinstalar:** Garantir que dados sensíveis armazenados no Keychain (iOS) são removidos ao desinstalar a app (comportamento padrão no Android; requer configuração explícita no iOS via `kSecAttrAccessibleAfterFirstUnlock` e limpeza no primeiro boot pós-reinstalação).
-- **Consentimento e opt-out:** Telemetria e analytics de UX devem respeitar as preferências de consentimento do utilizador, com mecanismo de opt-out funcional.
+A arquitetura *offline-first* deve ser validada por testes automatizados que cubram os seguintes cenários:
+
+- **Simulação de estados de rede:** Utilizar *mocking* de `@react-native-community/netinfo` para simular transições online → offline → online em testes de integração.
+- **Replay de operações pendentes:** Validar que todas as operações enfileiradas durante *offline* são corretamente enviadas ao servidor após reconexão, na ordem correta e sem duplicação (idempotência verificada via `operationId`).
+- **Injeção de conflitos:** Simular cenários onde o servidor retorna dados divergentes dos dados locais e validar que a estratégia de conflito definida (Secção 9.4) é aplicada corretamente.
+- **Métricas de sucesso de sincronização:** Definir critérios de aceitação mensuráveis: ex. taxa de sucesso de sync ≥ 99% em cenários de rede instável simulada; tempo máximo de processamento da queue de pendências.
+
+### 9.7. Acessibilidade
+
+As aplicações mobile internas devem respeitar requisitos mínimos de acessibilidade para garantir inclusão e conformidade:
+
+- **Suporte a leitores de ecrã:** Todos os componentes interativos devem ter `accessibilityLabel` definido. Garantir compatibilidade com VoiceOver (iOS) e TalkBack (Android).
+- **Contraste e tamanho de texto:** Seguir as diretrizes WCAG 2.1 AA para rácio de contraste (mínimo 4,5:1 para texto normal) e suportar escalamento de texto do sistema.
+- **Elementos focáveis:** Garantir que todos os elementos interativos são alcançáveis via navegação por teclado/acessibilidade e têm área de toque mínima de 44×44 pt.
+- **Testes de acessibilidade:** Incluir validação de acessibilidade no pipeline de CI (ex: `@testing-library/react-native` com `toBeAccessible`).
 
 ---
 
 ## 10. Observabilidade
 
-Observar o padrão em: [https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5217517761](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5217517761)
+Recomendações de observabilidade especificadas em: [https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5224530029](https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5224530029)
 
-A observabilidade deve seguir um modelo unificado para atender aplicações *frontend* (Mobile React Native / Expo e Web) e componentes *backend* (BFF/APIs), com o objetivo de reduzir instrumentação manual, garantir consistência de dados e permitir correlação ponta-a-ponta.
+### 10.1. Telemetria Mínima para Mobile
 
-### 10.1. Princípios
+Independentemente da plataforma de observabilidade adotada, as seguintes métricas são obrigatórias para aplicações mobile internas:
 
-- **OpenTelemetry como padrão** para *traces*, *metrics* e *logs*.
-- **Instrumentação automática por defeito** (HTTP/GraphQL, navegação, erros, runtime). **Instrumentação manual apenas quando há valor claro** (spans de negócio e medições específicas).
-- **Correlação end-to-end** via `traceId` e propagação de contexto: **Frontend → BFF → serviços downstream** devem manter o mesmo *trace* sempre que possível.
-- **Atributos padronizados**: a maioria deve vir de forma automática (SDKs/agents). Evitar "setar campos" manualmente em cada chamada.
+| **Métrica**                        | **Descrição**                                                                 | **Prioridade** |
+|------------------------------------|-------------------------------------------------------------------------------|----------------|
+| Cold start time                    | Tempo desde o lançamento até ao primeiro ecrã interativo (TTI).               | Alta           |
+| Taxa de falha de sincronização     | % de operações pendentes que falharam após N tentativas.                      | Alta           |
+| Tempo de resposta: local vs remoto | Latência de leitura do armazenamento local vs. chamadas ao BFF (P50/P95).    | Alta           |
+| Crash-free sessions                | % de sessões sem crash JS ou nativo.                                          | Alta           |
+| Taxa de erros por ecrã             | % de erros por rota/ecrã para identificar pontos de falha recorrentes.        | Média-Alta     |
+| Tempo de carga por ecrã            | Duração desde navegação até ecrã totalmente renderizado.                      | Média          |
+| ANR / App Not Responding           | Taxa de ANRs reportados (Android); equivalente de *hang* no iOS.              | Média          |
+| Duração da queue de pendências     | Tempo médio entre criação de operação pendente e sincronização bem-sucedida.  | Média          |
 
-> **Instrumentação Mobile:** A instrumentação deve priorizar: (1) propagação de `traceId` via headers HTTP para o BFF; (2) *sampling* configurável por ambiente (100% em dev, 1–10% em prod); (3) métricas de UX obrigatórias: cold start, screen load time e crash-free sessions. Métricas opcionais, quando suportadas tecnicamente: FPS/jank e ANR rate.
-
----
-
-### 10.2. Stack Padrão
-
-- **Collector:** OpenTelemetry Collector (HTTP OTLP).
-- **Tracing/Metrics:** Grafana (Tempo/Prometheus) e Prometheus.
-- **Logs:** Stack corporativa (ex: Loki/Elastic, conforme standard interno).
-- **Analytics de UX (opcional, complementar):** PostHog (eventos de produto/uso), *não substitui* telemetria técnica.
-
-> **Nota:** UX Analytics (PostHog) é para comportamento do utilizador e funis; OTel é para saúde, performance e debugging técnico.
+> **Segmentação:** As métricas de performance (especialmente *cold start* e *crash rate*) devem ser segmentadas por modelo de dispositivo e versão do SO sempre que possível, dado que dispositivos de campo (PDAs) podem apresentar características muito distintas de dispositivos de gama alta.
 
 ---
 
-### 10.3. Modelo de Dados Unificado (mínimo comum)
-
-#### 10.3.1. Resource Attributes (definidos 1 vez por app/serviço)
-
-Estes atributos devem ser aplicados a nível de **Resource** (inicialização do SDK/agent), e não repetidos manualmente por operação:
-
-- `service.name` (ex: `mobile-app`, `web-app`, `bff-orders`)
-- `service.version` (versão do build/release)
-- `deployment.environment` (dev/qa/prod)
-- `team.name` / `owner` (opcional, se existir standard)
-- Para **frontend**: `device.platform` (ios/android/web), `app.build_number` / `app.bundle_id` (quando disponível).
-- Para **backend**: `cloud.provider`, `k8s.cluster.name`, `k8s.namespace.name` (via auto-instrumentação/collector).
-
-#### 10.3.2. Span Attributes (padrão de correlação)
-
-O mínimo para correlação e troubleshooting deve vir automaticamente:
-
-- HTTP: `http.method`, `http.url`/`url.full` (com sanitização), `http.status_code`.
-- Rede: latência, timeouts, retries (quando suportado pela instrumentação).
-- Erros: `exception.type`, `exception.message` (sem PII), `exception.stacktrace` (quando permitido).
-
-**Regra:** atributos de infraestrutura/ambiente = automáticos; atributos de negócio = manuais e poucos.
-
----
-
-### 10.4. Instrumentação por Camada
-
-#### 10.4.1. Frontend (Mobile React Native / Expo e Web)
-
-**Obrigatório**
-- Erros não tratados (crashes JS) e exceções capturadas.
-- Medições de performance percebida: `app.startup` (cold start / time-to-interactive), `screen.load` / `route.change` (navegação).
-- Chamadas de rede: HTTP para o BFF; GraphQL (se usado) com visibilidade de `operationName` (evitar logar a query completa).
-
-**Preferir automático**
-- Interceptors automáticos (HTTP client) para criar spans de rede.
-- Hooks/listeners de navegação para spans de *screen/route*.
-- Integração com *crash reporting* (Sentry/Crashlytics) correlacionando com `traceId` sempre que possível.
-
-**Instrumentação manual apenas quando fizer sentido**
-- Spans de negócio curtos e raros (ex: `order.checkout.submit`, `inventory.sync`) com 2–4 atributos no máximo (ex: `flow`, `feature`, `result`).
-
-#### 10.4.2. Backend (BFF/APIs)
-
-**Obrigatório**
-- Auto-instrumentação OTel para: inbound requests (HTTP/GraphQL) e outbound calls (HTTP/gRPC/db/messaging quando suportado).
-- **Propagação de contexto** (W3C Trace Context) a partir do *frontend*: o BFF deve aceitar e propagar `traceparent` / `tracestate`.
-- **Logs estruturados** com correlação: `traceId` e `spanId` incluídos nos logs.
-
-**Instrumentação manual (mínima)**
-- Spans em pontos de agregação do BFF: `bff.aggregate` com atributos como `backend.count`, `cache.hit`, `degraded_mode` (sem PII).
-
----
-
-### 10.5. Padrão de Instrumentação (recomendado)
-
-#### 10.5.1. Frontend: OTel + instrumentação leve
-
-```tsx
-// observability/init.ts (conceitual)
-import { Resource } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-
-export function initObservability() {
-  const resource = new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: 'mobile-app',
-    [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
-    'deployment.environment': 'prod',
-    'device.platform': 'react-native',
-  });
-
-  // Provider/exporter para OTLP/HTTP apontando para o Collector
-  // + integrações automáticas (HTTP client / navigation / errors) conforme SDK escolhido.
-}
-```
-
-#### 10.5.2. Navegação: spans por ecrã/rota
-
-```tsx
-// navigationRef.ts (conceitual)
-import { trace } from '@opentelemetry/api';
-const tracer = trace.getTracer('frontend-tracer');
-
-let currentSpan: any;
-
-export function onRouteChange(routeName: string) {
-  if (currentSpan) currentSpan.end();
-
-  currentSpan = tracer.startSpan('screen.view', {
-    attributes: { 'route.name': routeName },
-  });
-}
-```
-
-#### 10.5.3. Rede: spans automáticos + enriquecimento mínimo
-
-```tsx
-// api.ts (conceitual)
-import axios from 'axios';
-
-export const api = axios.create();
-
-// O ideal é uma integração OTel pronta para Axios/fetch.
-// Se não existir, manter apenas o essencial e evitar campos manuais redundantes.
-```
-
----
-
-### 10.6. Erros e Crash Reporting
-
-**Obrigatório**
-- Capturar erros JS não tratados e reportar.
-- Sanitizar mensagens para evitar PII.
-- Associar `traceId` quando possível (principalmente em flows com rede).
-
-```tsx
-// error-handler.ts (conceitual)
-import { trace } from '@opentelemetry/api';
-const tracer = trace.getTracer('frontend-tracer');
-
-export function initGlobalErrorHandler() {
-  // Em RN, ErrorUtils existe; na Web, usar window.onerror/unhandledrejection.
-  // Implementação deve integrar com a ferramenta padrão de crash reporting.
-}
-```
-
----
-
-### 10.7. O que deve ser coletado (KPI mínimo comum)
-
-#### 10.7.1. Performance do Utilizador (Frontend)
-
-- Cold start / TTI (quando aplicável).
-- Tempo de render inicial por ecrã.
-- Latência de chamadas ao BFF (P50/P95).
-- Taxa de erros por ecrã/rota.
-- (Opcional) FPS/jank se houver suporte técnico.
-
-> **Segmentação por Dispositivo:** Métricas de performance (especialmente cold start e frame drops) devem ser segmentadas por modelo de dispositivo e versão do SO sempre que possível. Esta segmentação é crítica para priorizar otimizações, dado que dispositivos de gama baixa tendem a ser mais representativos na base de utilizadores móveis.
-
-#### 10.7.2. Performance do Serviço (BFF/APIs)
-
-- Latência inbound (P50/P95/P99).
-- Taxa de erros (4xx/5xx) e timeouts.
-- Retries/circuit breaker (se existir).
-- Dependências downstream mais lentas.
-
-#### 10.7.3. Fiabilidade
-
-- Crash-free sessions (frontend).
-- ANR / app not responding (mobile, se houver).
-- SLO básico (ex: disponibilidade + latência P95).
-
----
-
-### 10.8. Boas Práticas e Restrições
-
-- **Não coletar PII** (nomes, emails, tokens, payloads completos).
-- **Sanitizar URLs e queries** (especialmente GraphQL).
-- **Sampling:** aplicar amostragem em produção (configurada no Collector/SDK) para controlar custo.
-- **Versionamento:** garantir que `service.version` reflete o build para permitir comparar releases.
-- **Correlações:** garantir propagação de contexto do frontend para o BFF (headers de trace).
-
----
-
-> **Aplicação de Exemplo:** [sample-swrefarch-mobile-public](https://github.com/mcdigital-devplatforms/sample-swrefarch-mobile-public)
+> **Aplicação de Exemplo:** [sample-swrefarch-mobile-internal](https://github.com/mcdigital-devplatforms/sample-swrefarch-mobile-internal)
