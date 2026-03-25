@@ -1,1007 +1,423 @@
-# Guia de Arquitetura Web – Tipagem, Serviços, Features, Routing, Testes e Performance
+# Documento de Arquitetura de Referência - Plataforma de Dispositivos Inteligentes Sonae - Android Embedded
+
+## Histórico de Revisões
+
+| Versão | Data       | Autor(es)         | Resumo das Mudanças                                      |
+|--------|------------|-------------------|----------------------------------------------------------|
+| 1.0    | 16/12/2025 | Kleber Santos     | Criação inicial do documento de arquitetura de referência. |
+| 2.0    | 26/12/2025 | Kleber Santos     | Ajustes conforme comentários.                            |
+| 2.1    | 03/02/2026 | Felipe Klussmann  | Pequenos ajustes.                                        |
 
 Índice
 ------
 
-- [Camada de Tipagem (Shared Types)](#camada-de-tipagem-shared-types)
-- [Camada de Serviços de API (Shared)](#camada-de-serviços-de-api-shared)
-	- [Configuração do Cliente HTTP](#configuração-do-cliente-http)
-	- [Interceptadores (Interceptors)](#interceptadores-interceptors)
-	- [Serviços de Domínio (Service Layer)](#serviços-de-domínio-service-layer)
-- [Implementação de Feature (Exemplo: Orders)](#implementação-de-feature-exemplo-orders)
-	- [Gestão de Estado de Servidor (React Query)](#gestão-de-estado-de-servidor-react-query)
-	- [Componentes da Feature](#componentes-da-feature)
-- [Gestão de Estado Global (Zustand)](#gestão-de-estado-global-zustand)
-- [Validação e Formulários (Zod + React Hook Form)](#validação-e-formulários-zod-react-hook-form)
-- [Roteamento e Guards de Autenticação](#roteamento-e-guards-de-autenticação)
-	- [Estrutura de Rotas e Lazy Loading](#estrutura-de-rotas-e-lazy-loading)
-	- [Route Guards](#route-guards)
-- [Estratégia de Testes](#estratégia-de-testes)
-	- [Testes Unitários (Lógica Pura)](#testes-unitários-lógica-pura)
-	- [Testes de Componentes (Interação)](#testes-de-componentes-interação)
-- [Performance por Defeito](#performance-por-defeito)
-	- [Diretrizes Mandatórias](#diretrizes-mandatórias)
-	- [Anti-Patterns de Performance](#anti-patterns-de-performance)
-- [Estado Previsível, Rastreável e Sem Prop Drilling](#estado-previsível-rastreável-e-sem-prop-drilling)
-	- [Eliminação de Prop Drilling](#eliminação-de-prop-drilling)
+- [1. Introdução](#1-introdução)
+	- [1.1. Propósito e Objetivos](#11-propósito-e-objetivos)
+	- [1.2. Público-Alvo](#12-público-alvo)
+	- [1.3. Âmbito](#13-âmbito)
+- [2. Dependências e referências](#2-dependências-e-referências)
+- [3. Regras de Utilização](#3-regras-de-utilização)
+- [4. Arquitetura da Tipologia](#4-arquitetura-da-tipologia)
+	- [4.1. Diagrama de Contexto do Sistema](#41-diagrama-de-contexto-do-sistema)
+	- [4.2. Arquitetura no dispositivo](#42-arquitetura-no-dispositivo)
+	- [4.2.1. Camadas](#421-camadas)
+	- [4.3. Comunicação](#43-comunicação)
+	- [4.4. Fluxo de Comunicação](#44-fluxo-de-comunicação)
+	- [4.5. Offline-First](#45-offline-first)
+	- [4.6. Testes](#46-testes)
+		- [4.6.1. Unitários](#461-unitários)
+		- [4.6.2. Frameworks de Teste](#462-frameworks-de-teste)
+		- [4.6.3. Estratégia de Testes para Dispositivos](#463-estratégia-de-testes-para-dispositivos)
+- [5. Estrutura do Projeto](#5-estrutura-do-projeto)
+- [6. Tecnologias Utilizadas](#6-tecnologias-utilizadas)
+- [7. Segurança](#7-segurança)
+	- [7.1. Componentes de Segurança](#71-componentes-de-segurança)
+	- [7.2. Requisitos Mínimos de Segurança para Dispositivos IoT](#72-requisitos-mínimos-de-segurança-para-dispositivos-iot)
+	- [7.3. Fluxo de Provisionamento e Ciclo de Vida de Certificados](#73-fluxo-de-provisionamento-e-ciclo-de-vida-de-certificados)
+- [8. Infraestrutura](#8-infraestrutura)
+	- [8.1. Topologia de Implantação](#81-topologia-de-implantação)
+	- [8.2. Atualização de Software (OTA)](#82-atualização-de-software-ota)
+	- [8.3. Estratégia de Rollout](#83-estratégia-de-rollout)
+	- [8.4. Gerenciamento de Configuração e Segredos](#84-gerenciamento-de-configuração-e-segredos)
+	- [8.5. Ciclo de Vida de Dispositivos](#85-ciclo-de-vida-de-dispositivos)
+- [9. Padrões Arquiteturais Adotados](#9-padrões-arquiteturais-adotados)
+	- [9.1. Event-Driven Architecture](#91-event-driven-architecture)
+	- [9.2. CQRS (Command Query Responsibility Segregation)](#92-cqrs-command-query-responsibility-segregation)
+	- [9.3. MVVM (Mobile)](#93-mvvm-mobile)
+	- [9.4. Offline-First](#94-offline-first)
+- [10. Observabilidade](#10-observabilidade)
+	- [10.1. Métricas Chave](#101-métricas-chave)
+	- [10.2. Métricas de Bateria e Eficiência Energética](#102-métricas-de-bateria-e-eficiência-energética)
+	- [10.3. Privacidade de Dados em Dispositivo (GDPR)](#103-privacidade-de-dados-em-dispositivo-gdpr)
+- [11. Plano de Contingência para Indisponibilidade de Cloud](#11-plano-de-contingência-para-indisponibilidade-de-cloud)
 
-## Camada de Tipagem (Shared Types)
+## 1. Introdução
 
-Definição de contratos de dados partilhados. Prioriza-se o uso de `interfaces` para modelos de dados e `types`/`enums` para uniões e constantes.
+### 1.1. Propósito e Objetivos
 
-**Ficheiro:** `src/shared/types/models/order.types.ts`
+Este documento descreve a arquitetura de referência para a construção de uma plataforma unificada de dispositivos inteligentes (IoT) da Sonae baseada em Android Embedded. A arquitetura é projetada para permitir a comunicação bidirecional entre dispositivos inteligentes, aplicações móveis e serviços em nuvem, garantindo segurança, confiabilidade, escalabilidade e observabilidade em toda a cadeia de valor. O objetivo é criar um ecossistema coeso que modernize a forma como a Sonae interage com seus clientes através de dispositivos inteligentes, desde eletrodomésticos até sistemas de ponto de venda (POS) e dispositivos de loja.
 
-```ts
-export interface Order {
-  id: string;
-  customerId: string;
-  items: OrderItem[];
-  totalAmount: number;
-  status: OrderStatus;
-  createdAt: Date;
-  updatedAt: Date;
-}
+Esta arquitetura define o padrão a ser seguido para todos os novos desenvolvimentos de dispositivos inteligentes baseados em Android Embedded. Ela abrange desde a estrutura do firmware do dispositivo, a comunicação com serviços em nuvem, a sincronização de dados, até as estratégias de atualização de software (OTA - Over-The-Air), segurança, monitoramento e observabilidade. A solução visa criar uma plataforma modular e extensível que permita a rápida integração de novos tipos de dispositivos, reduzindo o tempo de mercado e os custos de desenvolvimento.
 
-export interface OrderItem {
-  id: string;
-  productId: string;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
+### 1.2. Público-Alvo
 
-export enum OrderStatus {
-  PENDING = "PENDING",
-  PROCESSING = "PROCESSING",
-  COMPLETED = "COMPLETED",
-  CANCELLED = "CANCELLED",
-}
-```
+- Engenharia
+- Suporte
+- Arquitetura
 
----
+### 1.3. Âmbito
 
-## Camada de Serviços de API (Shared)
-
-Esta camada centraliza a comunicação HTTP, garantindo consistência no tratamento de requisições, erros e autenticação.
-
-### Configuração do Cliente HTTP
-
-Instanciação do cliente Axios com configurações base (BaseURL, Timeouts) e acoplamento de interceptadores.
-
-**Ficheiro:** `src/shared/api/client/axios.config.ts`
-
-```ts
-import axios, { AxiosInstance } from "axios";
-import { authInterceptor } from "./interceptors/auth.interceptor";
-import { errorInterceptor } from "./interceptors/error.interceptor";
-import { retryInterceptor } from "./interceptors/retry.interceptor";
-
-const createUserApiClient = (): AxiosInstance => {
-  const client = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/user/api",
-    timeout: 10000,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  // Interceptors de Request
-  client.interceptors.request.use(
-    authInterceptor.onRequest,
-    authInterceptor.onRequestError
-  );
-
-  // Interceptors de Response (erro e retry)
-  client.interceptors.response.use(
-    undefined,
-    errorInterceptor.onResponseError
-  );
-
-  return client;
-};
-
-export const userApiClient = createUserApiClient();
-```
-
-> **Nota:** Os interceptores `errorInterceptor` e `retryInterceptor` são importados mas apenas o `authInterceptor` é registado no exemplo acima. Garantir que todos os interceptores necessários são acoplados ao cliente antes de usar em produção.
-
-### Interceptadores (Interceptors)
-
-Middleware para injeção de tokens, logging e tratamento padronizado de erros.
-
-**Ficheiro:** `src/shared/api/client/interceptors/auth.interceptor.ts`
-
-```ts
-import { InternalAxiosRequestConfig, AxiosError } from "axios";
-import { authService } from "@/infra/auth/auth.service";
-
-export const authInterceptor = {
-  onRequest: (config: InternalAxiosRequestConfig) => {
-    const token = authService.getAccessToken();
-
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    // Adiciona Correlation ID para rastreamento distribuído
-    config.headers["X-Correlation-Id"] = crypto.randomUUID();
-
-    return config;
-  },
-
-  onRequestError: (error: AxiosError) => {
-    console.error("Request error:", error);
-    return Promise.reject(error);
-  },
-};
-```
-
-> **Nota de tipagem:** `AxiosRequestConfig` foi substituído por `InternalAxiosRequestConfig` — tipo correto para o callback de interceptor de request a partir do Axios 1.x. O uso de `AxiosRequestConfig` neste contexto causaria erro de tipagem TypeScript.
-
-### Serviços de Domínio (Service Layer)
-
-Classes ou objetos que encapsulam as chamadas de rede, tipando estritamente entradas e saídas.
-
-**Ficheiro:** `src/shared/api/services/order.service.ts`
-
-```ts
-import { userApiClient } from "../client";
-import type {
-  Order,
-  CreateOrderDTO,
-  ApiResponse,
-  PaginatedResponse,
-} from "@/shared/types";
-import { OrderStatus } from "@/shared/types/models/order.types";
-
-class OrderService {
-  private readonly basePath = "/orders";
-
-  async getOrders(params: {
-    page?: number;
-    pageSize?: number;
-    status?: string;
-  }): Promise<PaginatedResponse<Order>> {
-    const { data } = await userApiClient.get<PaginatedResponse<Order>>(
-      this.basePath,
-      { params }
-    );
-    return data;
-  }
-
-  async getOrderById(id: string): Promise<Order> {
-    const { data } = await userApiClient.get<ApiResponse<Order>>(
-      `${this.basePath}/${id}`
-    );
-    return data.data;
-  }
-
-  async createOrder(orderData: CreateOrderDTO): Promise<Order> {
-    const { data } = await userApiClient.post<ApiResponse<Order>>(
-      this.basePath,
-      orderData
-    );
-    return data.data;
-  }
-
-  async updateOrderStatus(id: string, status: OrderStatus): Promise<Order> {
-    const { data } = await userApiClient.patch<ApiResponse<Order>>(
-      `${this.basePath}/${id}/status`,
-      { status }
-    );
-    return data.data;
-  }
-
-  async cancelOrder(id: string): Promise<void> {
-    await userApiClient.delete(`${this.basePath}/${id}`);
-  }
-}
-
-export const orderService = new OrderService();
-```
-
-> **Nota:** O tipo `OrderStatus` utilizado em `updateOrderStatus` deve ser importado explicitamente — não está disponível automaticamente no escopo da classe. O import foi adicionado acima.
+| Objetivo                               | Descrição                                                                                                                                                                                     |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Segurança por Design**               | Implementar múltiplas camadas de segurança: autenticação mútua, criptografia de dados em trânsito e em repouso, gerenciamento seguro de certificados, proteção contra ataques comuns (OWASP). |
+| **Confiabilidade e Resiliência**       | Garantir funcionamento contínuo mesmo com conectividade intermitente, sincronização automática de dados quando a conexão é restaurada, recuperação automática de falhas.                      |
+| **Desempenho e Eficiência Energética** | Otimizar o consumo de bateria, minimizar o uso de memória e processamento, garantir latência baixa nas operações críticas.                                                                    |
+| **Escalabilidade**                     | Suportar um grande número de dispositivos (milhões) conectados simultaneamente, escalando horizontalmente a infraestrutura em nuvem.                                                          |
+| **Observabilidade**                    | Fornecer visibilidade completa do estado dos dispositivos, com logs estruturados, métricas de performance, alertas proativos e rastreamento de eventos.                                       |
+| **Manutenibilidade**                   | Permitir atualizações de software de forma segura e transparente (OTA), com rollback automático em caso de falha, facilitando a evolução contínua da plataforma.                              |
+| **Modularidade**                       | Arquitetura baseada em componentes reutilizáveis, permitindo a composição de diferentes tipos de dispositivos com funcionalidades específicas.                                                |
 
 ---
 
-## Implementação de Feature (Exemplo: Orders)
+## 2. Dependências e referências
 
-Demonstração prática da aplicação dos princípios num módulo de negócio.
+> **Nota:** Os links abaixo devem ser atualizados com URLs específicos para cada dependência quando disponíveis na documentação interna.
 
-### Gestão de Estado de Servidor (React Query)
-
-**Ficheiro:** `src/features/orders/user-api/orders.queries.ts`
-
-```ts
-import { useQuery } from "@tanstack/react-query";
-import { orderService } from "@/shared/api/services";
-
-// Query Keys — factory pattern para consistência e type-safety
-export const orderKeys = {
-  all: ["orders"] as const,
-  lists: () => [...orderKeys.all, "list"] as const,
-  list: (filters: Record<string, unknown>) =>
-    [...orderKeys.lists(), filters] as const,
-  details: () => [...orderKeys.all, "detail"] as const,
-  detail: (id: string) => [...orderKeys.details(), id] as const,
-};
-
-// Hook para listar pedidos com paginação
-export const useOrders = (page = 1, pageSize = 10, status?: string) => {
-  return useQuery({
-    queryKey: orderKeys.list({ page, pageSize, status }),
-    queryFn: () => orderService.getOrders({ page, pageSize, status }),
-    staleTime: 5 * 60 * 1000,  // 5 minutos
-    gcTime: 10 * 60 * 1000,    // 10 minutos (antigo cacheTime)
-  });
-};
-
-// Hook para buscar um pedido específico
-export const useOrder = (id: string) => {
-  return useQuery({
-    queryKey: orderKeys.detail(id),
-    queryFn: () => orderService.getOrderById(id),
-    enabled: !!id,
-  });
-};
-```
-
-> **Nota:** O tipo `any` no parâmetro de `list` foi substituído por `Record<string, unknown>` para manter type-safety. Evitar `any` em query keys — queries com chaves mal tipadas causam cache pollution difícil de rastrear.
-
-**Ficheiro:** `src/features/orders/user-api/orders.mutations.ts`
-
-```ts
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { orderService } from "@/shared/api/services";
-import type { CreateOrderDTO } from "@/shared/types";
-import { toast } from "@/shared/components/feedback/Toast";
-import { orderKeys } from "./orders.queries";
-
-export const useCreateOrder = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateOrderDTO) => orderService.createOrder(data),
-    onMutate: async (_newOrder) => {
-      // Cancelar queries em curso para evitar sobrescrever o optimistic update
-      await queryClient.cancelQueries({ queryKey: orderKeys.lists() });
-    },
-    onError: (_err, _newOrder, _context) => {
-      toast.error("Erro ao criar pedido.");
-    },
-    onSuccess: () => {
-      // Invalida cache para forçar refetch da lista
-      queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      toast.success("Pedido criado com sucesso!");
-    },
-  });
-};
-```
-
-> **Notas:**
-> - O import de `useQuery` foi removido — este ficheiro contém apenas mutations. Imports não utilizados devem ser eliminados.
-> - Os parâmetros não utilizados nos callbacks (`err`, `newOrder`, `context`) foram prefixados com `_` para suprimir avisos do TypeScript sem remover a assinatura.
-> - O `onMutate` foi completado com `cancelQueries` — padrão recomendado pelo TanStack Query para evitar race conditions.
-
-### Componentes da Feature
-
-Aqui são declarados os componentes da respetiva feature (orders), as interfaces, os seus comportamentos e chamadas.
-
-**Ficheiro:** `src/features/orders/pages/OrdersPage.tsx`
-
-```tsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useOrders } from "../user-api/orders.queries";
-import { OrderList } from "../components/OrderList";
-import { OrderFilters } from "../components/OrderFilters";
-import { Pagination } from "@/shared/components/ui/Pagination";
-import { Button } from "@/shared/components/ui/Button";
-import { PlusIcon } from "@/shared/components/icons";
-
-export const OrdersPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [page, setPage] = useState(1);
-  const [status, setStatus] = useState<string>("");
-
-  const { data, isLoading, error } = useOrders(page, 10, status);
-
-  if (error) {
-    return (
-      <div role="alert" className="alert alert-error">
-        Erro ao carregar pedidos. Por favor, tente novamente.
-      </div>
-    );
-  }
-
-  return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Meus Pedidos</h1>
-        <Button
-          onClick={() => navigate("/orders/new")}
-          leftIcon={<PlusIcon />}
-          aria-label="Criar novo pedido"
-        >
-          Novo Pedido
-        </Button>
-      </div>
-
-      <OrderFilters onStatusChange={setStatus} currentStatus={status} />
-
-      <OrderList
-        orders={data?.items || []}
-        isLoading={isLoading}
-        onOrderClick={(order) => navigate(`/orders/${order.id}`)}
-      />
-
-      {data && data.total > 10 && (
-        <Pagination
-          currentPage={page}
-          totalPages={Math.ceil(data.total / 10)}
-          onPageChange={setPage}
-        />
-      )}
-    </div>
-  );
-};
-```
-
-> **Acessibilidade:** `role="alert"` adicionado no bloco de erro para que leitores de ecrã anunciem a mensagem imediatamente. `aria-label` adicionado no botão com ícone para garantir descrição semântica adequada.
-
-**Ficheiro:** `src/features/orders/components/OrderList/OrderList.tsx`
-
-```tsx
-import React, { memo } from "react";
-import { OrderCard } from "../OrderCard";
-import { LoadingState } from "@/shared/components/feedback/LoadingState";
-import { EmptyState } from "@/shared/components/feedback/EmptyState";
-import { ErrorBoundary } from "@/shared/components/feedback/ErrorBoundary";
-import type { Order } from "@/shared/types";
-
-interface OrderListProps {
-  orders: Order[];
-  isLoading?: boolean;
-  onOrderClick?: (order: Order) => void;
-}
-
-export const OrderList = memo<OrderListProps>(
-  ({ orders, isLoading, onOrderClick }) => {
-    if (isLoading) {
-      return <LoadingState message="A carregar pedidos..." />;
-    }
-
-    if (!orders || orders.length === 0) {
-      return (
-        <EmptyState
-          title="Nenhum pedido encontrado"
-          description="Ainda não existem pedidos realizados."
-          action={{
-            label: "Fazer primeiro pedido",
-            onClick: () => navigate("/products"),
-          }}
-        />
-      );
-    }
-
-    return (
-      <ErrorBoundary fallback={<p role="alert">Erro ao carregar lista de pedidos.</p>}>
-        <div
-          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-          role="list"
-          aria-label="Lista de pedidos"
-        >
-          {orders.map((order) => (
-            <OrderCard
-              key={order.id}
-              order={order}
-              onClick={() => onOrderClick?.(order)}
-            />
-          ))}
-        </div>
-      </ErrorBoundary>
-    );
-  }
-);
-
-OrderList.displayName = "OrderList";
-```
-
-> **Notas:**
-> - `window.location.href` substituído por `navigate("/products")` — a navegação imperativa deve usar o router para preservar o histórico e evitar reload completo da página.
-> - `role="list"` e `aria-label` adicionados na grid de pedidos para semântica de lista acessível.
-> - O `fallback` do `ErrorBoundary` foi convertido de string para elemento JSX com `role="alert"`.
+- Android (AOSP / Android Embedded)
+- MQTT Broker + Device Registry/Provisioning
+- Backend APIs + IAM (OAuth2/OIDC)
+- OTA service / artifact repository
+- Observability stack (OTel/Prometheus/Grafana)
+- Secrets manager / Key Vault
 
 ---
 
-## Gestão de Estado Global (Zustand)
+## 3. Regras de Utilização
 
-Implementação de *stores* para estados de cliente que necessitam ser acessíveis globalmente.
+Cada tipologia terá abordados aspetos específicos da tipologia, incluindo, sempre que aplicável, referências a diretrizes, padrões gerais e boas práticas.
 
-**Ficheiro:** `src/shared/store/zustand/orders.store.ts`
-
-```ts
-import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
-import type { Order } from "@/shared/types";
-
-interface OrdersState {
-  // State
-  selectedOrder: Order | null;
-  filters: {
-    status: string;
-    dateRange: [Date | null, Date | null];
-    search: string;
-  };
-
-  // Actions
-  setSelectedOrder: (order: Order | null) => void;
-  updateFilters: (filters: Partial<OrdersState["filters"]>) => void;
-  resetFilters: () => void;
-}
-
-const initialFilters: OrdersState["filters"] = {
-  status: "",
-  dateRange: [null, null],
-  search: "",
-};
-
-export const useOrdersStore = create<OrdersState>()(
-  devtools(
-    persist(
-      (set) => ({
-        // State
-        selectedOrder: null,
-        filters: initialFilters,
-
-        // Actions
-        setSelectedOrder: (order) =>
-          set({ selectedOrder: order }, false, "setSelectedOrder"),
-
-        updateFilters: (filters) =>
-          set(
-            (state) => ({
-              filters: { ...state.filters, ...filters },
-            }),
-            false,
-            "updateFilters"
-          ),
-
-        resetFilters: () =>
-          set({ filters: initialFilters }, false, "resetFilters"),
-      }),
-      {
-        name: "orders-storage",
-        partialize: (state) => ({ filters: state.filters }),
-      }
-    )
-  )
-);
-```
-
-> **Nota:** O tipo de `initialFilters` foi corrigido — o cast `as [null, null]` foi removido e o tipo explícito `OrdersState["filters"]` foi adicionado à constante, o que é mais seguro e legível.
+Este documento não é um conjunto de regras inflexíveis, mas sim um guia de "fortes recomendações". Desvios são permitidos, mas devem ser justificados, documentados em uma ADR (Architecture Decision Record) e aprovados pelo Comitê de Arquitetura.
 
 ---
 
-## Validação e Formulários (Zod + React Hook Form)
+## 4. Arquitetura da Tipologia
 
-Utilização de Zod para definição de esquemas (*Single Source of Truth* para validação).
+A arquitetura é decomposta em três camadas principais: **Camada de Dispositivo** (Android Embedded), **Camada de Comunicação** (APIs e Mensageria), e **Camada de Nuvem** (Serviços Backend). Cada camada é responsável por funcionalidades específicas e se comunica através de protocolos bem definidos.
 
-**Ficheiro:** `src/features/orders/schemas/order.schema.ts`
+### 4.1. Diagrama de Contexto do Sistema
 
-```ts
-import { z } from "zod";
+_[Diagrama de contexto disponível no repositório: docs/diagrams/context-diagram.png]_
 
-export const createOrderItemSchema = z.object({
-  productId: z.string().uuid("ID do produto inválido"),
-  quantity: z
-    .number()
-    .min(1, "Quantidade deve ser maior que zero")
-    .max(100, "Quantidade máxima excedida"),
-  unitPrice: z.number().positive("Preço deve ser positivo"),
-});
+### 4.2. Arquitetura no dispositivo
 
-export const createOrderSchema = z.object({
-  customerId: z.string().uuid("ID do cliente inválido"),
-  items: z
-    .array(createOrderItemSchema)
-    .min(1, "Pedido deve ter pelo menos um item")
-    .max(50, "Limite de itens por pedido excedido"),
-  deliveryAddress: z.object({
-    street: z.string().min(3, "Endereço muito curto"),
-    number: z.string().min(1, "Número obrigatório"),
-    complement: z.string().optional(),
-    city: z.string().min(2, "Cidade obrigatória"),
-    state: z.string().length(2, "Estado deve ter 2 caracteres"),
-    zipCode: z.string().regex(/^\d{8}$/, "CEP inválido"),
-  }),
-  paymentMethod: z.enum(["CREDIT_CARD", "PIX", "BOLETO"]),
-  notes: z.string().max(500, "Observações muito longas").optional(),
-});
+A arquitetura do dispositivo segue um modelo em camadas que separa as responsabilidades entre o firmware de baixo nível, a camada de abstração de hardware (HAL), os serviços de sistema e as aplicações.
 
-export type CreateOrderInput = z.infer<typeof createOrderSchema>;
-export type CreateOrderItemInput = z.infer<typeof createOrderItemSchema>;
-```
+| Componente                     | Descrição                                                                                                                                       |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Firmware Customizado**       | Sistema operacional Android Embedded otimizado para o hardware específico, com suporte a atualizações OTA seguras.                              |
+| **Hardware Abstraction Layer** | Interface padronizada que abstrai as diferenças de hardware, permitindo portabilidade entre diferentes dispositivos.                            |
+| **Serviços de Sistema**        | Serviços essenciais como gerenciamento de conectividade, sincronização de dados, autenticação local e gerenciamento de energia.                 |
+| **Aplicações de Negócio**      | Aplicações específicas do domínio (ex: controle de eletrodoméstico, ponto de venda, monitoramento de loja) que implementam a lógica de negócio. |
+| **Local Database**             | Banco de dados local (SQLite ou similar) para armazenamento de dados offline e sincronização posterior.                                         |
+| **Message Queue Local**        | Fila local para armazenar mensagens quando offline, sincronizando quando a conectividade é restaurada.                                          |
 
-**Ficheiro:** `src/features/orders/components/OrderForm/OrderForm.tsx`
+### 4.2.1. Camadas
 
-```tsx
-import React from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  createOrderSchema,
-  type CreateOrderInput,
-} from "../../schemas/order.schema";
-import { useCreateOrder } from "../../user-api/orders.mutations";
-import { Button } from "@/shared/components/ui/Button";
-import { Input } from "@/shared/components/ui/Input";
-import { Select } from "@/shared/components/ui/Select";
+Cada aplicação no dispositivo segue o padrão **MVVM (Model-View-ViewModel)** para separação de responsabilidades e facilitar testes:
 
-export const OrderForm: React.FC = () => {
-  const createOrder = useCreateOrder();
+- **Model:** Camada de dados, incluindo acesso ao banco de dados local e APIs remotas.
+- **View:** Interface do utilizador (Activities, Fragments).
+- **ViewModel:** Lógica de apresentação, gerenciamento de estado e comunicação entre View e Model.
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<CreateOrderInput>({
-    resolver: zodResolver(createOrderSchema),
-    defaultValues: {
-      items: [{ productId: "", quantity: 1, unitPrice: 0 }],
-    },
-  });
+### 4.3. Comunicação
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "items",
-  });
+A comunicação entre dispositivos e serviços em nuvem é realizada através de múltiplos canais para garantir flexibilidade, confiabilidade e eficiência.
 
-  const onSubmit = async (data: CreateOrderInput) => {
-    try {
-      await createOrder.mutateAsync(data);
-      reset();
-    } catch (error) {
-      // Erro já tratado pelo onError da mutation (toast)
-      console.error("Erro ao criar pedido:", error);
-    }
-  };
+| Protocolo | Uso                                                                                                       | Características                                     |
+| --------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **MQTT**  | Comunicação assíncrona, publish-subscribe, ideal para IoT com conectividade intermitente.                 | Leve, suporta QoS, reconexão automática.            |
+| **HTTPS** | Chamadas síncronas para operações que requerem resposta imediata, como autenticação e consultas de dados. | Seguro, confiável, amplamente suportado.            |
+| **gRPC**  | Comunicação de alta performance entre serviços internos (opcional, para casos de baixa latência).         | Bidirecional, multiplexing, serialização eficiente. |
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
-      {/* Customer ID */}
-      <div>
-        <label htmlFor="customerId" className="block text-sm font-medium mb-1">
-          ID do Cliente
-        </label>
-        <Input
-          id="customerId"
-          {...register("customerId")}
-          error={errors.customerId?.message}
-          placeholder="Digite o ID do cliente"
-          aria-describedby={errors.customerId ? "customerId-error" : undefined}
-        />
-        {errors.customerId && (
-          <span id="customerId-error" role="alert" className="text-sm text-red-600">
-            {errors.customerId.message}
-          </span>
-        )}
-      </div>
+### 4.4. Fluxo de Comunicação
 
-      {/* Items */}
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <label className="block text-sm font-medium">Itens do Pedido</label>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => append({ productId: "", quantity: 1, unitPrice: 0 })}
-          >
-            Adicionar Item
-          </Button>
-        </div>
+_[Diagrama de fluxo de comunicação disponível no repositório: docs/diagrams/communication-flow.png]_
 
-        {fields.map((field, index) => (
-          <div key={field.id} className="flex gap-2 mb-2">
-            <Input
-              {...register(`items.${index}.productId`)}
-              placeholder="ID do Produto"
-              error={errors.items?.[index]?.productId?.message}
-              aria-label={`ID do produto, item ${index + 1}`}
-            />
-            <Input
-              {...register(`items.${index}.quantity`, { valueAsNumber: true })}
-              type="number"
-              placeholder="Qtd"
-              error={errors.items?.[index]?.quantity?.message}
-              aria-label={`Quantidade, item ${index + 1}`}
-            />
-            <Button
-              type="button"
-              variant="danger"
-              size="sm"
-              onClick={() => remove(index)}
-              disabled={fields.length === 1}
-              aria-label={`Remover item ${index + 1}`}
-            >
-              Remover
-            </Button>
-          </div>
-        ))}
-      </div>
+### 4.5. Offline-First
 
-      {/* Payment Method */}
-      <div>
-        <label htmlFor="paymentMethod" className="block text-sm font-medium mb-1">
-          Método de Pagamento
-        </label>
-        <Select
-          id="paymentMethod"
-          {...register("paymentMethod")}
-          error={errors.paymentMethod?.message}
-        >
-          <option value="">Selecione...</option>
-          <option value="CREDIT_CARD">Cartão de Crédito</option>
-          <option value="PIX">PIX</option>
-          <option value="BOLETO">Boleto</option>
-        </Select>
-      </div>
+> Referência completa do padrão: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5212340226
 
-      {/* Submit */}
-      <div className="flex gap-2">
-        <Button type="submit" isLoading={isSubmitting || createOrder.isPending}>
-          Criar Pedido
-        </Button>
-        <Button type="button" variant="secondary" onClick={() => reset()}>
-          Limpar
-        </Button>
-      </div>
-    </form>
-  );
-};
-```
+O dispositivo implementa um modelo Offline-First que permite operação contínua mesmo sem conectividade:
 
-> **Notas:**
-> - Erro de sintaxe corrigido: `{...register(`items[${index}].productId`)}` → `` `items.${index}.productId` `` — React Hook Form usa notação de ponto, não de colchetes, para `useFieldArray`.
-> - O caminho do import de `useCreateOrder` foi corrigido de `../../userApi/orders.mutation` para `../../user-api/orders.mutations` (consistente com o restante do projeto).
-> - `label` com `htmlFor` e `id` adicionados nos campos de formulário para associação semântica correta (acessibilidade).
-> - `aria-label` adicionado nos inputs dinâmicos de itens (sem label visível associada).
-> - `noValidate` adicionado no `<form>` para desativar validação nativa do browser e delegar inteiramente ao Zod/RHF.
+1. **Operações Locais:** Todas as operações são executadas localmente no banco de dados do dispositivo.
+2. **Fila de Sincronização:** Mudanças são enfileiradas para sincronização posterior.
+3. **Sincronização Automática:** Quando a conectividade é restaurada, as mudanças são sincronizadas com o servidor.
+4. **Resolução de Conflitos:** A estratégia de resolução de conflitos deve ser definida por tipo de dado em ADR específico, seguindo as diretrizes abaixo:
+   - **Dados de configuração** → Last-Write-Wins
+   - **Dados transacionais** → Merge semântico ou intervenção manual
+   - **Telemetria** → Append-only, sem conflitos
+
+### 4.6. Testes
+
+#### 4.6.1. Unitários
+
+Para garantir a qualidade e a manutenibilidade do código no dispositivo Android Embedded, a estratégia de testes unitários é fundamental. Todos os novos desenvolvimentos de lógica de negócio e componentes de aplicação devem ser acompanhados de testes unitários correspondentes.
+
+#### 4.6.2. Frameworks de Teste
+
+**JUnit:** É o framework padrão para a escrita de testes unitários em Java e Kotlin. Os testes serão estruturados utilizando as anotações do JUnit (`@Test`, `@BeforeEach`, `@AfterEach`, etc.) para definir o ciclo de vida e a execução dos casos de teste.
+
+**Mockito Core:** Para isolar os componentes sob teste, o Mockito será utilizado para criar mocks e stubs de dependências, como acesso a banco de dados, chamadas de rede ou interações com o sistema Android. Permite testar a lógica de uma unidade de forma isolada, sem depender de componentes externos.
+
+#### 4.6.3. Estratégia de Testes para Dispositivos
+
+Para cobrir riscos específicos de dispositivos embedded não detectáveis por testes unitários, a estratégia de testes deve incluir:
+
+1. **Testes de integração** com emulador de MQTT broker (ex: Mosquitto em ambiente de CI).
+2. **Testes de condições de rede** simulando latência, packet loss e desconexão abrupta, para validar o comportamento offline-first e a fila de sincronização.
+3. **Testes de consumo de bateria e memória** em hardware real, executados antes de cada release com thresholds definidos por modelo de dispositivo.
+4. **Testes de OTA** em ambiente controlado (canary interno) antes de qualquer rollout para produção.
 
 ---
 
-## Roteamento e Guards de Autenticação
+## 5. Estrutura do Projeto
 
-### Estrutura de Rotas e Lazy Loading
+> **Nota:** A estrutura abaixo é um exemplo de referência — adaptar conforme o contexto de projeto específico.
 
-A configuração do router deve utilizar *Dynamic Imports* (Lazy Loading) para *Code Splitting*, garantindo que o JavaScript seja carregado apenas quando necessário.
-
-**Ficheiro:** `src/app/router/AppRouter.tsx`
-
-```tsx
-import { Routes, Route, Navigate } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import { AuthGuard } from "./guards/AuthGuard";
-import { PublicRoute } from "./guards/PublicRoute";
-import { RoleGuard } from "./guards/RoleGuard";
-import { MainLayout } from "../layouts/MainLayout";
-import { AuthLayout } from "../layouts/AuthLayout";
-import { LoadingScreen } from "@/shared/components/feedback/LoadingScreen";
-
-// Lazy loading das páginas
-const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"));
-const RegisterPage = lazy(() => import("@/features/auth/pages/RegisterPage"));
-const ForgotPasswordPage = lazy(
-  () => import("@/features/auth/pages/ForgotPasswordPage")
-);
-const DashboardPage = lazy(
-  () => import("@/features/dashboard/pages/DashboardPage")
-);
-const OrdersPage = lazy(() => import("@/features/orders/pages/OrdersPage"));
-const OrderDetailsPage = lazy(
-  () => import("@/features/orders/pages/OrderDetailsPage")
-);
-const CreateOrderPage = lazy(
-  () => import("@/features/orders/pages/CreateOrderPage")
-);
-const ProfilePage = lazy(() => import("@/features/profile/pages/ProfilePage"));
-const SettingsPage = lazy(() => import("@/features/settings/pages/SettingsPage"));
-const AdminDashboard = lazy(
-  () => import("@/features/admin/pages/AdminDashboard")
-);
-const UsersManagement = lazy(
-  () => import("@/features/admin/pages/UsersManagement")
-);
-const ReportsPage = lazy(() => import("@/features/admin/pages/ReportsPage"));
-const NotFoundPage = lazy(() => import("@/shared/pages/NotFoundPage"));
-
-export const AppRouter = () => {
-  return (
-    <Suspense fallback={<LoadingScreen />}>
-      <Routes>
-        {/* Rotas Públicas */}
-        <Route element={<PublicRoute />}>
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          </Route>
-        </Route>
-
-        {/* Rotas Protegidas */}
-        <Route element={<AuthGuard />}>
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-
-            {/* Rotas de Pedidos */}
-            <Route path="/orders">
-              <Route index element={<OrdersPage />} />
-              <Route path=":orderId" element={<OrderDetailsPage />} />
-              <Route path="new" element={<CreateOrderPage />} />
-            </Route>
-
-            {/* Rotas de Perfil */}
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-
-            {/* Rotas com Permissões Específicas */}
-            <Route element={<RoleGuard allowedRoles={["admin", "manager"]} />}>
-              <Route path="/admin">
-                <Route index element={<AdminDashboard />} />
-                <Route path="users" element={<UsersManagement />} />
-                <Route path="reports" element={<ReportsPage />} />
-              </Route>
-            </Route>
-          </Route>
-        </Route>
-
-        {/* 404 */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Suspense>
-  );
-};
+```
+sonae-iot-reference-platform/
+│
+├── device-android-embedded/
+│   ├── app/
+│   │   ├── src/
+│   │   |   ├── main/
+│   │   │   └── /java/com/sonae/device/
+│   │   │       ├── data/
+│   │   │       ├── domain/
+│   │   │       ├── ui/
+│   │   │       ├── App.kt
+│   │   |       ├── /core/
+│   │   │   │     ├── mqtt/
+│   │   │   │     ├── security/
+│   │   │   │     ├── sync/
+│   │   │   └── res/
+│   │   |   └── AndroidManifest.xml
+|   |   |   └── test/
+│   └── README.md
+│
+│
+├── infra/
+│   ├── k8s/
+│   ├── terraform/
+│   └── observability/
+│
+├── docs/
+│   ├── architecture.md
+│   ├── adr/
+│   └── diagrams/
+│
+└── README.md
 ```
 
-> **Notas:**
-> - Todos os componentes usados em `<Route element={...}>` que estavam referenciados mas sem `lazy()` declarado foram adicionados (`ForgotPasswordPage`, `CreateOrderPage`, `SettingsPage`, `AdminDashboard`, `UsersManagement`, `ReportsPage`). Componentes não importados causam erro de compilação.
-> - `RoleGuard` foi adicionado aos imports — estava a ser usado mas não importado.
-
-### Route Guards
-
-Middlewares de proteção de rota que verificam o estado de autenticação antes de renderizar componentes filhos.
-
-**Ficheiro:** `src/app/router/guards/AuthGuard.tsx`
-
-```tsx
-import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuthStore } from "@/shared/stores/auth.store";
-
-export const AuthGuard = () => {
-  const location = useLocation();
-  const { isAuthenticated, checkAuth } = useAuthStore();
-
-  if (!checkAuth() || !isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
-  }
-
-  return <Outlet />;
-};
-```
-
-> **Nota:** O nome do ficheiro foi corrigido de `PermissionGuard.tsx` para `AuthGuard.tsx` — o componente exportado chama-se `AuthGuard` e o ficheiro deve ter o mesmo nome para consistência e para que os imports automáticos funcionem corretamente.
+| **Diretório / Módulo**              | **Responsabilidade Primária**                                           |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| / (root)                            | Raiz do repositório, documentação geral e visão unificada da plataforma |
+| docs/                               | Documentação arquitetural e de governança                               |
+| docs/architecture.md                | Descrição da arquitetura de alto nível (C4, camadas, fluxos)            |
+| docs/adr/                           | Architecture Decision Records (decisões arquiteturais e desvios)        |
+| docs/diagrams/                      | Diagramas C4, sequência, contexto e containers                          |
+| device-android-embedded/            | Código-fonte do dispositivo Android Embedded                            |
+| device-android-embedded/app/        | Aplicação Android principal                                             |
+| app/src/main/                       | Código principal do aplicativo                                          |
+| app/src/main/java/com/sonae/device/ | Namespace base da aplicação                                             |
+| core/                               | Componentes centrais e reutilizáveis do dispositivo                     |
+| core/mqtt/                          | Comunicação MQTT (telemetria, comandos, eventos)                        |
+| core/sync/                          | Sincronização offline-first e fila local                                |
+| core/security/                      | Autenticação, tokens, keystore e pinning                                |
+| core/ota/                           | Cliente OTA e verificação de updates                                    |
+| data/                               | Acesso a dados (Room DB, APIs remotas, repositórios)                    |
+| domain/                             | Regras de negócio e modelos de domínio                                  |
+| ui/                                 | Camada de apresentação (Views / ViewModels – MVVM)                      |
 
 ---
 
-## Estratégia de Testes
+## 6. Tecnologias Utilizadas
 
-### Testes Unitários (Lógica Pura)
+| **Categoria**       | **Tecnologia (com versão)** | **Observações**                            |
+| ------------------- | --------------------------- | ------------------------------------------ |
+| Sistema Operacional | Android Embedded (AOSP)     | Build customizado para hardware específico |
+| Linguagem           | Kotlin (1.9+)               | Linguagem oficial Android                  |
+| Arquitetura         | MVVM                        | Separação View / ViewModel / Model         |
+| UI                  | Android Views / Jetpack     | UI nativa, baixo overhead                  |
+| Mensageria          | MQTT (Eclipse Paho 1.2+)    | Comunicação assíncrona IoT                 |
+| Transporte Seguro   | TLS 1.3                     | Criptografia de dados em trânsito          |
+| Autenticação        | JWT                         | Tokens emitidos pelo backend               |
+| Persistência Local  | SQLite / Room (2.6+)        | Base offline-first                         |
+| Sincronização       | WorkManager (2.9+)          | Execução resiliente em background          |
+| Fila Local          | Custom Queue                | Eventos offline para sincronização         |
 
-Focados em funções utilitárias, hooks e regras de negócio isoladas.
+## 7. Segurança
 
-**Ficheiro:** `src/shared/utils/formatters/currency.test.ts`
+A segurança é implementada em múltiplas camadas, seguindo o princípio de **Defense in Depth**.
 
-```ts
-import { describe, it, expect } from "vitest";
-import { formatCurrency } from "./currency";
+> Definições Globais: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5217517761
 
-describe("formatCurrency", () => {
-  it("should format BRL currency correctly", () => {
-    expect(formatCurrency(1234.56, "BRL")).toBe("R$ 1.234,56");
-  });
+### 7.1. Componentes de Segurança
 
-  it("should handle zero values", () => {
-    expect(formatCurrency(0, "BRL")).toBe("R$ 0,00");
-  });
+| Componente                              | Descrição                                                                                         |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Secure Boot**                         | Verifica integridade do firmware antes da execução, impedindo execução de código não autorizado.  |
+| **Trusted Execution Environment (TEE)** | Ambiente isolado para executar operações criptográficas sensíveis, protegido do SO principal.     |
+| **Keystore Seguro**                     | Armazenamento seguro de chaves privadas e certificados, inacessível a aplicações não autorizadas. |
+| **TLS 1.3**                             | Criptografia de dados em trânsito, com suporte a Perfect Forward Secrecy.                         |
+| **Certificate Pinning**                 | Validação de certificados do servidor, prevenindo ataques Man-in-the-Middle.                      |
+| **Autenticação Mútua**                  | Dispositivo e servidor se autenticam mutuamente usando certificados X.509.                        |
+| **JWT Tokens**                          | Tokens de sessão com claims, permitindo autorização granular.                                     |
+| **RBAC/ABAC**                           | Controle de acesso baseado em roles ou atributos, granular e flexível.                            |
 
-  it("should handle negative values", () => {
-    expect(formatCurrency(-100, "BRL")).toBe("-R$ 100,00");
-  });
-});
-```
+### 7.2. Requisitos Mínimos de Segurança para Dispositivos IoT
 
-> **Nota:** A extensão do ficheiro foi corrigida de `.test.tsx` para `.test.ts` — este ficheiro não contém JSX, pelo que `.tsx` é desnecessário e pode gerar avisos de linting.
+Os seguintes requisitos são **obrigatórios** para todos os dispositivos. Desvios devem ser documentados em ADR e aprovados pelo Comitê de Arquitetura.
 
-### Testes de Componentes (Interação)
+1. **Secure Boot** obrigatório em todos os dispositivos antes de saírem de fábrica.
+2. **Certificados X.509** armazenados em Keystore de hardware (Secure Element ou TEE) — nunca em armazenamento de software.
+3. **TLS 1.3** para todas as comunicações de rede, sem exceções.
+4. **Certificate Pinning** para todas as APIs e brokers MQTT críticos.
+5. **Rotação automática de certificados** antes da expiração (mínimo 30 dias de antecedência, via OTA).
+6. **Detecção de root/tamper** ativa, com resposta definida: desconexão do broker, notificação ao Device Registry e bloqueio de operações sensíveis.
 
-Focados no comportamento do utilizador e acessibilidade, utilizando *Testing Library*.
+### 7.3. Fluxo de Provisionamento e Ciclo de Vida de Certificados
 
-**Ficheiro:** `src/shared/components/ui/Button/Button.test.tsx`
-
-```ts
-import { render, screen, fireEvent } from "@testing-library/react";
-import { vi } from "vitest";
-import { Button } from "./Button";
-
-describe("Button", () => {
-  it("renders correctly", () => {
-    render(<Button>Click me</Button>);
-    expect(screen.getByRole("button", { name: "Click me" })).toBeInTheDocument();
-  });
-
-  it("handles click events", () => {
-    const handleClick = vi.fn();
-    render(<Button onClick={handleClick}>Click me</Button>);
-
-    fireEvent.click(screen.getByRole("button", { name: "Click me" }));
-    expect(handleClick).toHaveBeenCalledTimes(1);
-  });
-
-  it("shows loading state and disables button", () => {
-    render(<Button isLoading>Submit</Button>);
-    expect(screen.getByRole("button")).toBeDisabled();
-  });
-
-  it("is accessible with screen readers", () => {
-    render(<Button aria-label="Criar pedido">+</Button>);
-    expect(
-      screen.getByRole("button", { name: "Criar pedido" })
-    ).toBeInTheDocument();
-  });
-});
-```
-
-> **Notas:**
-> - `screen.getByText("Click me")` substituído por `screen.getByRole("button", { name: "Click me" })` — query mais robusta e alinhada com boas práticas de Testing Library (queries por role são preferidas).
-> - Adicionado teste de acessibilidade com `aria-label` para validar componentes com ícones ou labels não textuais.
+1. Device Registry gera par de chaves e certificado X.509 para o dispositivo.
+2. Certificado injetado em fábrica via Secure Element ou fluxo seguro de fabricação.
+3. Na primeira inicialização, o dispositivo autentica no Device Registry com o certificado de fábrica.
+4. Rotação automática de certificados via OTA antes da expiração (mínimo 30 dias de antecedência).
+5. Em caso de comprometimento, revogação imediata via Device Registry com bloqueio de todos os canais de comunicação do dispositivo.
 
 ---
 
-## Performance por Defeito
+## 8. Infraestrutura
 
-A performance não é uma etapa de otimização tardia — é um requisito funcional contínuo.
+Os serviços em nuvem são implantados em um cluster Kubernetes, gerenciados via IaC.
 
-### Diretrizes Mandatórias
+### 8.1. Topologia de Implantação
 
-**Eliminação de Efeitos Colaterais no Render:**
+_[Diagrama de topologia disponível no repositório: docs/diagrams/deployment-topology.png]_
 
-Proibido realizar processamento pesado, *parsing* de dados ou formatações complexas dentro de `useEffect` apenas para derivar estado.
+### 8.2. Atualização de Software (OTA)
 
-```ts
-// ❌ Não fazer: useEffect desnecessário para derivar estado
-useEffect(() => {
-  const sorted = items.sort((a, b) => a.date.localeCompare(b.date));
-  setSorted(sorted);
-}, [items]);
-```
+As atualizações de software são críticas para manter a segurança e a funcionalidade dos dispositivos. A arquitetura OTA implementa um processo seguro e confiável, incluindo verificação de integridade, rollback automático e suporte à rotação de certificados.
 
-```ts
-// ✅ Correto: derivar diretamente no render com useMemo
-const sorted = useMemo(
-  () => [...items].sort((a, b) => a.date.localeCompare(b.date)),
-  [items]
-);
-```
+### 8.3. Estratégia de Rollout
 
-> **Atenção:** Nunca mutar o array original (`items.sort(...)` muta in-place). Usar sempre spread (`[...items]`) antes de ordenar.
+A estratégia de rollout segue um modelo de implantação gradual:
 
-**Gestão de Eventos de Alta Frequência:**
+1. **Canary Release:** 5% dos dispositivos recebem a atualização primeiro.
+2. **Monitoramento:** Métricas de erro e performance são coletadas.
+3. **Rollout Progressivo:** Se tudo estiver bem, aumentar para 25%, depois 50%, depois 100%.
+4. **Rollback Automático:** Se a taxa de erro ultrapassar um limite, fazer rollback automático.
 
-Eventos como `onChange`, `onScroll` ou `onResize` devem utilizar técnicas de *Debounce* ou *Throttle*. Evitar armazenar cada *keystroke* no estado global (Redux/Context), preferindo estado local ou *uncontrolled components*.
+> Para frotas com mais de 1.000 dispositivos, a segmentação de rollout por região, modelo de dispositivo e versão de firmware atual é obrigatória. Definir grupos de rollout em ADR específico.
 
-**Memoização:**
+### 8.4. Gerenciamento de Configuração e Segredos
 
-- `React.memo`: utilizar em componentes de apresentação puros que recebem props primitivas.
-- `useCallback`: utilizar estritamente para funções passadas como props para filhos memoizados.
-- `useMemo`: utilizar quando o custo computacional da derivação justificar (evitar uso excessivo — memoização tem custo próprio).
+- **Configurações:** Externalizadas em ConfigMaps do Kubernetes e injetadas nos Pods como variáveis de ambiente.
+- **Segredos:** Credenciais de acesso (MQTT, banco de dados, APIs) serão gerenciadas por um Key Vault e montadas de forma segura nos Pods utilizando o driver CSI do Key Vault.
 
-**Carregamento Assíncrono (Lazy Loading):**
+### 8.5. Ciclo de Vida de Dispositivos
 
-```ts
-// Segmentação de bundles por rota e componentes pesados
-const OrdersPage = lazy(() => import("@/features/orders/pages/OrdersPage"));
-const HeavyChart = lazy(() => import("@/shared/components/charts/HeavyChart"));
-```
+O ciclo de vida completo do dispositivo deve ser gerenciado pelo Device Registry, cobrindo as seguintes fases:
 
-Aplicar a componentes pesados como gráficos, mapas e tabelas com grande volume de dados.
-
-### Anti-Patterns de Performance
-
-- Chamadas de API (`fetch`) manuais dentro de `useEffect` — usar TanStack Query.
-- Duplicação de estado (manter a mesma informação sincronizada em servidor e cliente sem necessidade).
-- Definição de objetos, arrays ou funções literais dentro do render de componentes que são dependências de `useEffect` (causam re-renders infinitos).
+- **Provisionamento:** conforme fluxo descrito na Secção 7.3.
+- **Operação:** monitoramento contínuo via stack de observabilidade (Secção 10).
+- **Decommissioning:** limpeza segura de dados sensíveis (chaves, PII, tokens) antes do descarte físico.
+- **Transferência de Propriedade:** revogação de certificados do tenant anterior e novo provisionamento antes da ativação no novo tenant.
 
 ---
 
-## Estado Previsível, Rastreável e Sem Prop Drilling
+## 9. Padrões Arquiteturais Adotados
 
-O estado deve ser fácil de entender, fácil de rastrear e impossível de manter duplicado.
+### 9.1. Event-Driven Architecture
 
-### Eliminação de Prop Drilling
+Arquitetura orientada a eventos: componentes comunicam-se através de eventos assíncronos, reduzindo acoplamento e aumentando resiliência. Dispositivos publicam eventos de telemetria e estado via MQTT; o backend consome e reage de forma assíncrona.
 
-O repasse de props através de múltiplos níveis de componentes (*Prop Drilling*) indica uma falha de design ou necessidade de composição.
+> Referência: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5212340226
 
-**Cenário inadequado (alto acoplamento):**
+### 9.2. CQRS (Command Query Responsibility Segregation)
 
-```tsx
-// ❌ Prop drilling — cria acoplamento e re-renders em cascata
-<Home user={user} />
-// Home → Dashboard → Sidebar → UserAvatar (todos recebem e repassam user)
-```
+Separação entre operações de escrita (Commands) e leitura (Queries). No contexto IoT: comandos enviados aos dispositivos via MQTT (ex: atualizar configuração), consultas de estado via API REST.
 
-**Solução arquitetural (Context Composition):**
+> Referência: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5212340226
 
-**1. Definição do Contexto:**
+### 9.3. MVVM (Mobile)
 
-```tsx
-import { createContext, useContext, useState, ReactNode } from "react";
+Padrão Model-View-ViewModel para aplicações Android. Separa a lógica de negócio (Model), a lógica de apresentação (ViewModel) e a interface do utilizador (View), facilitando testes unitários e manutenibilidade.
 
-type User = { id: string; name: string };
+> Referência: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5212340226
 
-const UserContext = createContext<User | null>(null);
+### 9.4. Offline-First
 
-export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user] = useState<User>({ id: "1", name: "Matheus" });
+Todas as operações são executadas localmente primeiro; sincronização com o servidor é realizada quando a conectividade está disponível. Estratégias de resolução de conflitos por tipo de dado devem ser definidas em ADR (ver Secção 4.5).
 
-  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
-};
+> Referência: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5212340226
 
-// Hook para consumir de forma limpa — lança erro se usado fora do Provider
-export const useUser = () => {
-  const context = useContext(UserContext);
-  if (context === null) {
-    throw new Error("useUser deve ser usado dentro de <UserProvider>");
-  }
-  return context;
-};
-```
+---
 
-**2. Provider registado apenas no nível raiz:**
+## 10. Observabilidade
 
-```tsx
-// src/app/providers/index.tsx
-export function AppProviders({ children }: { children: ReactNode }) {
-  return <UserProvider>{children}</UserProvider>;
-}
-```
+> Referência ao padrão global de Observabilidade: https://ecom4isi.atlassian.net/wiki/spaces/DEVP/pages/5217517761
 
-**3. Consumo desacoplado:**
+A observabilidade é implementada através da stack OpenTelemetry, Prometheus e Grafana, fornecendo visibilidade completa do sistema.
 
-```tsx
-// src/features/dashboard/components/UserInfo.tsx
-import { useUser } from "@/shared/context/UserContext";
+### 10.1. Métricas Chave
 
-export function UserInfo() {
-  const user = useUser();
-  return <span>Bem-vindo, {user.name}</span>;
-}
+| Métrica                         | Descrição                                                                                              |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Device Online/Offline Ratio** | Percentual de dispositivos online vs offline, indicador de saúde geral da plataforma.                  |
+| **Message Latency**             | Latência de entrega de mensagens MQTT, importante para operações críticas.                             |
+| **OTA Success Rate**            | Percentual de atualizações bem-sucedidas, indicador de qualidade do processo OTA.                      |
+| **API Response Time**           | Latência das APIs REST, importante para experiência do utilizador.                                     |
+| **Data Sync Lag**               | Diferença de tempo entre evento no dispositivo e persistência em nuvem, importante para Offline-First. |
+| **Error Rate by Service**       | Taxa de erros por serviço, para identificar problemas rapidamente.                                     |
+| **Memory/CPU Usage**            | Utilização de recursos nos dispositivos e serviços, para otimização e planejamento de capacidade.      |
 
-// src/app/pages/DashboardPage.tsx
-import { UserInfo } from "@/features/dashboard/components/UserInfo";
+### 10.2. Métricas de Bateria e Eficiência Energética
 
-export function DashboardPage() {
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      <UserInfo /> {/* acede o utilizador sem passar props */}
-    </div>
-  );
-}
-```
+As seguintes métricas devem ser monitoradas para todos os dispositivos com bateria:
 
-> **Nota:** O hook `useUser` foi reforçado com verificação de contexto nulo e lançamento de erro descritivo — padrão recomendado para detetar usos fora do Provider em tempo de desenvolvimento, em vez de falhar silenciosamente com `null`.
+| Métrica                         | Descrição                                                                                         | Threshold de Alerta          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------- |
+| **Battery Level**               | Nível de bateria em percentual.                                                                   | Alerta abaixo de 20%         |
+| **Battery Drain Rate**          | Taxa de consumo (% por hora).                                                                     | Alerta se > 2x do baseline   |
+| **Anomalous Power Consumption** | Desvio em relação ao consumo esperado — pode indicar falha de hardware ou bug de software.        | Alerta se > 2x do baseline   |
+| **Wake Lock Duration**          | Tempo total de wake locks ativos por sessão — excessos indicam possível bug de consumo energético.| A definir por modelo         |
+
+> Thresholds de baseline devem ser definidos por modelo de dispositivo e documentados em ADR.
+
+### 10.3. Privacidade de Dados em Dispositivo (GDPR)
+
+Dados Pessoais Identificáveis (PII) coletados por sensores ou aplicações no dispositivo devem seguir as seguintes diretrizes:
+
+1. PII não deve ser armazenada em texto claro — usar criptografia a nível de campo no banco de dados local.
+2. Dados de PII devem ter tempo de retenção local definido e ser purgados automaticamente após expiração.
+3. No decommissioning do dispositivo, todos os dados locais devem ser apagados de forma segura (secure wipe).
+4. Compliance com GDPR deve ser avaliado por tipo de dado coletado e documentado em ADR específico.
+
+---
+
+## 11. Plano de Contingência para Indisponibilidade de Cloud
+
+O comportamento do dispositivo em caso de indisponibilidade prolongada dos serviços cloud deve ser definido, configurado e testado para cada tipo de dispositivo:
+
+| Cenário                          | Comportamento Esperado                                                                                                        |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Indisponibilidade < 1h**       | Operação normal offline-first; fila de sincronização retém eventos; reconexão automática ao restabelecer conectividade.       |
+| **Indisponibilidade 1h–24h**     | Cache local extendido ativo; funcionalidades não críticas desativadas conforme configuração; alertas locais no dispositivo.   |
+| **Indisponibilidade > 24h**      | Apenas operações essenciais de negócio permitidas (modo degradado); logs compactados localmente; notificação ao operador via canal alternativo (SMS/e-mail), se configurado. |
+| **Retorno de conectividade**     | Sincronização incremental priorizada; resolução de conflitos conforme regras da Secção 4.5; auditoria de eventos pendentes.   |
+
+> Thresholds e comportamentos específicos por contexto de negócio devem ser documentados em ADR e configuráveis por tipo de dispositivo.
+
+---
+
+> **Aplicação de Exemplo:** [sample-swrefarch-android](https://github.com/mcdigital-devplatforms/sample-swrefarch-android)
